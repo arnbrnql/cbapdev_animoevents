@@ -1,0 +1,8 @@
+node_modules/
+.env
+*.pdf
+*.zip
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

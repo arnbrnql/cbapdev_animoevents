@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create DLSU Account — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./login.html">Sign In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="./register.html"
+                >Create Account</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm p-4">
+            <div class="border-bottom pb-3 mb-4">
+              <span
+                class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1"
+                >DLSU Manila &amp; Laguna Registration</span
+              >
+              <h1 class="h3 fw-bold mb-1">Create Your AnimoEvents Account</h1>
+              <p class="text-muted small mb-0">
+                Select your campus affiliation and academic unit to personalize
+                your event feed.
+              </p>
+            </div>
+
+            <div
+              id="register-error-box"
+              class="alert alert-danger small d-none"
+            ></div>
+
+            <form id="register-form" method="POST" action="./index.html">
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="reg-name" class="form-label fw-semibold"
+                    >Full Name or Organization Name
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="reg-name"
+                    name="displayName"
+                    class="form-control"
+                    required
+                    minlength="2"
+                    maxlength="60"
+                    placeholder="e.g., Juan Dela Cruz or DLSU Chess Club"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reg-email" class="form-label fw-semibold"
+                    >DLSU Email Address
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="email"
+                    id="reg-email"
+                    name="email"
+                    class="form-control"
+                    required
+                    placeholder="username@dlsu.edu.ph"
+                  />
+                  <div class="form-text small" id="reg-email-feedback">
+                    Must be an active <code>@dlsu.edu.ph</code> email address.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reg-password" class="form-label fw-semibold"
+                    >Password <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="password"
+                    id="reg-password"
+                    name="password"
+                    class="form-control"
+                    required
+                    minlength="8"
+                    placeholder="At least 8 characters"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reg-confirm" class="form-label fw-semibold"
+                    >Confirm Password <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="password"
+                    id="reg-confirm"
+                    name="confirmPassword"
+                    class="form-control"
+                    required
+                    minlength="8"
+                    placeholder="Re-enter password"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="reg-role" class="form-label fw-semibold"
+                    >Account Affiliation
+                    <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="reg-role"
+                    name="role"
+                    class="form-select"
+                    required
+                  >
+                    <option value="Student" selected>Student</option>
+                    <option value="Faculty">Faculty Member</option>
+                    <option value="Organizer">
+                      Accredited Organizer / Office
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="reg-level" class="form-label fw-semibold"
+                    >Student Academic Level
+                    <span class="text-muted fw-normal small"
+                      >(Students)</span
+                    ></label
+                  >
+                  <select
+                    id="reg-level"
+                    name="academicLevel"
+                    class="form-select"
+                    required
+                  >
+                    <option value="Senior High School">
+                      Senior High School (SHS)
+                    </option>
+                    <option value="Undergraduate" selected>
+                      Undergraduate
+                    </option>
+                    <option value="Graduate">Graduate</option>
+                    <option value="N/A">
+                      Not Applicable (Faculty / Organizer)
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="reg-campus" class="form-label fw-semibold"
+                    >Primary Campus <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="reg-campus"
+                    name="campus"
+                    class="form-select"
+                    required
+                  >
+                    <option value="Manila" selected>Manila Campus</option>
+                    <option value="Laguna">Laguna Campus</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reg-college" class="form-label fw-semibold"
+                    >College / School / Division
+                    <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="reg-college"
+                    name="college"
+                    class="form-select"
+                    required
+                  >
+                    <option value="CCS" selected>
+                      CCS — College of Computer Studies
+                    </option>
+                    <option value="RVR-COB">
+                      RVR-COB — Ramon V. del Rosario College of Business
+                    </option>
+                    <option value="GCOE">
+                      GCOE — Gokongwei College of Engineering
+                    </option>
+                    <option value="CLA">CLA — College of Liberal Arts</option>
+                    <option value="COS">COS — College of Science</option>
+                    <option value="BAGCED">
+                      BAGCED — Br. Andrew Gonzalez FSC College of Education
+                    </option>
+                    <option value="CLT-SOE">
+                      CLT-SOE — Carlos L. Tiu School of Economics
+                    </option>
+                    <option value="SHS">
+                      SHS — Senior High School (DLSU Integrated School)
+                    </option>
+                    <option value="UNIV">
+                      UNIV — University-Wide Office / Research Center
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reg-dept" class="form-label fw-semibold"
+                    >Department / SHS Strand
+                    <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="reg-dept"
+                    name="department"
+                    class="form-select"
+                    required
+                  >
+                    <option value="ST" selected>
+                      ST — Department of Software Technology
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <label for="reg-bio" class="form-label fw-semibold"
+                    >Bio / Academic Interests
+                    <span class="text-muted fw-normal small"
+                      >(Optional, max 300 chars)</span
+                    ></label
+                  >
+                  <textarea
+                    id="reg-bio"
+                    name="bio"
+                    class="form-control"
+                    rows="2"
+                    maxlength="300"
+                    placeholder="Optional short introduction or organization description..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <a
+                  href="./login.html"
+                  class="small text-success text-decoration-none fw-semibold"
+                  >Already have an account? Sign In</a
+                >
+                <button type="submit" class="btn btn-dlsu">
+                  Complete Registration
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        document.addEventListener("DOMContentLoaded", function () {
+          const form = document.getElementById("register-form");
+          const emailInput = document.getElementById("reg-email");
+          const emailFeedback = document.getElementById("reg-email-feedback");
+          const errorBox = document.getElementById("register-error-box");
+
+          window.AnimoApp.bindAffiliationSelects(form);
+
+          emailInput.addEventListener("input", function () {
+            const val = emailInput.value.trim().toLowerCase();
+            if (!val) {
+              emailFeedback.className = "form-text small text-muted";
+              emailFeedback.textContent =
+                "Must be an active @dlsu.edu.ph email address.";
+              return;
+            }
+            if (!val.endsWith("@dlsu.edu.ph")) {
+              emailFeedback.className =
+                "form-text small text-danger fw-semibold";
+              emailFeedback.textContent = "Email must end with @dlsu.edu.ph";
+              return;
+            }
+            const state = window.AnimoApp.loadState();
+            const taken = state.users.some(function (u) {
+              return u.email.toLowerCase() === val;
+            });
+            if (taken) {
+              emailFeedback.className =
+                "form-text small text-danger fw-semibold";
+              emailFeedback.textContent =
+                "This @dlsu.edu.ph email is already registered.";
+            } else {
+              emailFeedback.className =
+                "form-text small text-success fw-semibold";
+              emailFeedback.textContent = "DLSU email is available!";
+            }
+          });
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            errorBox.classList.add("d-none");
+
+            const displayName = document
+              .getElementById("reg-name")
+              .value.trim();
+            const email = emailInput.value.trim().toLowerCase();
+            const pw = document.getElementById("reg-password").value;
+            const confirmPw = document.getElementById("reg-confirm").value;
+            const role = document.getElementById("reg-role").value;
+            const academicLevel =
+              role === "Student"
+                ? document.getElementById("reg-level").value
+                : "N/A";
+            const college = document.getElementById("reg-college").value;
+            const department = document.getElementById("reg-dept").value;
+            const campus = document.getElementById("reg-campus").value;
+            const bio = document.getElementById("reg-bio").value.trim();
+
+            if (!email.endsWith("@dlsu.edu.ph")) {
+              errorBox.textContent =
+                "Registration requires a valid @dlsu.edu.ph email address.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+            if (pw !== confirmPw) {
+              errorBox.textContent =
+                "Password and Confirm Password do not match.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            if (
+              window.ANIMO_CONSTANTS &&
+              window.ANIMO_CONSTANTS.validateAffiliationCombination
+            ) {
+              const errs =
+                window.ANIMO_CONSTANTS.validateAffiliationCombination(
+                  role,
+                  academicLevel,
+                  college,
+                  department,
+                );
+              if (errs.length > 0) {
+                errorBox.textContent = errs.join(" ");
+                errorBox.classList.remove("d-none");
+                return;
+              }
+            }
+
+            const state = window.AnimoApp.loadState();
+            if (
+              state.users.some(function (u) {
+                return u.email.toLowerCase() === email;
+              })
+            ) {
+              errorBox.textContent =
+                "An account with this @dlsu.edu.ph email already exists.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const maxUserNum = state.users.reduce(function (max, u) {
+              const n = parseInt(String(u.id).replace(/\D/g, ""), 10) || 0;
+              return n > max ? n : max;
+            }, 0);
+            const newUserId = "u" + (maxUserNum + 1);
+            state.users.push({
+              id: newUserId,
+              displayName: displayName,
+              email: email,
+              role: role,
+              academicLevel: academicLevel,
+              college: college,
+              department: department,
+              campus: campus,
+              bio: bio,
+              password: pw,
+              profilePic:
+                role === "Organizer"
+                  ? "./images/avatar-u6.svg"
+                  : "./images/avatar-u1.svg",
+            });
+            state.currentUserId = newUserId;
+            window.AnimoApp.saveState(state);
+            window.location.href = "./index.html";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

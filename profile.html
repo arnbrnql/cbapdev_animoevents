@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./event-create.html">Publish Event</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./about.html">About</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u1.svg"
+                alt="User"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">Miguel Lorenzo Tan</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <h6 class="dropdown-header">Switch Sample DLSU Account</h6>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student • Undergrad • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u13"
+                  >Sophia Sy (Student • SHS • STEM)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u2"
+                  >Hannah Reyes (Student • Graduate • CCS/IT)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u3"
+                  >Dr. Rafael Cruz (Faculty • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u10"
+                  >Business Management Society — BMS (Organizer)</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div class="row g-4">
+        <!-- Left Column: User Profile Summary Card -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm p-4">
+            <div class="text-center mb-3">
+              <img
+                src="./images/avatar-u1.svg"
+                alt="Profile Avatar"
+                class="avatar-lg mb-2"
+                id="prof-avatar"
+              />
+              <h1 class="h4 fw-bold mb-1" id="prof-name">Miguel Lorenzo Tan</h1>
+              <p class="text-muted small mb-2" id="prof-email">
+                miguel_tan@dlsu.edu.ph
+              </p>
+              <span class="badge bg-success" id="prof-role-badge"
+                >Student • Undergraduate</span
+              >
+            </div>
+
+            <hr />
+
+            <dl class="row small mb-3">
+              <dt class="col-5 text-muted">Affiliation:</dt>
+              <dd class="col-7 fw-semibold" id="prof-role">Student</dd>
+
+              <dt class="col-5 text-muted" id="prof-level-label">
+                Academic Level:
+              </dt>
+              <dd class="col-7 fw-semibold" id="prof-level">Undergraduate</dd>
+
+              <dt class="col-5 text-muted">College / Unit:</dt>
+              <dd class="col-7 fw-semibold" id="prof-college">CCS</dd>
+
+              <dt class="col-5 text-muted">Dept / Strand:</dt>
+              <dd class="col-7 fw-semibold" id="prof-dept">ST</dd>
+
+              <dt class="col-5 text-muted">Campus:</dt>
+              <dd class="col-7 fw-semibold" id="prof-campus">Manila Campus</dd>
+            </dl>
+
+            <div class="mb-4">
+              <h2 class="h6 fw-bold small text-uppercase text-muted mb-1">
+                About / Bio
+              </h2>
+              <p class="small mb-0 bg-light p-2 rounded border" id="prof-bio">
+                BS Computer Science Major in Software Technology (ID 124).
+                Interested in full-stack web engineering and cybersecurity.
+              </p>
+            </div>
+
+            <div class="d-grid gap-2">
+              <a href="./profile-edit.html" class="btn btn-dlsu btn-sm"
+                >Edit Profile &amp; Affiliation</a
+              >
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteAccountModal"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Joined or hosted events -->
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 fw-bold mb-0" id="prof-events-heading">
+                My Registered Campus Events
+              </h2>
+              <span class="badge bg-success" id="prof-events-count"
+                >7 Events</span
+              >
+            </div>
+
+            <div class="list-group list-group-flush" id="prof-events-list">
+              <a
+                href="./event-details.html?id=e1"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-open me-1">Open</span>
+                    <strong
+                      >Full-Stack Web Dev Bootcamp: Node.js, Express &amp;
+                      MongoDB</strong
+                    >
+                    <div class="small text-muted">
+                      2026-10-28 • 13:00–17:00 • Gokongwei Hall GK304B, Manila
+                      Campus
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+              <a
+                href="./event-details.html?id=e2"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-open me-1">Open</span>
+                    <strong
+                      >Animo Hacker Cup CTF 2026: Web Security Challenge</strong
+                    >
+                    <div class="small text-muted">
+                      2026-11-16 • 09:00–16:00 • Henry Sy Sr. Hall 5F Learning
+                      Commons
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+              <a
+                href="./event-details.html?id=e9"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-open me-1">Open</span>
+                    <strong
+                      >Animo Green Community &amp; Lasallian Social Enterprise
+                      Bazaar</strong
+                    >
+                    <div class="small text-muted">
+                      2026-11-24 • 09:00–17:00 • Marian Quadrangle, Manila
+                      Campus
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+              <a
+                href="./event-details.html?id=e5"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-full me-1">Full</span>
+                    <strong
+                      >UI/UX Design Sprint &amp; Interactive Prototyping
+                      Lab</strong
+                    >
+                    <div class="small text-muted">
+                      2026-11-25 • 15:00–18:00 • Gokongwei Hall GK202, Manila
+                      Campus
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+              <a
+                href="./event-details.html?id=e3"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-open me-1">Open</span>
+                    <strong
+                      >CCS Tech Career, Research &amp; Internship Fair
+                      2026</strong
+                    >
+                    <div class="small text-muted">
+                      2026-12-16 • 10:00–17:00 • Henry Sy Sr. Hall Roofdeck,
+                      Manila Campus
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+              <a
+                href="./event-details.html?id=e4"
+                class="list-group-item list-group-item-action py-3"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-status-open me-1">Open</span>
+                    <strong
+                      >Software Engineering &amp; Cloud Architecture
+                      Colloquium</strong
+                    >
+                    <div class="small text-muted">
+                      2026-12-17 • 14:00–16:30 • Yuchengco Hall Y407, Manila
+                      Campus
+                    </div>
+                  </div>
+                  <span class="btn btn-sm btn-outline-dlsu">View</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Delete Account Modal -->
+    <div
+      class="modal fade"
+      id="deleteAccountModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="delete-account-form" method="POST" action="./logout.html">
+            <div class="modal-header">
+              <h2 class="modal-title h5 fw-bold text-danger">
+                Delete Your AnimoEvents Account?
+              </h2>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body small">
+              <p class="mb-2">
+                Deleting your account permanently removes your profile, saved
+                bookmarks, discussion comments, and (if you are an organizer)
+                any events hosted by your account.
+              </p>
+              <p class="mb-3">
+                If you were registered for any full-capacity events, your slot
+                will be released automatically so other eligible Lasallians can
+                join.
+              </p>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="confirm-account-delete"
+                  required
+                />
+                <label
+                  class="form-check-label fw-semibold text-danger"
+                  for="confirm-account-delete"
+                >
+                  I understand that deleting my account is permanent and cannot
+                  be undone.
+                </label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-sm btn-danger">
+                Permanently Delete Account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        function renderProfilePage() {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          if (!user) {
+            window.location.href = "./login.html";
+            return;
+          }
+
+          document.getElementById("prof-avatar").src = user.profilePic;
+          document.getElementById("prof-name").textContent = user.displayName;
+          document.getElementById("prof-email").textContent = user.email;
+          document.getElementById("prof-role-badge").textContent =
+            user.role === "Student"
+              ? user.role + " • " + user.academicLevel
+              : user.role;
+          document.getElementById("prof-role").textContent = user.role;
+          document.getElementById("prof-level").textContent =
+            user.academicLevel === "N/A"
+              ? "Not Applicable (" + user.role + ")"
+              : user.academicLevel;
+          document.getElementById("prof-college").textContent = user.college;
+          document.getElementById("prof-dept").textContent =
+            user.department === "N/A"
+              ? "All Departments / Unit-Wide"
+              : user.department;
+          document.getElementById("prof-campus").textContent =
+            user.campus + " Campus";
+          const bioEl = document.getElementById("prof-bio");
+          if (user.bio && user.bio.trim() !== "") {
+            bioEl.textContent = user.bio;
+          } else {
+            bioEl.innerHTML = '<em class="text-muted">No bio provided.</em>';
+          }
+
+          const headingEl = document.getElementById("prof-events-heading");
+          let userEvents = [];
+          if (user.role === "Organizer") {
+            headingEl.textContent =
+              "Campus Events Hosted by " + user.displayName;
+            userEvents = state.events.filter(function (ev) {
+              return String(ev.organizer) === String(user.id);
+            });
+          } else {
+            headingEl.textContent =
+              "My Registered Campus Events (Upcoming & Attended)";
+            userEvents = state.events.filter(function (ev) {
+              return (ev.attendees || []).indexOf(user.id) !== -1;
+            });
+          }
+
+          document.getElementById("prof-events-count").textContent =
+            userEvents.length + " Events";
+          const listEl = document.getElementById("prof-events-list");
+
+          if (userEvents.length === 0) {
+            listEl.innerHTML =
+              '<div class="p-3 text-center text-muted small">No events to display yet.</div>';
+          } else {
+            listEl.innerHTML = userEvents
+              .map(function (ev) {
+                const statusClass = window.AnimoApp.getStatusBadgeClass(
+                  ev.status,
+                );
+                const grandfathered = window.AnimoApp.isGrandfatheredAttendee(
+                  user,
+                  ev,
+                );
+                return (
+                  '<a href="./event-details.html?id=' +
+                  ev.id +
+                  '" class="list-group-item list-group-item-action py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">' +
+                  "<div>" +
+                  '<span class="badge ' +
+                  statusClass +
+                  ' me-1">' +
+                  ev.status +
+                  "</span>" +
+                  '<span class="badge bg-secondary bg-opacity-10 text-dark me-1">' +
+                  ev.category +
+                  "</span>" +
+                  (grandfathered
+                    ? '<span class="badge badge-grandfathered me-1">Registered Prior to Profile Update</span>'
+                    : "") +
+                  '<strong class="d-block mt-1">' +
+                  window.AnimoApp.escapeHtml(ev.title) +
+                  "</strong>" +
+                  '<div class="small text-muted">' +
+                  ev.date +
+                  " • " +
+                  ev.time +
+                  " • " +
+                  window.AnimoApp.escapeHtml(ev.venue) +
+                  "</div>" +
+                  "</div>" +
+                  '<span class="btn btn-sm btn-outline-dlsu">' +
+                  (user.role === "Organizer" ? "Manage" : "View") +
+                  "</span>" +
+                  "</a>"
+                );
+              })
+              .join("");
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          document
+            .getElementById("delete-account-form")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+              const state = window.AnimoApp.loadState();
+              const userId = state.currentUserId;
+              if (!userId) return;
+
+              // 1. Collect IDs of events hosted by this user
+              const hostedIds = state.events
+                .filter(function (ev) {
+                  return String(ev.organizer) === String(userId);
+                })
+                .map(function (ev) {
+                  return ev.id;
+                });
+
+              // 2. Delete user's bookmarks and bookmarks pointing to user's hosted events
+              state.bookmarks = state.bookmarks.filter(function (bm) {
+                return bm.user !== userId && hostedIds.indexOf(bm.event) === -1;
+              });
+
+              // 3. Delete events hosted by this user
+              state.events = state.events.filter(function (ev) {
+                return String(ev.organizer) !== String(userId);
+              });
+
+              // 4. Remove user from attendees and thread updates, and reopen Full events if capacity frees up
+              state.events.forEach(function (ev) {
+                ev.attendees = (ev.attendees || []).filter(function (id) {
+                  return id !== userId;
+                });
+                ev.updates = (ev.updates || []).filter(function (upd) {
+                  return upd.author !== userId;
+                });
+                if (
+                  ev.status === "Full" &&
+                  ev.attendees.length < ev.maxCapacity
+                ) {
+                  ev.status = "Open";
+                }
+              });
+
+              // 5. Remove user record and sign out
+              state.users = state.users.filter(function (u) {
+                return u.id !== userId;
+              });
+              state.currentUserId = null;
+              window.AnimoApp.saveState(state);
+              window.location.href = "./logout.html";
+            });
+
+          renderProfilePage();
+        });
+      })();
+    </script>
+  </body>
+</html>
