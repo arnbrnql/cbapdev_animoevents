@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Event Calendar — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./event-create.html">Publish Event</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./about.html">About</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u1.svg"
+                alt="User"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">Miguel Lorenzo Tan</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <h6 class="dropdown-header">Switch Sample DLSU Account</h6>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student • Undergrad • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u13"
+                  >Sophia Sy (Student • SHS • STEM)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u2"
+                  >Hannah Reyes (Student • Graduate • CCS/IT)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u3"
+                  >Dr. Rafael Cruz (Faculty • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u5"
+                  >Carlos Mendoza (Student • Graduate • GCOE Laguna)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS (Organizer)</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <!-- Page heading and summary -->
+      <div
+        class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+      >
+        <div>
+          <h1 class="h3 fw-bold mb-1" id="calendar-page-title">
+            My Joined Events Calendar
+          </h1>
+          <p class="text-muted small mb-0" id="calendar-page-subtitle">
+            View your scheduled campus events by month and year (2025–2036).
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span
+            class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2"
+            id="calendar-total-badge"
+          >
+            8 Total Scheduled Events
+          </span>
+        </div>
+      </div>
+
+      <!-- Calendar navigation -->
+      <section class="calendar-control-bar shadow-sm mb-3">
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-between gap-2"
+        >
+          <form
+            id="calendar-nav-form"
+            method="GET"
+            action="./calendar.html"
+            autocomplete="off"
+            class="d-flex flex-wrap align-items-center gap-2 mb-0"
+          >
+            <input
+              type="hidden"
+              name="month"
+              id="calendar-hidden-month"
+              value="2026-10"
+            />
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-dlsu fw-semibold"
+              id="btn-cal-prev"
+              title="Previous Month"
+            >
+              &larr; Prev
+            </button>
+
+            <div class="d-flex align-items-center gap-2">
+              <label for="cal-select-month" class="visually-hidden"
+                >Month</label
+              >
+              <select
+                id="cal-select-month"
+                class="form-select form-select-sm fw-semibold"
+                style="width: 150px"
+                autocomplete="off"
+                aria-label="Select Month"
+              >
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10" selected>October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+
+              <label for="cal-select-year" class="visually-hidden">Year</label>
+              <select
+                id="cal-select-year"
+                class="form-select form-select-sm fw-semibold"
+                style="width: 100px"
+                autocomplete="off"
+                aria-label="Select Year"
+              >
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+                <option value="2031">2031</option>
+                <option value="2032">2032</option>
+                <option value="2033">2033</option>
+                <option value="2034">2034</option>
+                <option value="2035">2035</option>
+                <option value="2036">2036</option>
+              </select>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-dlsu fw-semibold"
+              id="btn-cal-next"
+              title="Next Month"
+            >
+              Next &rarr;
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-light border text-dark fw-semibold ms-1"
+              id="btn-cal-today"
+              title="Return to Current Month"
+            >
+              Today
+            </button>
+          </form>
+
+          <div class="small text-muted">
+            Today is
+            <strong class="text-dark" id="calendar-today-display"
+              >October 21, 2026</strong
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Monthly Calendar Table Grid -->
+      <section class="card border-0 shadow-sm p-3 mb-4" id="calendar-grid-card">
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <h2 class="h5 fw-bold mb-0" id="calendar-month-label">
+              October 2026
+            </h2>
+            <span
+              class="badge bg-secondary bg-opacity-10 text-dark"
+              id="calendar-month-count-badge"
+              >2 Events in October 2026</span
+            >
+          </div>
+          <span class="small text-muted"
+            >Click any event on the calendar to open its full details &amp;
+            discussion thread.</span
+          >
+        </div>
+
+        <div class="table-responsive">
+          <table class="table calendar-table mb-0">
+            <thead>
+              <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+              </tr>
+            </thead>
+            <tbody id="calendar-grid-body">
+              <!-- Fallback content for the initial page load -->
+              <tr>
+                <td class="calendar-cell-has-events">
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">18</span>
+                  </div>
+                  <a
+                    href="./event-details.html?id=e12"
+                    class="calendar-event-pill pill-completed"
+                    >14:00 RVR-COB Corporate Strategy Forum</a
+                  >
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">19</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">20</span>
+                  </div>
+                </td>
+                <td class="calendar-cell-today">
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">21</span
+                    ><span class="calendar-today-tag">Today</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">22</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">23</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">24</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">25</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">26</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">27</span>
+                  </div>
+                </td>
+                <td class="calendar-cell-has-events">
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">28</span>
+                  </div>
+                  <a
+                    href="./event-details.html?id=e1"
+                    class="calendar-event-pill"
+                    >13:00 Full-Stack Web Dev Bootcamp</a
+                  >
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">29</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">30</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="calendar-day-header">
+                    <span class="calendar-day-num">31</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Schedule list -->
+      <section class="card border-0 shadow-sm p-4">
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+        >
+          <div>
+            <h2 class="h5 fw-bold mb-0" id="schedule-list-heading">
+              Complete Scheduled Events List
+            </h2>
+            <p class="small text-muted mb-0" id="schedule-list-subtitle">
+              Showing all scheduled events across all dates in chronological
+              order.
+            </p>
+          </div>
+          <div
+            class="btn-group btn-group-sm"
+            role="group"
+            aria-label="Schedule list scope filter"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-dlsu active"
+              data-list-scope="all"
+              id="btn-scope-all"
+            >
+              All Scheduled Dates (<span id="scope-all-count">8</span>)
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-dlsu"
+              data-list-scope="month"
+              id="btn-scope-month"
+            >
+              Viewed Month Only (<span id="scope-month-count">2</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Scheduled events -->
+        <div class="list-group list-group-flush" id="calendar-schedule-list">
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-open me-2">Open</span>
+              <strong>2026-10-28 (13:00–17:00)</strong> — Full-Stack Web Dev
+              Bootcamp: Node.js, Express &amp; MongoDB
+              <div class="small text-muted">
+                Gokongwei Hall GK304B, Manila Campus • Hosted by La Salle
+                Computer Society (LSCS)
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e1"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-open me-2">Open</span>
+              <strong>2026-11-16 (09:00–16:00)</strong> — Animo Hacker Cup CTF
+              2026: Web Security Challenge
+              <div class="small text-muted">
+                Henry Sy Sr. Hall 5F Learning Commons • Hosted by La Salle
+                Computer Society (LSCS)
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e2"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-open me-2">Open</span>
+              <strong>2026-11-24 (09:00–17:00)</strong> — Animo Green Community
+              &amp; Lasallian Social Enterprise Bazaar
+              <div class="small text-muted">
+                Marian Quadrangle, Manila Campus • Hosted by Office of Student
+                L.I.F.E.
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e9"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-full me-2">Full</span>
+              <strong>2026-11-25 (15:00–18:00)</strong> — UI/UX Design Sprint
+              &amp; Interactive Prototyping Lab
+              <div class="small text-muted">
+                Gokongwei Hall GK202, Manila Campus • Hosted by La Salle
+                Computer Society (LSCS)
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e5"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-open me-2">Open</span>
+              <strong>2026-12-16 (10:00–17:00)</strong> — CCS Tech Career,
+              Research &amp; Internship Fair 2026
+              <div class="small text-muted">
+                Henry Sy Sr. Hall Roofdeck, Manila Campus • Hosted by La Salle
+                Computer Society (LSCS)
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e3"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+          <div
+            class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+          >
+            <div>
+              <span class="badge badge-status-open me-2">Open</span>
+              <strong>2026-12-17 (14:00–16:30)</strong> — Software Engineering
+              &amp; Cloud Architecture Colloquium
+              <div class="small text-muted">
+                Yuchengco Hall Y407, Manila Campus • Hosted by La Salle Computer
+                Society (LSCS)
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="./event-details.html?id=e4"
+                class="btn btn-sm btn-outline-dlsu"
+                >View Details</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        const C = window.ANIMO_CONSTANTS || {
+          CALENDAR_MIN_YEAR: 2025,
+          CALENDAR_MAX_YEAR: 2036,
+          MONTH_NAMES: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ],
+          SHORT_MONTH_NAMES: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+        };
+
+        const MIN_YEAR = C.CALENDAR_MIN_YEAR || 2025;
+        const MAX_YEAR = C.CALENDAR_MAX_YEAR || 2036;
+        const MONTH_NAMES = C.MONTH_NAMES || [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
+        function validateYearMonth(inputStr, fallbackStr) {
+          const def = fallbackStr || "2026-10";
+          if (typeof inputStr !== "string") return def;
+          const m = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(inputStr.trim());
+          if (!m) return def;
+          const year = parseInt(m[1], 10);
+          const month = parseInt(m[2], 10);
+          if (year < MIN_YEAR || year > MAX_YEAR) return def;
+          return String(year) + "-" + String(month).padStart(2, "0");
+        }
+
+        function shiftMonth(ymStr, delta) {
+          const valid = validateYearMonth(ymStr, getTodayYearMonth());
+          const parts = valid.split("-").map(Number);
+          const d = new Date(parts[0], parts[1] - 1 + delta, 1);
+          const y = d.getFullYear();
+          const m = d.getMonth() + 1;
+          if (y < MIN_YEAR) return MIN_YEAR + "-01";
+          if (y > MAX_YEAR) return MAX_YEAR + "-12";
+          return String(y) + "-" + String(m).padStart(2, "0");
+        }
+
+        function getTodayDateString() {
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = String(now.getMonth() + 1).padStart(2, "0");
+          const d = String(now.getDate()).padStart(2, "0");
+          return y + "-" + m + "-" + d;
+        }
+
+        function getTodayYearMonth() {
+          return validateYearMonth(getTodayDateString().slice(0, 7), "2026-10");
+        }
+
+        function formatHumanToday() {
+          const parts = getTodayDateString().split("-").map(Number);
+          return MONTH_NAMES[parts[1] - 1] + " " + parts[2] + ", " + parts[0];
+        }
+
+        function getUserScheduledEvents(state, user) {
+          if (!user) return [];
+          if (user.role === "Organizer") {
+            return state.events.filter(function (ev) {
+              return String(ev.organizer) === String(user.id);
+            });
+          }
+          return state.events.filter(function (ev) {
+            return (ev.attendees || []).indexOf(user.id) !== -1;
+          });
+        }
+
+        // Use the current month unless a month is provided in the URL.
+        const params = new URLSearchParams(window.location.search);
+        const urlMonth = params.get("month");
+        let highlightedDate = params.get("highlight") || null;
+        let listScope = "all";
+        let selectedMonth = urlMonth
+          ? validateYearMonth(urlMonth, getTodayYearMonth())
+          : getTodayYearMonth();
+
+        function populateYearOptions() {
+          const yearSelect = document.getElementById("cal-select-year");
+          if (!yearSelect) return;
+          yearSelect.innerHTML = "";
+          for (let y = MIN_YEAR; y <= MAX_YEAR; y++) {
+            const opt = document.createElement("option");
+            opt.value = String(y);
+            opt.textContent = String(y);
+            yearSelect.appendChild(opt);
+          }
+        }
+
+        function setSelectedMonth(newYM, highlightDateStr) {
+          selectedMonth = validateYearMonth(newYM, getTodayYearMonth());
+          highlightedDate = highlightDateStr || null;
+          renderCalendarPage();
+        }
+
+        function renderCalendarPage() {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const todayStr = getTodayDateString();
+
+          const todayDisplayEl = document.getElementById(
+            "calendar-today-display",
+          );
+          if (todayDisplayEl) {
+            todayDisplayEl.textContent = formatHumanToday();
+          }
+
+          const parts = selectedMonth.split("-");
+          const yearNum = parseInt(parts[0], 10);
+          const monthNum = parseInt(parts[1], 10);
+
+          // Keep the selectors in sync with the selected month.
+          const monthSelectEl = document.getElementById("cal-select-month");
+          const yearSelectEl = document.getElementById("cal-select-year");
+          if (monthSelectEl)
+            monthSelectEl.value = String(monthNum).padStart(2, "0");
+          if (yearSelectEl) yearSelectEl.value = String(yearNum);
+          document.getElementById("calendar-hidden-month").value =
+            selectedMonth;
+
+          // Keep navigation inside the supported date range.
+          document.getElementById("btn-cal-prev").disabled =
+            selectedMonth <= MIN_YEAR + "-01";
+          document.getElementById("btn-cal-next").disabled =
+            selectedMonth >= MAX_YEAR + "-12";
+
+          const fullMonthLabel = MONTH_NAMES[monthNum - 1] + " " + yearNum;
+          document.getElementById("calendar-month-label").textContent =
+            fullMonthLabel;
+
+          // Get events joined by the user, or hosted by the user if they are an organizer.
+          const scheduledEvents = getUserScheduledEvents(state, user)
+            .slice()
+            .sort(function (a, b) {
+              return (a.date + " " + a.time).localeCompare(
+                b.date + " " + b.time,
+              );
+            });
+
+          if (user && user.role === "Organizer") {
+            document.getElementById("calendar-page-title").textContent =
+              "My Hosted Events Calendar";
+            document.getElementById("calendar-page-subtitle").textContent =
+              "Showing all campus events published and managed by " +
+              user.displayName +
+              " (2025–2036).";
+          } else if (user) {
+            document.getElementById("calendar-page-title").textContent =
+              "My Joined Events Calendar";
+            document.getElementById("calendar-page-subtitle").textContent =
+              "Showing all campus events you have registered for across any month and year (2025–2036).";
+          } else {
+            document.getElementById("calendar-page-title").textContent =
+              "Campus Event Calendar (Guest Mode)";
+            document.getElementById("calendar-page-subtitle").textContent =
+              "Sign in with your DLSU account to track your registered or hosted events on this calendar.";
+          }
+
+          const monthEvents = scheduledEvents.filter(function (ev) {
+            return ev.date.slice(0, 7) === selectedMonth;
+          });
+
+          // Update the schedule counters.
+          document.getElementById("calendar-total-badge").textContent =
+            scheduledEvents.length +
+            " Total Scheduled Event" +
+            (scheduledEvents.length === 1 ? "" : "s");
+          document.getElementById("calendar-month-count-badge").textContent =
+            monthEvents.length +
+            " Event" +
+            (monthEvents.length === 1 ? "" : "s") +
+            " in " +
+            fullMonthLabel;
+
+          document.getElementById("scope-all-count").textContent =
+            scheduledEvents.length;
+          document.getElementById("scope-month-count").textContent =
+            monthEvents.length;
+
+          // Build the calendar grid for the selected month.
+          const firstDayOfWeek = new Date(yearNum, monthNum - 1, 1).getDay();
+          const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+
+          const weeks = [];
+          let currentWeek = new Array(firstDayOfWeek).fill(null);
+
+          for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = selectedMonth + "-" + String(day).padStart(2, "0");
+            const dayEvents = monthEvents.filter(function (ev) {
+              return ev.date === dateStr;
+            });
+            currentWeek.push({
+              dayNumber: day,
+              dateStr: dateStr,
+              dayEvents: dayEvents,
+            });
+            if (currentWeek.length === 7) {
+              weeks.push(currentWeek);
+              currentWeek = [];
+            }
+          }
+          if (currentWeek.length > 0) {
+            while (currentWeek.length < 7) currentWeek.push(null);
+            weeks.push(currentWeek);
+          }
+
+          const tbody = document.getElementById("calendar-grid-body");
+          tbody.innerHTML = weeks
+            .map(function (week) {
+              return (
+                "<tr>" +
+                week
+                  .map(function (cell) {
+                    if (!cell) return '<td class="bg-light"></td>';
+                    const isToday = cell.dateStr === todayStr;
+                    const isHighlighted = cell.dateStr === highlightedDate;
+                    const hasEvents = cell.dayEvents.length > 0;
+
+                    const tdClasses = [];
+                    if (isToday) tdClasses.push("calendar-cell-today");
+                    if (hasEvents) tdClasses.push("calendar-cell-has-events");
+                    if (isHighlighted)
+                      tdClasses.push("calendar-cell-highlight");
+
+                    const pills = cell.dayEvents
+                      .map(function (ev) {
+                        let pillClass = "";
+                        if (
+                          ev.status === "Completed" ||
+                          ev.status === "Cancelled"
+                        )
+                          pillClass = "pill-completed";
+                        else if (ev.status === "Postponed")
+                          pillClass = "pill-postponed";
+                        return (
+                          '<a href="./event-details.html?id=' +
+                          ev.id +
+                          '" class="calendar-event-pill ' +
+                          pillClass +
+                          '" title="' +
+                          window.AnimoApp.escapeHtml(ev.title) +
+                          " (" +
+                          ev.time +
+                          " • " +
+                          window.AnimoApp.escapeHtml(ev.venue) +
+                          " • " +
+                          ev.status +
+                          ')">' +
+                          ev.time +
+                          " " +
+                          window.AnimoApp.escapeHtml(ev.title) +
+                          "</a>"
+                        );
+                      })
+                      .join("");
+
+                    return (
+                      '<td class="' +
+                      tdClasses.join(" ") +
+                      '" data-date-cell="' +
+                      cell.dateStr +
+                      '">' +
+                      '<div class="calendar-day-header">' +
+                      '<span class="calendar-day-num">' +
+                      cell.dayNumber +
+                      "</span>" +
+                      (isToday
+                        ? '<span class="calendar-today-tag">Today</span>'
+                        : "") +
+                      "</div>" +
+                      pills +
+                      "</td>"
+                    );
+                  })
+                  .join("") +
+                "</tr>"
+              );
+            })
+            .join("");
+
+          // Render the schedule list.
+          const listHeading = document.getElementById("schedule-list-heading");
+          const listSubtitle = document.getElementById(
+            "schedule-list-subtitle",
+          );
+          const eventsToList =
+            listScope === "month" ? monthEvents : scheduledEvents;
+
+          if (listScope === "month") {
+            listHeading.textContent = "Scheduled Events in " + fullMonthLabel;
+            listSubtitle.textContent =
+              "Showing only events scheduled during " + fullMonthLabel + ".";
+          } else {
+            listHeading.textContent =
+              user && user.role === "Organizer"
+                ? "Complete Hosted Events Schedule (All Dates)"
+                : "Complete Joined Events Schedule (All Dates)";
+            listSubtitle.textContent =
+              "Showing all scheduled events across all months and years in chronological order.";
+          }
+
+          const listEl = document.getElementById("calendar-schedule-list");
+          if (eventsToList.length === 0) {
+            listEl.innerHTML =
+              '<div class="p-4 text-center text-muted small">' +
+              (listScope === "month"
+                ? "No events scheduled in <strong>" +
+                  fullMonthLabel +
+                  '</strong>. Switch to "All Scheduled Dates" to view events in other months.'
+                : 'No events scheduled yet. Browse the <a href="./events.html" class="text-success fw-semibold">Events Directory</a> to join activities.') +
+              "</div>";
+          } else {
+            listEl.innerHTML = eventsToList
+              .map(function (ev) {
+                const statusClass = window.AnimoApp.getStatusBadgeClass(
+                  ev.status,
+                );
+                const grandfathered = window.AnimoApp.isGrandfatheredAttendee(
+                  user,
+                  ev,
+                );
+                const evYM = ev.date.slice(0, 7);
+                return (
+                  '<div class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">' +
+                  "<div>" +
+                  '<span class="badge ' +
+                  statusClass +
+                  ' me-2">' +
+                  ev.status +
+                  "</span>" +
+                  (grandfathered
+                    ? '<span class="badge badge-grandfathered me-2">Registered Prior to Profile Update</span>'
+                    : "") +
+                  "<strong>" +
+                  ev.date +
+                  " (" +
+                  ev.time +
+                  (ev.endTime ? "–" + ev.endTime : "") +
+                  ")</strong> — " +
+                  '<a href="./event-details.html?id=' +
+                  ev.id +
+                  '" class="text-dark fw-bold text-decoration-none">' +
+                  window.AnimoApp.escapeHtml(ev.title) +
+                  "</a>" +
+                  '<div class="small text-muted mt-1">' +
+                  window.AnimoApp.escapeHtml(ev.venue) +
+                  " • Hosted by " +
+                  window.AnimoApp.escapeHtml(ev.organizerName) +
+                  "</div>" +
+                  "</div>" +
+                  '<div class="d-flex gap-2">' +
+                  '<button type="button" class="btn btn-sm btn-light border text-dark" data-show-on-grid="' +
+                  ev.date +
+                  '">' +
+                  (evYM === selectedMonth
+                    ? "Highlight on Calendar"
+                    : "Show on Calendar") +
+                  "</button>" +
+                  '<a href="./event-details.html?id=' +
+                  ev.id +
+                  '" class="btn btn-sm btn-outline-dlsu">View Details</a>' +
+                  "</div>" +
+                  "</div>"
+                );
+              })
+              .join("");
+
+            listEl
+              .querySelectorAll("[data-show-on-grid]")
+              .forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                  const targetDate = btn.getAttribute("data-show-on-grid");
+                  const targetYM = targetDate.slice(0, 7);
+                  setSelectedMonth(targetYM, targetDate);
+                  const gridCard =
+                    document.getElementById("calendar-grid-card");
+                  if (gridCard)
+                    gridCard.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                });
+              });
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          populateYearOptions();
+          selectedMonth = urlMonth
+            ? validateYearMonth(urlMonth, getTodayYearMonth())
+            : getTodayYearMonth();
+
+          const monthSelect = document.getElementById("cal-select-month");
+          const yearSelect = document.getElementById("cal-select-year");
+
+          function onSelectChange() {
+            const ym = yearSelect.value + "-" + monthSelect.value;
+            setSelectedMonth(ym);
+          }
+
+          monthSelect.addEventListener("change", onSelectChange);
+          yearSelect.addEventListener("change", onSelectChange);
+
+          document
+            .getElementById("calendar-nav-form")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+              onSelectChange();
+            });
+
+          document
+            .getElementById("btn-cal-prev")
+            .addEventListener("click", function () {
+              setSelectedMonth(shiftMonth(selectedMonth, -1));
+            });
+
+          document
+            .getElementById("btn-cal-next")
+            .addEventListener("click", function () {
+              setSelectedMonth(shiftMonth(selectedMonth, 1));
+            });
+
+          document
+            .getElementById("btn-cal-today")
+            .addEventListener("click", function () {
+              setSelectedMonth(getTodayYearMonth(), getTodayDateString());
+            });
+
+          document
+            .querySelectorAll("[data-list-scope]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                document
+                  .querySelectorAll("[data-list-scope]")
+                  .forEach(function (b) {
+                    b.classList.remove("active");
+                  });
+                btn.classList.add("active");
+                listScope = btn.getAttribute("data-list-scope");
+                renderCalendarPage();
+              });
+            });
+
+          renderCalendarPage();
+        });
+      })();
+    </script>
+  </body>
+</html>
