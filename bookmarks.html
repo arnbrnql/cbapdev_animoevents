@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saved Event Bookmarks — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="./bookmarks.html"
+                >Saved Bookmarks</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./event-create.html">Publish Event</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u1.svg"
+                alt="User"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">Miguel Lorenzo Tan</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u2"
+                  >Hannah Reyes (Student • Graduate)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div
+        class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+      >
+        <div>
+          <h1 class="h3 fw-bold mb-1">My Saved Event Bookmarks</h1>
+          <p class="text-muted small mb-0">
+            Keep track of campus events you are interested in and attach
+            optional personal reminders.
+          </p>
+        </div>
+        <span class="badge bg-success" id="bookmarks-count-badge"
+          >6 Saved Bookmarks</span
+        >
+      </div>
+
+      <!-- Add a bookmark -->
+      <section class="card border-0 shadow-sm p-3 mb-4">
+        <h2 class="h6 fw-bold mb-2">Quick-Add Event to Bookmarks</h2>
+        <form id="bookmark-add-form" class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label
+              for="bm-event-select"
+              class="form-label small fw-semibold mb-1"
+              >Select Eligible Event <span class="text-danger">*</span></label
+            >
+            <select
+              id="bm-event-select"
+              name="eventId"
+              class="form-select form-select-sm"
+              required
+            >
+              <option value="e6">
+                DevOps, Git Workflows &amp; Automated Testing Seminar
+                (2026-12-18)
+              </option>
+              <option value="e9">
+                Animo Green Community &amp; Lasallian Social Enterprise Bazaar
+                (2026-11-24)
+              </option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label
+              for="bm-personal-note"
+              class="form-label small fw-semibold mb-1"
+              >Personal Note / Reminder
+              <span class="text-muted fw-normal"
+                >(Optional, max 250 chars)</span
+              ></label
+            >
+            <input
+              type="text"
+              id="bm-personal-note"
+              name="personalNote"
+              class="form-control form-control-sm"
+              maxlength="250"
+              placeholder="Leave blank or add a reminder (e.g., Bring ID and laptop)..."
+            />
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-sm btn-dlsu w-100">
+              Save Bookmark
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Saved bookmarks -->
+      <div id="bookmarks-list-container" class="d-flex flex-column gap-3">
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-open">Open</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e1"
+              class="text-decoration-none text-dark"
+              >Full-Stack Web Dev Bootcamp: Node.js, Express &amp; MongoDB</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-10-28 • 13:00–17:00 • Gokongwei Hall GK304B, Manila Campus
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Bring laptop with Node.js v20 and
+            MongoDB Compass; meet groupmates at GK lobby at 12:45 PM.
+          </p>
+        </article>
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-open">Open</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e2"
+              class="text-decoration-none text-dark"
+              >Animo Hacker Cup CTF 2026: Web Security Challenge</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-11-16 • 09:00–16:00 • Henry Sy Sr. Hall 5F Learning Commons
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Review express-validator and bcrypt
+            salt rounds with Laurence before the CTF starts.
+          </p>
+        </article>
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-open">Open</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e3"
+              class="text-decoration-none text-dark"
+              >CCS Tech Career, Research &amp; Internship Fair 2026</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-12-16 • 10:00–17:00 • Henry Sy Sr. Hall Roofdeck, Manila Campus
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Print 5 copies of resume and prepare
+            GitHub link for software engineering internship booths.
+          </p>
+        </article>
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-open">Open</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e4"
+              class="text-decoration-none text-dark"
+              >Software Engineering &amp; Cloud Architecture Colloquium</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-12-17 • 14:00–16:30 • Yuchengco Hall Y407, Manila Campus
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Take notes on Render deployment and
+            MongoDB indexing for Phase 3.
+          </p>
+        </article>
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-full">Full</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e5"
+              class="text-decoration-none text-dark"
+              >UI/UX Design Sprint &amp; Interactive Prototyping Lab</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-11-25 • 15:00–18:00 • Gokongwei Hall GK202, Manila Campus
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Bring UI wireframe sketches for our
+            AnimoEvents mobile responsiveness check.
+          </p>
+        </article>
+        <article class="card card-event shadow-sm p-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="badge badge-status-open">Open</span>
+            <small class="text-muted">Saved 2026-10-20</small>
+          </div>
+          <h3 class="h5 fw-bold mb-1">
+            <a
+              href="./event-details.html?id=e7"
+              class="text-decoration-none text-dark"
+              >AI &amp; Computer Vision in Healthcare Symposium</a
+            >
+          </h3>
+          <p class="small text-muted mb-2">
+            2026-12-19 • 10:00–12:30 • Gokongwei Hall GK401 AdRIC Lab, Manila
+            Campus
+          </p>
+          <p class="small bg-light p-2 rounded border mb-2">
+            <strong>Personal Note:</strong> Ask CIVI researchers about
+            undergraduate thesis opportunities in computer vision.
+          </p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        function renderBookmarksPage() {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const container = document.getElementById("bookmarks-list-container");
+          const selectEl = document.getElementById("bm-event-select");
+
+          if (!user) {
+            container.innerHTML =
+              '<div class="card border-0 shadow-sm p-4 text-center">Please <a href="./login.html" class="text-success fw-semibold">sign in</a> to view and manage your saved bookmarks.</div>';
+            return;
+          }
+
+          // Show events the current user can access.
+          const bookmarkedIds = state.bookmarks
+            .filter(function (b) {
+              return b.user === user.id;
+            })
+            .map(function (b) {
+              return b.event;
+            });
+          const eligibleEvents = state.events
+            .filter(function (ev) {
+              return window.AnimoApp.canUserViewEvent(user, ev);
+            })
+            .sort(function (a, b) {
+              const aSaved = bookmarkedIds.indexOf(a.id) !== -1 ? 1 : 0;
+              const bSaved = bookmarkedIds.indexOf(b.id) !== -1 ? 1 : 0;
+              return aSaved - bSaved;
+            });
+          selectEl.innerHTML = eligibleEvents
+            .map(function (ev) {
+              const alreadySaved = bookmarkedIds.indexOf(ev.id) !== -1;
+              return (
+                '<option value="' +
+                window.AnimoApp.escapeHtml(ev.id) +
+                '">' +
+                window.AnimoApp.escapeHtml(ev.title) +
+                " (" +
+                window.AnimoApp.escapeHtml(ev.date) +
+                " • " +
+                (alreadySaved ? "Bookmarked — Update Note" : ev.status) +
+                ")</option>"
+              );
+            })
+            .join("");
+
+          const userBookmarks = state.bookmarks.filter(function (b) {
+            return b.user === user.id;
+          });
+          document.getElementById("bookmarks-count-badge").textContent =
+            userBookmarks.length +
+            " Saved Bookmark" +
+            (userBookmarks.length === 1 ? "" : "s");
+
+          if (userBookmarks.length === 0) {
+            container.innerHTML =
+              '<div class="card border-0 shadow-sm p-4 text-center text-muted">You have no saved bookmarks yet. Use the Quick-Add bar above or click "Bookmark" on any event card.</div>';
+            return;
+          }
+
+          container.innerHTML = userBookmarks
+            .map(function (bm) {
+              const ev = state.events.find(function (e) {
+                return e.id === bm.event;
+              });
+              if (!ev) return "";
+              const eligibleNow = window.AnimoApp.isUserEligibleForEvent(
+                user,
+                ev,
+              );
+              const isJoined = (ev.attendees || []).indexOf(user.id) !== -1;
+              const statusClass = window.AnimoApp.getStatusBadgeClass(
+                ev.status,
+              );
+              const noteDisplay =
+                bm.personalNote && bm.personalNote.trim() !== ""
+                ? "<strong>Personal Note:</strong> " +
+                  window.AnimoApp.escapeHtml(bm.personalNote)
+                  : '<em class="text-muted">No personal note added.</em>';
+
+              return (
+                '<article class="card card-event shadow-sm p-3">' +
+                '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">' +
+                "<div>" +
+                '<span class="badge ' +
+                statusClass +
+                ' me-1">' +
+                window.AnimoApp.escapeHtml(ev.status) +
+                "</span>" +
+                '<span class="badge bg-secondary bg-opacity-10 text-dark me-1">' +
+                window.AnimoApp.escapeHtml(ev.category) +
+                "</span>" +
+                (!eligibleNow
+                  ? '<span class="badge badge-grandfathered">Eligibility Changed After Profile Update</span>'
+                  : "") +
+                "</div>" +
+                '<small class="text-muted">Saved ' +
+                window.AnimoApp.escapeHtml(bm.createdAt) +
+                "</small>" +
+                "</div>" +
+                '<h3 class="h5 fw-bold mb-1"><a href="./event-details.html?id=' +
+                encodeURIComponent(ev.id) +
+                '" class="text-decoration-none text-dark">' +
+                window.AnimoApp.escapeHtml(ev.title) +
+                "</a></h3>" +
+                '<p class="small text-muted mb-2">Hosted by ' +
+                window.AnimoApp.escapeHtml(ev.organizerName) +
+                " • " +
+                window.AnimoApp.escapeHtml(ev.date) +
+                " • " +
+                window.AnimoApp.escapeHtml(ev.time) +
+                " • " +
+                window.AnimoApp.escapeHtml(ev.venue) +
+                "</p>" +
+                '<div class="small bg-light p-2 rounded border mb-3">' +
+                noteDisplay +
+                "</div>" +
+                '<form class="row g-2 align-items-center" data-bm-edit-form="' +
+                bm.id +
+                '">' +
+                '<div class="col-md-8">' +
+                '<input type="text" class="form-control form-control-sm" maxlength="250" value="' +
+                window.AnimoApp.escapeHtml(bm.personalNote || "") +
+                '" placeholder="Optional personal note (leave blank to clear)...">' +
+                "</div>" +
+                '<div class="col-md-4 d-flex gap-2 justify-content-end">' +
+                '<button type="submit" class="btn btn-sm btn-outline-dlsu">Save Note</button>' +
+                '<button type="button" class="btn btn-sm btn-outline-danger" data-bm-delete="' +
+                bm.id +
+                '">Remove</button>' +
+                "</div>" +
+                "</form>" +
+                "</article>"
+              );
+            })
+            .join("");
+
+          container
+            .querySelectorAll("[data-bm-edit-form]")
+            .forEach(function (formEl) {
+              formEl.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const bmId = formEl.getAttribute("data-bm-edit-form");
+                const newNote = formEl.querySelector("input").value.trim();
+                const nextState = window.AnimoApp.loadState();
+                const targetBm = nextState.bookmarks.find(function (b) {
+                  return b.id === bmId;
+                });
+                if (targetBm) {
+                  targetBm.personalNote = newNote;
+                  window.AnimoApp.saveState(nextState);
+                  window.AnimoApp.showToast(
+                    newNote
+                      ? "Bookmark note updated!"
+                      : "Bookmark note cleared.",
+                    "success",
+                  );
+                  renderBookmarksPage();
+                }
+              });
+            });
+
+          container
+            .querySelectorAll("[data-bm-delete]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                const bmId = btn.getAttribute("data-bm-delete");
+                const nextState = window.AnimoApp.loadState();
+                nextState.bookmarks = nextState.bookmarks.filter(function (b) {
+                  return b.id !== bmId;
+                });
+                window.AnimoApp.saveState(nextState);
+                window.AnimoApp.showToast("Bookmark removed.", "warning");
+                renderBookmarksPage();
+              });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          document
+            .getElementById("bookmark-add-form")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+              const state = window.AnimoApp.loadState();
+              const user = state.users.find(function (u) {
+                return u.id === state.currentUserId;
+              });
+              if (!user) return;
+
+              const eventId = document.getElementById("bm-event-select").value;
+              const note = document
+                .getElementById("bm-personal-note")
+                .value.trim();
+
+              const existing = state.bookmarks.find(function (b) {
+                return b.user === user.id && b.event === eventId;
+              });
+              if (existing) {
+                existing.personalNote = note;
+                window.AnimoApp.showToast(
+                  "Updated existing bookmark note!",
+                  "success",
+                );
+              } else {
+                state.bookmarks.unshift({
+                  id: "b_" + Date.now(),
+                  user: user.id,
+                  event: eventId,
+                  personalNote: note,
+                  createdAt: window.AnimoApp.getLocalDateStr(),
+                });
+                window.AnimoApp.showToast(
+                  "Added event to your saved bookmarks!",
+                  "success",
+                );
+              }
+              window.AnimoApp.saveState(state);
+              document.getElementById("bm-personal-note").value = "";
+              renderBookmarksPage();
+            });
+
+          renderBookmarksPage();
+        });
+      })();
+    </script>
+  </body>
+</html>
