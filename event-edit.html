@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage &amp; Edit Event — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u6.svg"
+                alt="Organizer"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">La Salle Computer Society (LSCS)</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u7"
+                  >CIVI Research Center (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u8"
+                  >Office of Student L.I.F.E. (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student)</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-9">
+          <div
+            id="edit-owner-guard"
+            class="alert alert-warning shadow-sm d-none mb-4"
+          >
+            <div
+              class="d-flex flex-wrap justify-content-between align-items-center gap-2"
+            >
+              <div>
+                <h2 class="h6 fw-bold mb-1">
+                  Event Host Authorization Required
+                </h2>
+                <p class="small mb-0" id="edit-owner-guard-text">
+                  Only the hosting organizer of this event can edit its details
+                  or lifecycle status.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-dlsu"
+                id="btn-switch-to-owner"
+              >
+                Switch to Host Organizer Account
+              </button>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm p-4">
+            <div
+              class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4"
+            >
+              <div>
+                <span
+                  class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1"
+                  >Organizer Event Management</span
+                >
+                <h1 class="h3 fw-bold mb-0">
+                  Edit Event &amp; Lifecycle Status
+                </h1>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteEventModal"
+                id="btn-open-delete-modal"
+              >
+                Delete Event Permanently
+              </button>
+            </div>
+
+            <div
+              id="edit-error-box"
+              class="alert alert-danger small d-none"
+            ></div>
+
+            <form
+              id="event-edit-form"
+              method="POST"
+              action="./event-details.html"
+            >
+              <fieldset id="event-edit-fieldset">
+                <div class="row g-3 mb-4">
+                  <div class="col-md-8">
+                    <label for="edit-title" class="form-label fw-semibold"
+                      >Event Title <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      id="edit-title"
+                      name="title"
+                      class="form-control"
+                      required
+                      minlength="5"
+                      maxlength="120"
+                      value="Full-Stack Web Dev Bootcamp: Node.js, Express &amp; MongoDB"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="edit-category" class="form-label fw-semibold"
+                      >Category <span class="text-danger">*</span></label
+                    >
+                    <select
+                      id="edit-category"
+                      name="category"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Seminar">Seminar</option>
+                      <option value="Workshop" selected>Workshop</option>
+                      <option value="Bazaar">Bazaar</option>
+                      <option value="Competition">Competition</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label for="edit-date" class="form-label fw-semibold"
+                      >Event Date (2025–2036)
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      id="edit-date"
+                      name="date"
+                      class="form-control"
+                      required
+                      min="2025-01-01"
+                      max="2036-12-31"
+                      value="2026-10-28"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="edit-time" class="form-label fw-semibold"
+                      >Start Time <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="time"
+                      id="edit-time"
+                      name="time"
+                      class="form-control"
+                      required
+                      value="13:00"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="edit-end-time" class="form-label fw-semibold"
+                      >End Time
+                      <span class="text-muted fw-normal small"
+                        >(Optional)</span
+                      ></label
+                    >
+                    <input
+                      type="time"
+                      id="edit-end-time"
+                      name="endTime"
+                      class="form-control"
+                      value="17:00"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="edit-status" class="form-label fw-semibold"
+                      >Lifecycle Status
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      id="edit-status"
+                      name="status"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Open" selected>Open</option>
+                      <option value="Full">Full</option>
+                      <option value="Closed">Closed (Stop RSVPs)</option>
+                      <option value="Postponed">
+                        Postponed (Rescheduling)
+                      </option>
+                      <option value="Cancelled">Cancelled (Keep Record)</option>
+                      <option value="Completed">Completed (Archive)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-8">
+                    <label for="edit-venue" class="form-label fw-semibold"
+                      >Campus Venue / Room
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      id="edit-venue"
+                      name="venue"
+                      class="form-control"
+                      required
+                      minlength="3"
+                      maxlength="100"
+                      value="Gokongwei Hall GK304B, Manila Campus"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="edit-capacity" class="form-label fw-semibold"
+                      >Max Capacity <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      id="edit-capacity"
+                      name="maxCapacity"
+                      class="form-control"
+                      required
+                      min="5"
+                      max="5000"
+                      value="20"
+                    />
+                    <div class="form-text small" id="edit-attendee-floor">
+                      Currently registered: 6 participants
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="edit-description" class="form-label fw-semibold"
+                      >Event Description
+                      <span class="text-danger">*</span></label
+                    >
+                    <textarea
+                      id="edit-description"
+                      name="description"
+                      class="form-control"
+                      rows="4"
+                      required
+                      minlength="20"
+                      maxlength="1000"
+                    >
+Hands-on workshop covering MVC web application architecture, Handlebars templating, and Mongoose ODM integration.</textarea
+                    >
+                  </div>
+                </div>
+
+                <div
+                  class="card bg-light border p-3 mb-4"
+                  id="edit-audience-editor"
+                ></div>
+
+                <div class="alert alert-light border small mb-4">
+                  <strong>Automatic Subscriber Notification:</strong> Saving
+                  changes to the event schedule, venue, or lifecycle status
+                  automatically posts an Official Host Update to notify all
+                  registered participants.
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <a
+                    href="./event-details.html?id=e1"
+                    id="edit-cancel-link"
+                    class="btn btn-outline-secondary"
+                    >Cancel</a
+                  >
+                  <button type="submit" class="btn btn-dlsu">
+                    Save Changes &amp; Notify Participants
+                  </button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div
+      class="modal fade"
+      id="deleteEventModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 fw-bold text-danger">
+              Delete Event Permanently?
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body small">
+            <p class="mb-2">
+              Tip: If you want registered students to still see a cancellation
+              notice on the event page, change the Lifecycle Status dropdown to
+              <strong>Cancelled</strong> instead.
+            </p>
+            <p class="mb-0">
+              Permanently deleting this event removes the event post, its
+              discussion thread, and all saved bookmarks from the database. This
+              action cannot be undone.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Keep Event
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-danger"
+              id="btn-confirm-delete-event"
+            >
+              Delete Event Permanently
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get("id") || "e1";
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const ev =
+            state.events.find(function (e) {
+              return e.id === eventId;
+            }) || state.events[0];
+          if (!ev) return;
+
+          document.getElementById("edit-title").value = ev.title;
+          document.getElementById("edit-category").value = ev.category;
+          document.getElementById("edit-date").value = ev.date;
+          document.getElementById("edit-time").value = ev.time;
+          document.getElementById("edit-end-time").value = ev.endTime || "";
+          document.getElementById("edit-status").value = ev.status;
+          document.getElementById("edit-venue").value = ev.venue;
+          document.getElementById("edit-capacity").value = ev.maxCapacity;
+          document.getElementById("edit-capacity").min = Math.max(
+            5,
+            ev.attendees.length,
+          );
+          document.getElementById("edit-attendee-floor").textContent =
+            "Currently registered: " +
+            ev.attendees.length +
+            " participants (minimum allowed capacity)";
+          document.getElementById("edit-description").value = ev.description;
+          document.getElementById("edit-cancel-link").href =
+            "./event-details.html?id=" + ev.id;
+          const audienceEditor = window.AnimoApp.renderAudienceEditor(
+            document.getElementById("edit-audience-editor"),
+            ev,
+          );
+
+          const isOwner = user && String(ev.organizer) === String(user.id);
+          const guardEl = document.getElementById("edit-owner-guard");
+          const fieldsetEl = document.getElementById("event-edit-fieldset");
+          const delModalBtn = document.getElementById("btn-open-delete-modal");
+
+          if (!isOwner) {
+            guardEl.classList.remove("d-none");
+            document.getElementById("edit-owner-guard-text").innerHTML =
+              "This event is hosted by <strong>" +
+              ev.organizerName +
+              "</strong>. Only the hosting organizer may edit or delete it.";
+            const switchBtn = document.getElementById("btn-switch-to-owner");
+            switchBtn.addEventListener("click", function () {
+              const nextState = window.AnimoApp.loadState();
+              nextState.currentUserId = ev.organizer;
+              window.AnimoApp.saveState(nextState);
+              window.location.reload();
+            });
+            fieldsetEl.disabled = true;
+            delModalBtn.disabled = true;
+          }
+
+          const form = document.getElementById("event-edit-form");
+          const errorBox = document.getElementById("edit-error-box");
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            errorBox.classList.add("d-none");
+
+            const nextState = window.AnimoApp.loadState();
+            const targetEv = nextState.events.find(function (item) {
+              return item.id === ev.id;
+            });
+            if (!targetEv) return;
+            const activeUser = nextState.users.find(function (u) {
+              return u.id === nextState.currentUserId;
+            });
+            if (
+              !activeUser ||
+              String(targetEv.organizer) !== String(activeUser.id)
+            ) {
+              errorBox.textContent =
+                "Unauthorized: Only the hosting organizer of this event can modify or delete it.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const newTitle = document.getElementById("edit-title").value.trim();
+            const newCategory = document.getElementById("edit-category").value;
+            const newDate = document.getElementById("edit-date").value;
+            const newTime = document.getElementById("edit-time").value;
+            const newEndTime = document.getElementById("edit-end-time").value;
+            const newStatus = document.getElementById("edit-status").value;
+            const newVenue = document.getElementById("edit-venue").value.trim();
+            const newCap = parseInt(
+              document.getElementById("edit-capacity").value,
+              10,
+            );
+            const newDesc = document
+              .getElementById("edit-description")
+              .value.trim();
+            const audience = audienceEditor.getValues();
+            const audienceErrors = audienceEditor.validate();
+
+            if (newDate < "2025-01-01" || newDate > "2036-12-31") {
+              errorBox.textContent =
+                "Event date must be within the supported calendar range (January 1, 2025 to December 31, 2036).";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+            if (newCap < targetEv.attendees.length) {
+              errorBox.textContent =
+                "Maximum capacity cannot be lower than the current number of registered participants (" +
+                targetEv.attendees.length +
+                ").";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+            if (newEndTime && newEndTime <= newTime) {
+              errorBox.textContent = "End Time must be later than Start Time.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+            if (audienceErrors.length > 0) {
+              errorBox.textContent = audienceErrors[0];
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const scheduleOrStatusChanged =
+              targetEv.title !== newTitle ||
+              targetEv.date !== newDate ||
+              targetEv.time !== newTime ||
+              targetEv.venue !== newVenue ||
+              targetEv.status !== newStatus;
+
+            targetEv.title = newTitle;
+            targetEv.category = newCategory;
+            targetEv.date = newDate;
+            targetEv.time = newTime;
+            targetEv.endTime = newEndTime;
+            targetEv.status = newStatus;
+            targetEv.venue = newVenue;
+            targetEv.maxCapacity = newCap;
+            if (
+              targetEv.status === "Open" &&
+              targetEv.attendees.length >= newCap
+            ) {
+              targetEv.status = "Full";
+            } else if (
+              targetEv.status === "Full" &&
+              targetEv.attendees.length < newCap
+            ) {
+              targetEv.status = "Open";
+            }
+            targetEv.description = newDesc;
+            targetEv.isPublic = audience.isPublic;
+            targetEv.targetRoles = audience.targetRoles;
+            targetEv.targetAcademicLevels = audience.targetAcademicLevels;
+            targetEv.targetColleges = audience.targetColleges;
+            targetEv.targetDepartments = audience.targetDepartments;
+            targetEv.targetCampuses = audience.targetCampuses;
+
+            if (scheduleOrStatusChanged) {
+              const nowStr = window.AnimoApp.getLocalTimestamp();
+              targetEv.updates.unshift({
+                id: "up_" + Date.now(),
+                author: targetEv.organizer,
+                authorName: targetEv.organizerName,
+                authorRole: "Organizer",
+                content:
+                  "[Official Schedule/Venue Update] Event details updated: " +
+                  newDate +
+                  " at " +
+                  newTime +
+                  ", Venue: " +
+                  newVenue +
+                  " (Status: " +
+                  newStatus +
+                  ").",
+                isOfficialUpdate: true,
+                postedAt: nowStr,
+              });
+            }
+
+            window.AnimoApp.saveState(nextState);
+            window.location.href = "./event-details.html?id=" + targetEv.id;
+          });
+
+          document
+            .getElementById("btn-confirm-delete-event")
+            .addEventListener("click", function () {
+              const nextState = window.AnimoApp.loadState();
+              const targetEv = nextState.events.find(function (item) {
+                return item.id === ev.id;
+              });
+              const activeUser = nextState.users.find(function (u) {
+                return u.id === nextState.currentUserId;
+              });
+              if (
+                !targetEv ||
+                !activeUser ||
+                String(targetEv.organizer) !== String(activeUser.id)
+              ) {
+                errorBox.textContent =
+                  "Unauthorized: Only the hosting organizer of this event can modify or delete it.";
+                errorBox.classList.remove("d-none");
+                return;
+              }
+              nextState.events = nextState.events.filter(function (item) {
+                return item.id !== ev.id;
+              });
+              nextState.bookmarks = nextState.bookmarks.filter(function (b) {
+                return b.event !== ev.id;
+              });
+              window.AnimoApp.saveState(nextState);
+              window.location.href = "./events.html";
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>

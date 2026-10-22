@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Publish Campus Event — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="./event-create.html"
+                >Publish Event</a
+              >
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u6.svg"
+                alt="Organizer"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">La Salle Computer Society (LSCS)</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li><h6 class="dropdown-header">Switch Sample Account</h6></li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u7"
+                  >CIVI Research Center (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u8"
+                  >Office of Student L.I.F.E. (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student • CCS/ST)</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-9">
+          <div
+            id="organizer-permission-guard"
+            class="alert alert-warning shadow-sm d-none mb-4"
+          >
+            <div
+              class="d-flex flex-wrap justify-content-between align-items-center gap-2"
+            >
+              <div>
+                <h2 class="h6 fw-bold mb-1">
+                  Organizer Authorization Required to Publish Events
+                </h2>
+                <p class="small mb-0">
+                  Only accredited DLSU student organizations, research centers,
+                  and university offices (<code>Organizer</code> accounts) are
+                  authorized to publish campus events.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-dlsu"
+                data-switch-user="u6"
+              >
+                Switch to LSCS Organizer Account
+              </button>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm p-4">
+            <div class="border-bottom pb-3 mb-4">
+              <span
+                class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1"
+                >Organizer Publishing Portal</span
+              >
+              <h1 class="h3 fw-bold mb-1">Publish a New Campus Event</h1>
+              <p class="text-muted small mb-0" id="create-host-label">
+                Hosting Organization:
+                <strong>La Salle Computer Society (LSCS)</strong>
+              </p>
+            </div>
+
+            <div
+              id="create-error-box"
+              class="alert alert-danger small d-none"
+            ></div>
+
+            <form id="event-create-form" method="POST" action="./events.html">
+              <fieldset id="event-create-fieldset">
+                <div class="row g-3 mb-4">
+                  <div class="col-md-8">
+                    <label for="ev-title" class="form-label fw-semibold"
+                      >Event Title <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      id="ev-title"
+                      name="title"
+                      class="form-control"
+                      required
+                      minlength="5"
+                      maxlength="120"
+                      placeholder="e.g., CCS Cloud &amp; Cybersecurity Workshop 2027"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="ev-category" class="form-label fw-semibold"
+                      >Category <span class="text-danger">*</span></label
+                    >
+                    <select
+                      id="ev-category"
+                      name="category"
+                      class="form-select"
+                      required
+                    >
+                      <option value="">Select Category...</option>
+                      <option value="Seminar">Seminar</option>
+                      <option value="Workshop">Workshop</option>
+                      <option value="Bazaar">Bazaar</option>
+                      <option value="Competition">Competition</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="ev-date" class="form-label fw-semibold"
+                      >Event Date (2025–2036)
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      id="ev-date"
+                      name="date"
+                      class="form-control"
+                      required
+                      min="2025-01-01"
+                      max="2036-12-31"
+                      value="2026-12-10"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="ev-time" class="form-label fw-semibold"
+                      >Start Time <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="time"
+                      id="ev-time"
+                      name="time"
+                      class="form-control"
+                      required
+                      value="13:00"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="ev-end-time" class="form-label fw-semibold"
+                      >End Time
+                      <span class="text-muted fw-normal small"
+                        >(Optional)</span
+                      ></label
+                    >
+                    <input
+                      type="time"
+                      id="ev-end-time"
+                      name="endTime"
+                      class="form-control"
+                      value="16:00"
+                    />
+                  </div>
+
+                  <div class="col-md-8">
+                    <label for="ev-venue" class="form-label fw-semibold"
+                      >Campus Venue / Room
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      id="ev-venue"
+                      name="venue"
+                      class="form-control"
+                      required
+                      minlength="3"
+                      maxlength="100"
+                      placeholder="e.g., Gokongwei Hall GK304B, Manila Campus"
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="ev-capacity" class="form-label fw-semibold"
+                      >Maximum Capacity
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      id="ev-capacity"
+                      name="maxCapacity"
+                      class="form-control"
+                      required
+                      min="5"
+                      max="5000"
+                      value="30"
+                    />
+                  </div>
+
+                  <div class="col-12">
+                    <label for="ev-description" class="form-label fw-semibold"
+                      >Event Description &amp; Agenda
+                      <span class="text-danger">*</span></label
+                    >
+                    <textarea
+                      id="ev-description"
+                      name="description"
+                      class="form-control"
+                      rows="4"
+                      required
+                      minlength="20"
+                      maxlength="1000"
+                      placeholder="Provide complete event details, speaker lineup, or registration prerequisites (20–1000 characters)..."
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Audience and targeting -->
+                <div
+                  class="card bg-light border p-3 mb-4"
+                  id="audience-editor"
+                >
+                  <h2 class="h6 fw-bold mb-2">
+                    Audience Visibility &amp; Eligibility Rules
+                  </h2>
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="isPublic"
+                      id="vis-public"
+                      value="true"
+                      checked
+                    />
+                    <label
+                      class="form-check-label fw-semibold"
+                      for="vis-public"
+                    >
+                      University-Wide Public Event (Visible and open to all DLSU
+                      students and faculty)
+                    </label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="isPublic"
+                      id="vis-targeted"
+                      value="false"
+                    />
+                    <label
+                      class="form-check-label fw-semibold"
+                      for="vis-targeted"
+                    >
+                      Targeted / Restricted Event (Visible only to users
+                      matching the selected groups below)
+                    </label>
+                  </div>
+
+                  <div
+                    id="targeting-dimensions-box"
+                    class="ps-2 border-start border-3 border-success"
+                  >
+                    <p class="small text-muted mb-2">
+                      Leave a category unchecked if that dimension is
+                      unrestricted. When publishing a Targeted event, select at
+                      least one restriction below:
+                    </p>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold d-block mb-1"
+                        >1. Target Affiliation Roles</label
+                      >
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetRoles"
+                            value="Student"
+                            id="tr-student"
+                          /><label
+                            class="form-check-label small"
+                            for="tr-student"
+                            >Students</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetRoles"
+                            value="Faculty"
+                            id="tr-faculty"
+                          /><label
+                            class="form-check-label small"
+                            for="tr-faculty"
+                            >Faculty Members</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold d-block mb-1"
+                        >2. Target Student Academic Levels</label
+                      >
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetAcademicLevels"
+                            value="Senior High School"
+                            id="tl-shs"
+                          /><label class="form-check-label small" for="tl-shs"
+                            >Senior High School (SHS)</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetAcademicLevels"
+                            value="Undergraduate"
+                            id="tl-ug"
+                          /><label class="form-check-label small" for="tl-ug"
+                            >Undergraduate</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetAcademicLevels"
+                            value="Graduate"
+                            id="tl-grad"
+                          /><label class="form-check-label small" for="tl-grad"
+                            >Graduate</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold d-block mb-1"
+                        >3. Target Colleges &amp; Integrated School</label
+                      >
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="CCS"
+                            id="tc-ccs"
+                          /><label class="form-check-label small" for="tc-ccs"
+                            >CCS</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="RVR-COB"
+                            id="tc-cob"
+                          /><label class="form-check-label small" for="tc-cob"
+                            >RVR-COB</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="GCOE"
+                            id="tc-gcoe"
+                          /><label class="form-check-label small" for="tc-gcoe"
+                            >GCOE</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="CLA"
+                            id="tc-cla"
+                          /><label class="form-check-label small" for="tc-cla"
+                            >CLA</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="COS"
+                            id="tc-cos"
+                          /><label class="form-check-label small" for="tc-cos"
+                            >COS</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="BAGCED"
+                            id="tc-bagced"
+                          /><label
+                            class="form-check-label small"
+                            for="tc-bagced"
+                            >BAGCED</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="CLT-SOE"
+                            id="tc-soe"
+                          /><label class="form-check-label small" for="tc-soe"
+                            >CLT-SOE</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetColleges"
+                            value="SHS"
+                            id="tc-shs"
+                          /><label class="form-check-label small" for="tc-shs"
+                            >SHS (Integrated School)</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold d-block mb-1"
+                        >4. Target Departments / SHS Strands
+                        <span class="text-muted fw-normal"
+                          >(Optional)</span
+                        ></label
+                      >
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="ST"
+                            id="td-st"
+                          /><label class="form-check-label small" for="td-st"
+                            >ST</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="IT"
+                            id="td-it"
+                          /><label class="form-check-label small" for="td-it"
+                            >IT</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="CT"
+                            id="td-ct"
+                          /><label class="form-check-label small" for="td-ct"
+                            >CT</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="ECE"
+                            id="td-ece"
+                          /><label class="form-check-label small" for="td-ece"
+                            >ECE</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="IE"
+                            id="td-ie"
+                          /><label class="form-check-label small" for="td-ie"
+                            >IE</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="MOD"
+                            id="td-mod"
+                          /><label class="form-check-label small" for="td-mod"
+                            >MOD</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="FIN"
+                            id="td-fin"
+                          /><label class="form-check-label small" for="td-fin"
+                            >FIN</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="STEM"
+                            id="td-stem"
+                          /><label class="form-check-label small" for="td-stem"
+                            >SHS STEM</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="ABM"
+                            id="td-abm"
+                          /><label class="form-check-label small" for="td-abm"
+                            >SHS ABM</label
+                          >
+                        </div>
+                      </div>
+                      <div
+                        id="target-departments-help"
+                        class="form-text small mt-2"
+                      >
+                        Select one or more target colleges first. Only
+                        departments belonging to those colleges will be
+                        available.
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="form-label small fw-bold d-block mb-1"
+                        >5. Target Campuses</label
+                      >
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetCampuses"
+                            value="Manila"
+                            id="tcamp-mnl"
+                          /><label
+                            class="form-check-label small"
+                            for="tcamp-mnl"
+                            >Manila Campus</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetCampuses"
+                            value="Laguna"
+                            id="tcamp-lag"
+                          /><label
+                            class="form-check-label small"
+                            for="tcamp-lag"
+                            >Laguna Campus</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <a href="./events.html" class="btn btn-outline-secondary"
+                    >Cancel</a
+                  >
+                  <button type="submit" class="btn btn-dlsu">
+                    Publish Event Post
+                  </button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div
+        class="container d-flex flex-wrap justify-content-between align-items-center small"
+      >
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+        <a href="./index.html" class="text-decoration-none text-muted"
+          >Home Feed</a
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        document.addEventListener("DOMContentLoaded", function () {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const guardEl = document.getElementById("organizer-permission-guard");
+          const fieldsetEl = document.getElementById("event-create-fieldset");
+          const hostLabel = document.getElementById("create-host-label");
+
+          if (!user || user.role !== "Organizer") {
+            guardEl.classList.remove("d-none");
+            fieldsetEl.disabled = true;
+            hostLabel.innerHTML =
+              "Current Account: <strong>" +
+              (user ? user.displayName + " (" + user.role + ")" : "Guest") +
+              "</strong> — Switch to an Organizer account to publish.";
+          } else {
+            guardEl.classList.add("d-none");
+            fieldsetEl.disabled = false;
+            hostLabel.innerHTML =
+              "Hosting Organization: <strong>" + user.displayName + "</strong>";
+          }
+
+          const audienceEditor = window.AnimoApp.renderAudienceEditor(
+            document.getElementById("audience-editor"),
+            null,
+          );
+
+          const form = document.getElementById("event-create-form");
+          const errorBox = document.getElementById("create-error-box");
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            errorBox.classList.add("d-none");
+
+            const activeState = window.AnimoApp.loadState();
+            const activeUser = activeState.users.find(function (u) {
+              return u.id === activeState.currentUserId;
+            });
+            if (!activeUser || activeUser.role !== "Organizer") {
+              errorBox.textContent =
+                "Unauthorized: Only accredited Organizer accounts may publish events.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const title = document.getElementById("ev-title").value.trim();
+            const category = document.getElementById("ev-category").value;
+            const date = document.getElementById("ev-date").value;
+            const time = document.getElementById("ev-time").value;
+            const endTime = document.getElementById("ev-end-time").value;
+            const venue = document.getElementById("ev-venue").value.trim();
+            const maxCapacity = parseInt(
+              document.getElementById("ev-capacity").value,
+              10,
+            );
+            const description = document
+              .getElementById("ev-description")
+              .value.trim();
+            const audience = audienceEditor.getValues();
+            const isPublic = audience.isPublic;
+            const targetRoles = audience.targetRoles;
+            const targetAcademicLevels = audience.targetAcademicLevels;
+            const targetColleges = audience.targetColleges;
+            const targetDepartments = audience.targetDepartments;
+            const targetCampuses = audience.targetCampuses;
+
+            if (date < "2025-01-01" || date > "2036-12-31") {
+              errorBox.textContent =
+                "Event date must be within the supported calendar range (January 1, 2025 to December 31, 2036).";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            if (endTime && endTime <= time) {
+              errorBox.textContent = "End Time must be later than Start Time.";
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const audienceErrors = audienceEditor.validate();
+            if (audienceErrors.length > 0) {
+              errorBox.textContent = audienceErrors[0];
+              errorBox.classList.remove("d-none");
+              return;
+            }
+
+            const maxEventNum = activeState.events.reduce(function (max, item) {
+              const n = parseInt(String(item.id).replace(/\D/g, ""), 10) || 0;
+              return n > max ? n : max;
+            }, 0);
+            const newId = "e" + (maxEventNum + 1);
+            const nowStr = window.AnimoApp.getLocalTimestamp();
+            activeState.events.unshift({
+              id: newId,
+              title: title,
+              category: category,
+              date: date,
+              time: time,
+              endTime: endTime || "",
+              venue: venue,
+              description: description,
+              organizer: activeUser.id,
+              organizerName: activeUser.displayName,
+              isPublic: isPublic,
+              targetRoles: targetRoles,
+              targetColleges: targetColleges,
+              targetDepartments: targetDepartments,
+              targetAcademicLevels: targetAcademicLevels,
+              targetCampuses: targetCampuses,
+              status: "Open",
+              maxCapacity: maxCapacity,
+              attendees: [],
+              updates: [
+                {
+                  id: "up_" + Date.now(),
+                  author: activeUser.id,
+                  authorName: activeUser.displayName,
+                  authorRole: "Organizer",
+                  content: "Event published! Registration is now open.",
+                  isOfficialUpdate: true,
+                  postedAt: nowStr,
+                },
+              ],
+            });
+
+            window.AnimoApp.saveState(activeState);
+            window.location.href = "./event-details.html?id=" + newId;
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

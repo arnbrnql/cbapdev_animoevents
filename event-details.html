@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Details &amp; Discussion — AnimoEvents</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./event-create.html">Publish Event</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./about.html">About</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="nav-current-user"
+            >
+              <img
+                src="./images/avatar-u1.svg"
+                alt="User"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">Miguel Lorenzo Tan</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <h6 class="dropdown-header">Switch Sample DLSU Account</h6>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u1"
+                  >Miguel Tan (Student • Undergrad • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u13"
+                  >Sophia Sy (Student • SHS • STEM)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u2"
+                  >Hannah Reyes (Student • Graduate • CCS/IT)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u3"
+                  >Dr. Rafael Cruz (Faculty • CCS/ST)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u6"
+                  >La Salle Computer Society — LSCS (Organizer)</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" data-switch-user="u7"
+                  >CIVI Research Center (Organizer)</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4" id="event-details-main">
+      <div class="mb-3">
+        <a
+          href="./events.html"
+          class="text-decoration-none text-success small fw-semibold"
+          >&larr; Back to Campus Events Directory</a
+        >
+      </div>
+
+      <!-- Event details -->
+      <div id="event-details-container">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <article class="card border-0 shadow-sm p-4 mb-4">
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1" id="detail-status"
+                    >Open</span
+                  >
+                  <span
+                    class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    id="detail-category"
+                    >Workshop</span
+                  >
+                  <span class="badge-tag" id="detail-audience"
+                    >Open to All DLSU Community</span
+                  >
+                </div>
+                <div id="detail-owner-actions">
+                  <a
+                    href="./event-edit.html?id=e1"
+                    class="btn btn-sm btn-outline-dlsu"
+                    >Edit / Manage Event</a
+                  >
+                </div>
+              </div>
+
+              <div id="detail-grandfathered-alert"></div>
+
+              <h1 class="h3 fw-bold mb-2" id="detail-title">
+                Full-Stack Web Dev Bootcamp: Node.js, Express &amp; MongoDB
+              </h1>
+              <p class="text-muted small mb-3" id="detail-meta">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • Date: <strong>2026-10-28</strong> • Time:
+                <strong>13:00–17:00</strong> • Venue:
+                <strong>Gokongwei Hall GK304B, Manila Campus</strong>
+              </p>
+              <p class="mb-4" id="detail-description">
+                Hands-on workshop covering MVC web application architecture,
+                Handlebars templating, and Mongoose ODM integration.
+              </p>
+
+              <div
+                class="d-flex flex-wrap gap-2 pt-3 border-top"
+                id="detail-action-buttons"
+              >
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  id="btn-detail-rsvp"
+                >
+                  Leave Event (Registered)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-dlsu active"
+                  id="btn-detail-bookmark"
+                >
+                  Bookmarked
+                </button>
+              </div>
+            </article>
+
+            <!-- Discussion and updates -->
+            <section class="card border-0 shadow-sm p-4">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h2 class="h5 fw-bold mb-0">
+                  Event Updates &amp; Discussion Thread
+                </h2>
+                <span class="badge bg-secondary" id="thread-count-badge"
+                  >6 Posts</span
+                >
+              </div>
+
+              <form id="thread-post-form" class="mb-4">
+                <label
+                  for="thread-content"
+                  class="form-label small fw-semibold"
+                  id="thread-form-label"
+                  >Post a Question or Comment</label
+                >
+                <textarea
+                  id="thread-content"
+                  name="content"
+                  class="form-control form-control-sm mb-2"
+                  rows="3"
+                  required
+                  minlength="2"
+                  maxlength="500"
+                  placeholder="Share a question, resource note, or official announcement (2–500 characters)..."
+                ></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="small text-muted" id="thread-role-hint"
+                    >Posting as a participant</span
+                  >
+                  <button type="submit" class="btn btn-sm btn-dlsu">
+                    Publish Post
+                  </button>
+                </div>
+              </form>
+
+              <!-- Updates are rendered here. -->
+              <div id="thread-posts-list" class="d-flex flex-column gap-3">
+                <div class="p-3 rounded border thread-official">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small"
+                        >La Salle Computer Society (LSCS)</span
+                      >
+                      <span class="badge bg-success ms-1"
+                        >Official Host Update</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-10 14:30</small>
+                  </div>
+                  <p class="small mb-0">
+                    Starter repository and lab handouts will be distributed at
+                    registration.
+                  </p>
+                </div>
+                <div class="p-3 rounded border thread-official">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small"
+                        >La Salle Computer Society (LSCS)</span
+                      >
+                      <span class="badge bg-success ms-1"
+                        >Official Host Update</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-08 10:00</small>
+                  </div>
+                  <p class="small mb-0">
+                    Please install Node.js LTS and MongoDB Compass on your
+                    laptops before arriving at GK304B.
+                  </p>
+                </div>
+                <div class="p-3 rounded border bg-white">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small">Miguel Lorenzo Tan</span>
+                      <span class="badge bg-light text-dark border ms-1"
+                        >Student</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-10 15:10</small>
+                  </div>
+                  <p class="small mb-0">
+                    Registered! Will power strips be available at the GK304B lab
+                    tables?
+                  </p>
+                </div>
+                <div class="p-3 rounded border bg-white">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small">Hannah Sofia Reyes</span>
+                      <span class="badge bg-light text-dark border ms-1"
+                        >Student</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-10 16:05</small>
+                  </div>
+                  <p class="small mb-0">
+                    Looking forward to the session on Mongoose schema design and
+                    MVC controllers.
+                  </p>
+                </div>
+                <div class="p-3 rounded border bg-white">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small">Dr. Rafael Antonio Cruz</span>
+                      <span class="badge bg-light text-dark border ms-1"
+                        >Faculty</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-11 09:00</small>
+                  </div>
+                  <p class="small mb-0">
+                    Highly recommended practice session for all CBAPDEV project
+                    groups.
+                  </p>
+                </div>
+                <div class="p-3 rounded border bg-white">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <div>
+                      <span class="fw-bold small">Sophia Gabrielle Sy</span>
+                      <span class="badge bg-light text-dark border ms-1"
+                        >Student</span
+                      >
+                    </div>
+                    <small class="text-muted">2026-11-11 11:20</small>
+                  </div>
+                  <p class="small mb-0">
+                    Glad this workshop is open across campus so SHS STEM
+                    students can learn Node.js too!
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Capacity and attendees -->
+          <aside class="col-lg-4">
+            <div class="card border-0 shadow-sm p-3 mb-4">
+              <h2 class="h6 fw-bold mb-2">Registration Capacity</h2>
+              <div class="d-flex justify-content-between small mb-1">
+                <span id="capacity-text">6 of 20 slots filled</span>
+                <span class="fw-semibold" id="capacity-percent">30%</span>
+              </div>
+              <div class="progress mb-3" style="height: 10px">
+                <div
+                  class="progress-bar bg-success"
+                  id="capacity-bar"
+                  role="progressbar"
+                  style="width: 30%"
+                ></div>
+              </div>
+              <p class="small text-muted mb-0" id="capacity-note">
+                Students and Faculty who register automatically receive official
+                host updates on their Home Feed and Calendar.
+              </p>
+            </div>
+
+            <div class="card border-0 shadow-sm p-3">
+              <h2 class="h6 fw-bold mb-3" id="attendees-heading">
+                Confirmed Participants (6)
+              </h2>
+              <ul class="list-group list-group-flush" id="attendees-list">
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u1.svg"
+                    alt="Miguel Lorenzo Tan"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Miguel Lorenzo Tan</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Student (Undergraduate) • CCS/ST
+                    </div>
+                  </div>
+                </li>
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u2.svg"
+                    alt="Hannah Sofia Reyes"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Hannah Sofia Reyes</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Student (Graduate) • CCS/IT
+                    </div>
+                  </div>
+                </li>
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u3.svg"
+                    alt="Dr. Rafael Antonio Cruz"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Dr. Rafael Antonio Cruz</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Faculty • CCS/ST
+                    </div>
+                  </div>
+                </li>
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u4.svg"
+                    alt="Bea Katrina Villanueva"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Bea Katrina Villanueva</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Student (Undergraduate) • RVR-COB/MOD
+                    </div>
+                  </div>
+                </li>
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u5.svg"
+                    alt="Carlos Joaquin Mendoza"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Carlos Joaquin Mendoza</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Student (Graduate) • GCOE/ECE
+                    </div>
+                  </div>
+                </li>
+                <li
+                  class="list-group-item px-0 d-flex align-items-center gap-2"
+                >
+                  <img
+                    src="./images/avatar-u1.svg"
+                    alt="Sophia Gabrielle Sy"
+                    class="avatar-sm"
+                  />
+                  <div>
+                    <div class="small fw-semibold">Sophia Gabrielle Sy</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      Student (Senior High School) • SHS/STEM
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div
+        class="container d-flex flex-wrap justify-content-between align-items-center small"
+      >
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+        <a href="./events.html" class="text-decoration-none text-muted"
+          >Browse Events</a
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get("id") || "e1";
+
+        function renderEventDetails() {
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const ev =
+            state.events.find(function (e) {
+              return e.id === eventId;
+            }) || state.events[0];
+
+          if (!ev) return;
+
+          // Keep event details subject to the same visibility rules as the lists.
+          if (!window.AnimoApp.canUserViewEvent(user, ev)) {
+            document.getElementById("event-details-container").innerHTML =
+              '<div class="card border-0 shadow-sm p-5 text-center">' +
+              '<span class="badge badge-tag-restricted mx-auto mb-2">Restricted Campus Event</span>' +
+              '<h1 class="h4 fw-bold mb-2">Access Restricted to Target Audience</h1>' +
+              '<p class="text-muted mb-3">This event (<strong>' +
+              window.AnimoApp.escapeHtml(ev.title) +
+              "</strong>) is restricted to <strong>" +
+              window.AnimoApp.escapeHtml(
+                window.AnimoApp.formatAudienceSummary(ev),
+              ) +
+              "</strong>.</p>" +
+              '<div><a href="./events.html" class="btn btn-dlsu btn-sm">Return to Eligible Events</a></div>' +
+              "</div>";
+            return;
+          }
+
+          const isOwner = user && String(ev.organizer) === String(user.id);
+          const isJoined = user && (ev.attendees || []).indexOf(user.id) !== -1;
+          const isBookmarked =
+            user &&
+            state.bookmarks.some(function (b) {
+              return b.user === user.id && b.event === ev.id;
+            });
+          const grandfathered = window.AnimoApp.isGrandfatheredAttendee(
+            user,
+            ev,
+          );
+          const isArchived =
+            ev.status === "Completed" || ev.status === "Cancelled";
+
+          const statusBadge = document.getElementById("detail-status");
+          statusBadge.className =
+            "badge " + window.AnimoApp.getStatusBadgeClass(ev.status) + " me-1";
+          statusBadge.textContent = ev.status;
+
+          document.getElementById("detail-category").textContent = ev.category;
+          const audEl = document.getElementById("detail-audience");
+          audEl.className = ev.isPublic ? "badge-tag" : "badge-tag-restricted";
+          audEl.textContent = window.AnimoApp.formatAudienceSummary(ev);
+
+          document.getElementById("detail-owner-actions").innerHTML = isOwner
+            ? '<a href="./event-edit.html?id=' +
+              ev.id +
+              '" class="btn btn-sm btn-dlsu">Edit / Manage Event</a>'
+            : "";
+
+          document.getElementById("detail-grandfathered-alert").innerHTML =
+            grandfathered
+              ? '<div class="alert alert-warning small"><strong>Registered prior to profile update:</strong> Your current profile no longer matches this event\'s target audience criteria. Your existing registration slot remains valid, but if you leave this event you will not be able to re-register.</div>'
+              : "";
+
+          document.getElementById("detail-title").textContent = ev.title;
+          document.getElementById("detail-meta").innerHTML =
+            'Hosted by <a href="./organizer.html?id=' +
+            encodeURIComponent(ev.organizer) +
+            '" class="text-success fw-semibold text-decoration-none">' +
+            window.AnimoApp.escapeHtml(ev.organizerName) +
+            "</a> • Date: <strong>" +
+            window.AnimoApp.escapeHtml(ev.date) +
+            "</strong> • Time: <strong>" +
+            window.AnimoApp.escapeHtml(ev.time) +
+            (ev.endTime
+              ? "–" + window.AnimoApp.escapeHtml(ev.endTime)
+              : "") +
+            "</strong> • Venue: <strong>" +
+            window.AnimoApp.escapeHtml(ev.venue) +
+            "</strong>";
+          document.getElementById("detail-description").textContent =
+            ev.description;
+
+          // Show actions available to the current user.
+          const actionBox = document.getElementById("detail-action-buttons");
+          let rsvpHtml = "";
+          if (isOwner) {
+            rsvpHtml =
+              '<a href="./event-edit.html?id=' +
+              ev.id +
+              '" class="btn btn-dlsu">Manage Event Details &amp; Status</a>';
+          } else if (user && user.role === "Organizer") {
+            rsvpHtml =
+              '<span class="btn btn-light border disabled text-muted">Organizer Account (Host Role — Switch to Student/Faculty to RSVP)</span>';
+          } else if (isArchived) {
+            rsvpHtml =
+              '<button type="button" class="btn btn-secondary" disabled>' +
+              (isJoined
+                ? "Attended (" + ev.status + ")"
+                : "Event " + ev.status) +
+              "</button>";
+          } else if (isJoined) {
+            rsvpHtml =
+              '<button type="button" class="btn btn-outline-danger" id="btn-detail-rsvp">Leave Event (Registered)</button>';
+          } else if (ev.status === "Open") {
+            rsvpHtml =
+              '<button type="button" class="btn btn-dlsu" id="btn-detail-rsvp">Join Event (RSVP)</button>';
+          } else {
+            rsvpHtml =
+              '<button type="button" class="btn btn-secondary" disabled>Registration ' +
+              ev.status +
+              "</button>";
+          }
+
+          actionBox.innerHTML =
+            rsvpHtml +
+            '<button type="button" class="btn btn-outline-dlsu ' +
+            (isBookmarked ? "active" : "") +
+            '" id="btn-detail-bookmark">' +
+            (isBookmarked ? "Saved in Bookmarks" : "Bookmark Event") +
+            "</button>";
+
+          const rsvpBtn = document.getElementById("btn-detail-rsvp");
+          if (rsvpBtn) {
+            rsvpBtn.addEventListener("click", function () {
+              window.AnimoApp.handleToggleRsvp(ev.id, renderEventDetails);
+            });
+          }
+          const bmBtn = document.getElementById("btn-detail-bookmark");
+          if (bmBtn) {
+            bmBtn.addEventListener("click", function () {
+              window.AnimoApp.handleToggleBookmark(ev.id, renderEventDetails);
+            });
+          }
+
+          // Capacity progress
+          const pct = Math.min(
+            100,
+            Math.round((ev.attendees.length / ev.maxCapacity) * 100),
+          );
+          document.getElementById("capacity-text").textContent =
+            ev.attendees.length + " of " + ev.maxCapacity + " slots filled";
+          document.getElementById("capacity-percent").textContent = pct + "%";
+          document.getElementById("capacity-bar").style.width = pct + "%";
+
+          // Attendees
+          document.getElementById("attendees-heading").textContent =
+            "Confirmed Participants (" + ev.attendees.length + ")";
+          const attendeesListEl = document.getElementById("attendees-list");
+          attendeesListEl.innerHTML = ev.attendees
+            .map(function (uid) {
+              const attUser = state.users.find(function (u) {
+                return u.id === uid;
+              });
+              if (!attUser) return "";
+              const levelInfo =
+                attUser.role === "Student"
+                  ? " (" + attUser.academicLevel + ")"
+                  : "";
+              return (
+                '<li class="list-group-item px-0 d-flex align-items-center gap-2">' +
+                '<img src="' +
+                window.AnimoApp.escapeHtml(attUser.profilePic) +
+                '" alt="' +
+                window.AnimoApp.escapeHtml(attUser.displayName) +
+                '" class="avatar-sm">' +
+                "<div>" +
+                '<div class="small fw-semibold">' +
+                window.AnimoApp.escapeHtml(attUser.displayName) +
+                "</div>" +
+                '<div class="text-muted" style="font-size: 0.75rem;">' +
+                window.AnimoApp.escapeHtml(attUser.role) +
+                window.AnimoApp.escapeHtml(levelInfo) +
+                " • " +
+                window.AnimoApp.escapeHtml(attUser.college) +
+                "/" +
+                window.AnimoApp.escapeHtml(attUser.department) +
+                " (" +
+                attUser.campus +
+                ")</div>" +
+                "</div>" +
+                "</li>"
+              );
+            })
+            .join("");
+
+          // Thread form hint
+          const roleHint = document.getElementById("thread-role-hint");
+          const formLabel = document.getElementById("thread-form-label");
+          const threadForm = document.getElementById("thread-post-form");
+          if (!user) {
+            threadForm.classList.add("d-none");
+          } else {
+            threadForm.classList.remove("d-none");
+          }
+          if (isOwner) {
+            formLabel.textContent = "Publish an Official Host Update";
+            roleHint.innerHTML =
+              "Posting as <strong>Event Organizer</strong> — your post will be highlighted and sent to all joined participants.";
+          } else if (user) {
+            formLabel.textContent = "Post a Question or Comment";
+            roleHint.innerHTML =
+              "Posting as <strong>" +
+              window.AnimoApp.escapeHtml(user.displayName) +
+              " (" +
+              window.AnimoApp.escapeHtml(user.role) +
+              ")</strong>";
+          } else {
+            roleHint.textContent = "Sign in to participate in this discussion.";
+          }
+
+          // Render updates
+          const updates = ev.updates || [];
+          document.getElementById("thread-count-badge").textContent =
+            updates.length + " Posts";
+          const threadListEl = document.getElementById("thread-posts-list");
+          threadListEl.innerHTML = updates
+            .map(function (upd) {
+              const canEdit = user && String(upd.author) === String(user.id);
+              const canDelete =
+                user && (String(upd.author) === String(user.id) || isOwner);
+              return (
+                '<div class="p-3 rounded border ' +
+                (upd.isOfficialUpdate ? "thread-official" : "bg-white") +
+                '" data-upd-id="' +
+                upd.id +
+                '">' +
+                '<div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">' +
+                "<div>" +
+                '<span class="fw-bold small">' +
+                window.AnimoApp.escapeHtml(upd.authorName) +
+                "</span>" +
+                (upd.isOfficialUpdate
+                  ? '<span class="badge bg-success ms-1">Official Host Update</span>'
+                  : '<span class="badge bg-light text-dark border ms-1">' +
+                    window.AnimoApp.escapeHtml(upd.authorRole) +
+                    "</span>") +
+                "</div>" +
+                '<div class="d-flex align-items-center gap-2">' +
+                '<small class="text-muted">' +
+                window.AnimoApp.escapeHtml(upd.postedAt) +
+                "</small>" +
+                (canEdit
+                  ? '<button type="button" class="btn btn-link btn-sm p-0 text-success text-decoration-none" data-edit-upd="' +
+                    upd.id +
+                    '">Edit</button>'
+                  : "") +
+                (canDelete
+                  ? '<button type="button" class="btn btn-link btn-sm p-0 text-danger text-decoration-none" data-del-upd="' +
+                    upd.id +
+                    '">Delete</button>'
+                  : "") +
+                "</div>" +
+                "</div>" +
+                '<p class="small mb-0" id="upd-text-' +
+                upd.id +
+                '">' +
+                window.AnimoApp.escapeHtml(upd.content) +
+                "</p>" +
+                '<form class="mt-2 d-none" id="upd-edit-form-' +
+                upd.id +
+                '">' +
+                '<textarea class="form-control form-control-sm mb-2" rows="2" required minlength="2" maxlength="500">' +
+                window.AnimoApp.escapeHtml(upd.content) +
+                "</textarea>" +
+                '<div class="d-flex gap-2">' +
+                '<button type="submit" class="btn btn-sm btn-dlsu">Save Changes</button>' +
+                '<button type="button" class="btn btn-sm btn-outline-secondary" data-cancel-upd="' +
+                upd.id +
+                '">Cancel</button>' +
+                "</div>" +
+                "</form>" +
+                "</div>"
+              );
+            })
+            .join("");
+
+          // Bind update controls.
+          threadListEl
+            .querySelectorAll("[data-edit-upd]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                const uid = btn.getAttribute("data-edit-upd");
+                document
+                  .getElementById("upd-edit-form-" + uid)
+                  .classList.remove("d-none");
+              });
+            });
+          threadListEl
+            .querySelectorAll("[data-cancel-upd]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                const uid = btn.getAttribute("data-cancel-upd");
+                document
+                  .getElementById("upd-edit-form-" + uid)
+                  .classList.add("d-none");
+              });
+            });
+          threadListEl
+            .querySelectorAll('form[id^="upd-edit-form-"]')
+            .forEach(function (formEl) {
+              formEl.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const uid = formEl.id.replace("upd-edit-form-", "");
+                const newText = formEl.querySelector("textarea").value.trim();
+                if (newText.length < 2) return;
+                const nextState = window.AnimoApp.loadState();
+                const targetEv = nextState.events.find(function (item) {
+                  return item.id === ev.id;
+                });
+                const targetUpd = (targetEv.updates || []).find(function (u) {
+                  return u.id === uid;
+                });
+                if (targetUpd) {
+                  targetUpd.content = newText;
+                  window.AnimoApp.saveState(nextState);
+                  window.AnimoApp.showToast("Post updated.", "success");
+                  renderEventDetails();
+                }
+              });
+            });
+          threadListEl
+            .querySelectorAll("[data-del-upd]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                const uid = btn.getAttribute("data-del-upd");
+                const nextState = window.AnimoApp.loadState();
+                const targetEv = nextState.events.find(function (item) {
+                  return item.id === ev.id;
+                });
+                targetEv.updates = (targetEv.updates || []).filter(
+                  function (u) {
+                    return u.id !== uid;
+                  },
+                );
+                window.AnimoApp.saveState(nextState);
+                window.AnimoApp.showToast(
+                  "Post removed from thread.",
+                  "warning",
+                );
+                renderEventDetails();
+              });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const postForm = document.getElementById("thread-post-form");
+          postForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const contentEl = document.getElementById("thread-content");
+            const text = contentEl.value.trim();
+            if (text.length < 2) return;
+
+            const state = window.AnimoApp.loadState();
+            const user = state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            });
+            const ev =
+              state.events.find(function (item) {
+                return item.id === eventId;
+              }) || state.events[0];
+            if (!user) {
+              window.AnimoApp.showToast(
+                "Please sign in to post in the event thread.",
+                "warning",
+              );
+              return;
+            }
+            const nowStr = window.AnimoApp.getLocalTimestamp();
+            const isHost = String(ev.organizer) === String(user.id);
+            ev.updates.unshift({
+              id: "up_" + Date.now(),
+              author: user.id,
+              authorName: user.displayName,
+              authorRole: user.role,
+              content: text,
+              isOfficialUpdate: isHost,
+              postedAt: nowStr,
+            });
+            window.AnimoApp.saveState(state);
+            contentEl.value = "";
+            window.AnimoApp.showToast(
+              isHost
+                ? "Official host update published!"
+                : "Comment posted to thread!",
+              "success",
+            );
+            renderEventDetails();
+          });
+
+          renderEventDetails();
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AnimoEvents — DLSU Campus Events &amp; Activities Hub</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <!-- Shared Navigation Bar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./event-create.html">Publish Event</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./about.html">About</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                >Quick Page Jump</a
+              >
+              <ul class="dropdown-menu shadow-sm">
+                <li>
+                  <h6 class="dropdown-header">Event &amp; Discovery Views</h6>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./index.html"
+                    >Home Feed (index.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./events.html"
+                    >Browse &amp; Filter Events (events.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./event-details.html?id=e1"
+                    >Event Details &amp; Thread (event-details.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./event-create.html"
+                    >Publish Event Form (event-create.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./event-edit.html?id=e1"
+                    >Manage / Edit Event Form (event-edit.html)</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <h6 class="dropdown-header">
+                    Personal &amp; Organizer Views
+                  </h6>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./bookmarks.html"
+                    >Saved Bookmarks (bookmarks.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./calendar.html"
+                    >Event Calendar (calendar.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./organizer.html"
+                    >Organizer Directory (organizer.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./profile.html"
+                    >My Profile (profile.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./profile-edit.html"
+                    >Edit Profile (profile-edit.html)</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <h6 class="dropdown-header">Account &amp; Info Views</h6>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./login.html"
+                    >Sign In (login.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./register.html"
+                    >Create Account (register.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./logout.html"
+                    >Sign Out Confirmation (logout.html)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./about.html"
+                    >About AnimoEvents (about.html)</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="dropdown">
+              <button
+                class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+                type="button"
+                data-bs-toggle="dropdown"
+                id="nav-current-user"
+              >
+                <img
+                  src="./images/avatar-u1.svg"
+                  alt="Miguel Lorenzo Tan"
+                  class="avatar-sm me-2"
+                />
+                <span class="fw-semibold">Miguel Lorenzo Tan</span>
+                <span class="badge bg-light text-dark ms-1"
+                  >Student • CCS/ST</span
+                >
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li>
+                  <h6 class="dropdown-header">Switch Sample DLSU Account</h6>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u1"
+                    >Miguel Tan (Student • Undergrad • CCS/ST Manila)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u13"
+                    >Sophia Sy (Student • Senior High School • STEM Manila)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u2"
+                    >Hannah Reyes (Student • Graduate • CCS/IT Manila)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u3"
+                    >Dr. Rafael Cruz (Faculty • CCS/ST Manila)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u5"
+                    >Carlos Mendoza (Student • Graduate • GCOE/ECE Laguna)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u4"
+                    >Bea Villanueva (Student • Undergrad • RVR-COB/MOD)</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <h6 class="dropdown-header">Accredited Organizer Accounts</h6>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u6"
+                    >La Salle Computer Society — LSCS (Organizer • CCS)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u7"
+                    >Center for Computational Imaging — CIVI (Organizer)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u8"
+                    >Office of Student L.I.F.E. (Organizer • Univ-Wide)</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-switch-user="u10"
+                    >Business Management Society — BMS (Organizer)</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="./profile.html"
+                    >View My Profile</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="./login.html">Sign In Page</a>
+                </li>
+                <li>
+                  <a class="dropdown-item text-danger" href="./logout.html"
+                    >Sign Out</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-secondary small"
+                    href="#"
+                    data-reset-demo="true"
+                    >Reset Sample Data</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <!-- Welcome banner -->
+      <section class="hero-banner mb-4">
+        <div class="row align-items-center g-3">
+          <div class="col-lg-8">
+            <span class="badge bg-light text-success fw-semibold mb-2"
+              >DLSU Manila &amp; Laguna Campus Bulletin</span
+            >
+            <h1 class="h3 fw-bold mb-2">
+              Discover &amp; Track Lasallian Campus Events
+            </h1>
+            <p class="mb-0 opacity-90">
+              Browse upcoming seminars, workshops, bazaars, and competitions
+              tailored to your college, department, academic level, and campus.
+              Register in one click to receive official host updates.
+            </p>
+          </div>
+          <div class="col-lg-4 text-lg-end" id="hero-action-box">
+            <a
+              href="./events.html"
+              class="btn btn-light text-success fw-semibold me-2"
+              >Search &amp; Filter Events</a
+            >
+            <a href="./calendar.html" class="btn btn-outline-light fw-semibold"
+              >View My Calendar</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Current profile -->
+      <section
+        class="user-context-bar mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2"
+        id="profile-context-bar"
+      >
+        <div>
+          <span class="text-muted small d-block">
+            Personalized Feed Visibility</span
+          >
+          <span class="fw-semibold" id="context-user-summary">
+            Showing events open to all Lasallians and activities matching:
+            <strong>Student (Undergraduate) • CCS / ST • Manila Campus</strong>
+          </span>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="./profile-edit.html" class="btn btn-sm btn-outline-dlsu"
+            >Update Profile &amp; Affiliation</a
+          >
+        </div>
+      </section>
+
+      <div class="row g-4">
+        <!-- Event feed -->
+        <div class="col-lg-8">
+          <div
+            class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+          >
+            <div>
+              <h2 class="h5 fw-bold mb-0" id="feed-heading">
+                Upcoming Eligible Campus Events
+              </h2>
+              <p class="text-muted small mb-0" id="feed-subtitle">
+                Restricted events for other colleges or academic levels are
+                automatically hidden unless you are already registered.
+              </p>
+            </div>
+            <!-- Feed filters -->
+            <div
+              class="btn-group btn-group-sm"
+              role="group"
+              aria-label="Feed filter tabs"
+            >
+              <button
+                type="button"
+                class="btn btn-outline-dlsu active"
+                data-feed-mode="eligible"
+              >
+                All Eligible (<span id="count-eligible">7</span>)
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-dlsu"
+                data-feed-mode="targeted"
+              >
+                Targeted for My Group (<span id="count-targeted">2</span>)
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-dlsu"
+                data-feed-mode="joined"
+              >
+                My Joined / Hosted (<span id="count-joined">6</span>)
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-dlsu"
+                data-feed-mode="archive"
+              >
+                Completed Archive (<span id="count-archive">2</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Event feed results -->
+          <div id="home-events-list" class="d-flex flex-column gap-3">
+            <!-- Event card -->
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1">Open</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Workshop</span
+                  >
+                  <span class="badge-tag">Open to All DLSU Community</span>
+                </div>
+                <span class="small fw-semibold text-success"
+                  >6 / 20 Joined</span
+                >
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e1"
+                  class="text-decoration-none text-dark"
+                  >Full-Stack Web Dev Bootcamp: Node.js, Express &amp;
+                  MongoDB</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • 2026-10-28 • 13:00–17:00 • Gokongwei Hall GK304B, Manila
+                Campus
+              </p>
+              <p class="small mb-3">
+                Hands-on workshop covering MVC web application architecture,
+                Handlebars templating, and Mongoose ODM integration.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e1"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (6)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e1"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e1"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1">Open</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Competition</span
+                  >
+                  <span class="badge-tag">Open to All DLSU Community</span>
+                </div>
+                <span class="small fw-semibold text-success"
+                  >6 / 15 Joined</span
+                >
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e2"
+                  class="text-decoration-none text-dark"
+                  >Animo Hacker Cup CTF 2026: Web Security Challenge</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • 2026-11-16 • 09:00–16:00 • Henry Sy Sr. Hall 5F Learning
+                Commons
+              </p>
+              <p class="small mb-3">
+                Annual capture-the-flag cybersecurity competition testing input
+                validation, session security, and password hashing defenses.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e2"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (5)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e2"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e2"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1">Open</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Bazaar</span
+                  >
+                  <span class="badge-tag">Open to All DLSU Community</span>
+                </div>
+                <span class="small fw-semibold text-success"
+                  >6 / 25 Joined</span
+                >
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e3"
+                  class="text-decoration-none text-dark"
+                  >CCS Tech Career, Research &amp; Internship Fair 2026</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • 2026-12-16 • 10:00–17:00 • Henry Sy Sr. Hall Roofdeck, Manila
+                Campus
+              </p>
+              <p class="small mb-3">
+                Connect with partner software engineering firms, research labs,
+                and internship coordinators for Term 2 placements.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e3"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (5)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e3"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e3"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1">Open</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Seminar</span
+                  >
+                  <span class="badge-tag-restricted"
+                    >Restricted: CCS, GCOE • Dept/Strand: ST, IT, ECE, IE</span
+                  >
+                </div>
+                <span class="small fw-semibold text-success"
+                  >5 / 20 Joined</span
+                >
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e4"
+                  class="text-decoration-none text-dark"
+                  >Software Engineering &amp; Cloud Architecture Colloquium</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • 2026-12-17 • 14:00–16:30 • Yuchengco Hall Y407, Manila Campus
+              </p>
+              <p class="small mb-3">
+                Targeted technical colloquium on scalable Node.js microservices,
+                cloud deployment on Render, and database indexing.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e4"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (5)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e4"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e4"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-full me-1">Full</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Workshop</span
+                  >
+                  <span class="badge-tag">Open to All DLSU Community</span>
+                </div>
+                <span class="small fw-semibold text-warning">5 / 5 Joined</span>
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e5"
+                  class="text-decoration-none text-dark"
+                  >UI/UX Design Sprint &amp; Interactive Prototyping Lab</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u6"
+                  class="text-success fw-semibold text-decoration-none"
+                  >La Salle Computer Society (LSCS)</a
+                >
+                • 2026-11-25 • 15:00–18:00 • Gokongwei Hall GK202, Manila Campus
+              </p>
+              <p class="small mb-3">
+                Intensive small-group design sprint focused on accessible
+                interfaces, responsive Bootstrap layouts, and usability testing.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e5"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (5)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e5"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e5"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-event shadow-sm p-3">
+              <div
+                class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2"
+              >
+                <div>
+                  <span class="badge badge-status-open me-1">Open</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1"
+                    >Seminar</span
+                  >
+                  <span class="badge-tag-restricted"
+                    >Restricted: CCS, GCOE, COS, SHS • Dept/Strand: ST, IT, ECE,
+                    BIO, PHYS, STEM</span
+                  >
+                </div>
+                <span class="small fw-semibold text-success"
+                  >5 / 15 Joined</span
+                >
+              </div>
+              <h3 class="h5 fw-bold mb-1">
+                <a
+                  href="./event-details.html?id=e7"
+                  class="text-decoration-none text-dark"
+                  >AI &amp; Computer Vision in Healthcare Symposium</a
+                >
+              </h3>
+              <p class="text-muted small mb-2">
+                Hosted by
+                <a
+                  href="./organizer.html?id=u7"
+                  class="text-success fw-semibold text-decoration-none"
+                  >Center for Computational Imaging and Visual Innovations
+                  (CIVI)</a
+                >
+                • 2026-12-19 • 10:00–12:30 • Gokongwei Hall GK401 AdRIC Lab,
+                Manila Campus
+              </p>
+              <p class="small mb-3">
+                Research symposium hosted by CIVI featuring deep learning models
+                for medical imaging and visual diagnostics.
+              </p>
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top"
+              >
+                <a
+                  href="./event-details.html?id=e7"
+                  class="btn btn-sm btn-outline-secondary"
+                  >View Details &amp; Thread (5)</a
+                >
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-rsvp-btn="e7"
+                  >
+                    Leave Event (Joined)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dlsu active"
+                    data-bookmark-btn="e7"
+                  >
+                    Bookmarked
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Recent updates -->
+        <aside class="col-lg-4">
+          <div class="card border-0 shadow-sm mb-4">
+            <div
+              class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center"
+            >
+              <h2 class="h6 fw-bold mb-0" id="updates-sidebar-title">
+                Updates from Joined Events
+              </h2>
+              <span class="badge bg-success" id="updates-count-badge"
+                >6 Updates</span
+              >
+            </div>
+            <div class="card-body p-0">
+              <div
+                class="list-group list-group-flush"
+                id="subscribed-updates-list"
+              >
+                <a
+                  href="./event-details.html?id=e6"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >La Salle Computer Society (LSCS)</span
+                    >
+                    <small class="text-muted">2026-11-24 11:00</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    DevOps, Git Workflows &amp; Automated Testing Seminar
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Open to all DLSU students and faculty interested in software
+                    quality assurance.
+                  </p>
+                </a>
+                <a
+                  href="./event-details.html?id=e5"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >La Salle Computer Society (LSCS)</span
+                    >
+                    <small class="text-muted">2026-11-21 14:00</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    UI/UX Design Sprint &amp; Interactive Prototyping Lab
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Please pre-install Figma Desktop or sign in via browser
+                    before 3:00 PM.
+                  </p>
+                </a>
+                <a
+                  href="./event-details.html?id=e9"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >Office of Student L.I.F.E.</span
+                    >
+                    <small class="text-muted">2026-11-20 10:00</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    Animo Green Community &amp; Lasallian Social Enterprise
+                    Bazaar
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Open to all students and faculty across colleges and Senior
+                    High School.
+                  </p>
+                </a>
+                <a
+                  href="./event-details.html?id=e4"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >La Salle Computer Society (LSCS)</span
+                    >
+                    <small class="text-muted">2026-11-19 15:00</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    Software Engineering &amp; Cloud Architecture Colloquium
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Speaker slides on MongoDB compound indexes will be shared
+                    after the talk.
+                  </p>
+                </a>
+                <a
+                  href="./event-details.html?id=e7"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >CIVI</span
+                    >
+                    <small class="text-muted">2026-11-18 15:00</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    AI &amp; Computer Vision in Healthcare Symposium
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Live lab demos of biomedical segmentation will follow the
+                    keynote talks in GK401.
+                  </p>
+                </a>
+                <a
+                  href="./event-details.html?id=e3"
+                  class="list-group-item list-group-item-action py-3"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <span
+                      class="badge bg-success bg-opacity-10 text-success fw-semibold"
+                      >La Salle Computer Society (LSCS)</span
+                    >
+                    <small class="text-muted">2026-11-17 09:30</small>
+                  </div>
+                  <div class="fw-semibold small text-dark mb-1">
+                    CCS Tech Career, Research &amp; Internship Fair 2026
+                  </div>
+                  <p class="small text-muted mb-0">
+                    Bring printed copies of your CV or a QR link to your GitHub
+                    portfolio.
+                  </p>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visibility information -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <h3 class="h6 fw-bold mb-2">How Event Visibility Works</h3>
+              <ul class="small text-muted ps-3 mb-0">
+                <li class="mb-1">
+                  <strong>University-Wide Events:</strong> Visible and open to
+                  all students and faculty across campuses.
+                </li>
+                <li class="mb-1">
+                  <strong>Targeted Activities:</strong> Displayed only to users
+                  whose affiliation, college, department/strand, academic level,
+                  and campus match the host's criteria.
+                </li>
+                <li>
+                  <strong>Profile Changes:</strong> If you update your profile
+                  after registering for an event, your existing slot remains
+                  valid and grandfathered.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div
+        class="container d-flex flex-wrap justify-content-between align-items-center small"
+      >
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+        <div class="d-flex gap-3">
+          <a href="./events.html" class="text-decoration-none text-muted"
+            >Browse Events</a
+          >
+          <a href="./organizer.html" class="text-decoration-none text-muted"
+            >Organizers</a
+          >
+          <a href="./about.html" class="text-decoration-none text-muted"
+            >About &amp; Libraries</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const validFeeds = ["eligible", "targeted", "joined", "archive"];
+        const initialFeed = params.get("feed");
+        let activeFeedMode =
+          validFeeds.indexOf(initialFeed) !== -1 ? initialFeed : "eligible";
+
+        function renderHomePage() {
+          const esc = window.AnimoApp.escapeHtml;
+          const state = window.AnimoApp.loadState();
+          const user =
+            state.users.find(function (u) {
+              return u.id === state.currentUserId;
+            }) || null;
+          const heroBox = document.getElementById("hero-action-box");
+          const summaryEl = document.getElementById("context-user-summary");
+
+          if (user) {
+            const levelText =
+              user.role === "Student"
+                ? " (" + esc(user.academicLevel) + ")"
+                : "";
+            const deptText =
+              user.department !== "N/A" ? " / " + esc(user.department) : "";
+            summaryEl.innerHTML =
+              "Showing events open to all Lasallians and activities matching: <strong>" +
+              esc(user.role) +
+              levelText +
+              " &bull; " +
+              esc(user.college) +
+              deptText +
+              " &bull; " +
+              esc(user.campus) +
+              " Campus</strong>";
+            if (user.role === "Organizer") {
+              heroBox.innerHTML =
+                '<a href="./event-create.html" class="btn btn-light text-success fw-semibold me-2">+ Publish New Event</a>' +
+                '<a href="./calendar.html" class="btn btn-outline-light fw-semibold">Hosted Schedule</a>';
+            } else {
+              heroBox.innerHTML =
+                '<a href="./events.html" class="btn btn-light text-success fw-semibold me-2">Search &amp; Filter Events</a>' +
+                '<a href="./calendar.html" class="btn btn-outline-light fw-semibold">View My Calendar</a>';
+            }
+          } else {
+            summaryEl.innerHTML =
+              'Viewing in <strong>Guest Mode</strong> &mdash; only University-Wide public events are displayed. <a href="./login.html" class="text-success fw-semibold">Sign In</a> to view targeted events.';
+          }
+
+          const visibleEvents = state.events.filter(function (ev) {
+            return window.AnimoApp.canUserViewEvent(user, ev);
+          });
+
+          const activeEligible = visibleEvents.filter(function (ev) {
+            return ev.status !== "Completed" && ev.status !== "Cancelled";
+          });
+          const activeTargeted = activeEligible.filter(function (ev) {
+            return !ev.isPublic;
+          });
+          const myJoinedOrHosted = visibleEvents.filter(function (ev) {
+            if (!user) return false;
+            if (user.role === "Organizer")
+              return String(ev.organizer) === String(user.id);
+            return (ev.attendees || []).indexOf(user.id) !== -1;
+          });
+          const archivedEvents = visibleEvents.filter(function (ev) {
+            return ev.status === "Completed" || ev.status === "Cancelled";
+          });
+
+          document.getElementById("count-eligible").textContent =
+            activeEligible.length;
+          document.getElementById("count-targeted").textContent =
+            activeTargeted.length;
+          document.getElementById("count-joined").textContent =
+            myJoinedOrHosted.length;
+          document.getElementById("count-archive").textContent =
+            archivedEvents.length;
+
+          let listToRender = activeEligible;
+          const headingEl = document.getElementById("feed-heading");
+          if (activeFeedMode === "targeted") {
+            listToRender = activeTargeted;
+            headingEl.textContent = "Upcoming Events Targeted for My Group";
+          } else if (activeFeedMode === "joined") {
+            listToRender = myJoinedOrHosted;
+            headingEl.textContent =
+              user && user.role === "Organizer"
+                ? "My Hosted Campus Events"
+                : "Events I Have Joined";
+          } else if (activeFeedMode === "archive") {
+            listToRender = archivedEvents;
+            headingEl.textContent = "Past & Completed Events Archive";
+          } else {
+            headingEl.textContent = "Upcoming Eligible Campus Events";
+          }
+
+          const feedContainer = document.getElementById("home-events-list");
+          if (listToRender.length === 0) {
+            feedContainer.innerHTML =
+              '<div class="card border-0 shadow-sm p-4 text-center text-muted">' +
+              '<p class="mb-2 fw-semibold">No events found in this tab.</p>' +
+              '<p class="small mb-0">Try switching feed tabs above or browsing the full <a href="./events.html" class="text-success">Events Directory</a>.</p>' +
+              "</div>";
+          } else {
+            feedContainer.innerHTML = listToRender
+              .map(function (ev) {
+                const isJoined =
+                  user && (ev.attendees || []).indexOf(user.id) !== -1;
+                const isOwner =
+                  user && String(ev.organizer) === String(user.id);
+                const isBookmarked =
+                  user &&
+                  state.bookmarks.some(function (b) {
+                    return b.user === user.id && b.event === ev.id;
+                  });
+                const grandfathered = window.AnimoApp.isGrandfatheredAttendee(
+                  user,
+                  ev,
+                );
+                const audienceLabel = window.AnimoApp.formatAudienceSummary(ev);
+                const statusClass = window.AnimoApp.getStatusBadgeClass(
+                  ev.status,
+                );
+                const isArchived =
+                  ev.status === "Completed" || ev.status === "Cancelled";
+
+                let actionBtnHtml = "";
+                if (isOwner) {
+                  actionBtnHtml =
+                    '<a href="./event-edit.html?id=' +
+                    encodeURIComponent(ev.id) +
+                    '" class="btn btn-sm btn-dlsu">Manage Event</a>';
+                } else if (user && user.role === "Organizer") {
+                  actionBtnHtml =
+                    '<span class="badge bg-light text-muted border">Organizer View Only</span>';
+                } else if (isArchived) {
+                  actionBtnHtml =
+                    '<button type="button" class="btn btn-sm btn-secondary" disabled>' +
+                    esc(isJoined ? "Attended (" + ev.status + ")" : ev.status) +
+                    "</button>";
+                } else if (isJoined) {
+                  actionBtnHtml =
+                    '<button type="button" class="btn btn-sm btn-outline-danger" data-rsvp-btn="' +
+                    esc(ev.id) +
+                    '">Leave Event (Joined)</button>';
+                } else if (ev.status === "Open") {
+                  actionBtnHtml =
+                    '<button type="button" class="btn btn-sm btn-dlsu" data-rsvp-btn="' +
+                    esc(ev.id) +
+                    '">Join Event</button>';
+                } else {
+                  actionBtnHtml =
+                    '<button type="button" class="btn btn-sm btn-secondary" disabled>' +
+                    esc(ev.status) +
+                    "</button>";
+                }
+
+                const grandfatheredBanner = grandfathered
+                  ? '<div class="alert alert-warning py-1 px-2 small mb-2"><strong>Registered prior to profile update:</strong> Your current profile no longer matches this event\'s target audience. Your existing slot is preserved, but if you leave this event you will not be able to re-join.</div>'
+                  : "";
+
+                return (
+                  '<article class="card card-event shadow-sm p-3 ' +
+                  (isArchived ? "event-archived" : "") +
+                  '">' +
+                  '<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">' +
+                  "<div>" +
+                  '<span class="badge ' +
+                  statusClass +
+                  ' me-1">' +
+                  esc(ev.status) +
+                  "</span>" +
+                  '<span class="badge bg-secondary bg-opacity-10 text-dark me-1">' +
+                  esc(ev.category) +
+                  "</span>" +
+                  '<span class="' +
+                  (ev.isPublic ? "badge-tag" : "badge-tag-restricted") +
+                  '">' +
+                  esc(audienceLabel) +
+                  "</span>" +
+                  "</div>" +
+                  '<span class="small fw-semibold text-success">' +
+                  ev.attendees.length +
+                  " / " +
+                  ev.maxCapacity +
+                  " Joined</span>" +
+                  "</div>" +
+                  grandfatheredBanner +
+                  '<h3 class="h5 fw-bold mb-1"><a href="./event-details.html?id=' +
+                  encodeURIComponent(ev.id) +
+                  '" class="text-decoration-none text-dark">' +
+                  esc(ev.title) +
+                  "</a></h3>" +
+                  '<p class="text-muted small mb-2">Hosted by <a href="./organizer.html?id=' +
+                  encodeURIComponent(ev.organizer) +
+                  '" class="text-success fw-semibold text-decoration-none">' +
+                  esc(ev.organizerName) +
+                  "</a> &bull; " +
+                  esc(ev.date) +
+                  " &bull; " +
+                  esc(ev.time) +
+                  (ev.endTime ? "&ndash;" + esc(ev.endTime) : "") +
+                  " &bull; " +
+                  esc(ev.venue) +
+                  "</p>" +
+                  '<p class="small mb-3">' +
+                  esc(ev.description) +
+                  "</p>" +
+                  '<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">' +
+                  '<a href="./event-details.html?id=' +
+                  encodeURIComponent(ev.id) +
+                  '" class="btn btn-sm btn-outline-secondary">View Details &amp; Thread (' +
+                  (ev.updates ? ev.updates.length : 0) +
+                  ")</a>" +
+                  '<div class="d-flex gap-2 align-items-center">' +
+                  actionBtnHtml +
+                  '<button type="button" class="btn btn-sm btn-outline-dlsu ' +
+                  (isBookmarked ? "active" : "") +
+                  '" data-bookmark-btn="' +
+                  esc(ev.id) +
+                  '">' +
+                  (isBookmarked ? "Bookmarked" : "Bookmark") +
+                  "</button>" +
+                  "</div>" +
+                  "</div>" +
+                  "</article>"
+                );
+              })
+              .join("");
+          }
+
+          feedContainer
+            .querySelectorAll("[data-rsvp-btn]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                window.AnimoApp.handleToggleRsvp(
+                  btn.getAttribute("data-rsvp-btn"),
+                  renderHomePage,
+                );
+              });
+            });
+          feedContainer
+            .querySelectorAll("[data-bookmark-btn]")
+            .forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                window.AnimoApp.handleToggleBookmark(
+                  btn.getAttribute("data-bookmark-btn"),
+                  renderHomePage,
+                );
+              });
+            });
+
+          const sidebarTitle = document.getElementById("updates-sidebar-title");
+          const subscribedEvents = state.events.filter(function (ev) {
+            if (!user) return ev.isPublic;
+            if (user.role === "Organizer")
+              return String(ev.organizer) === String(user.id);
+            return (ev.attendees || []).indexOf(user.id) !== -1;
+          });
+
+          sidebarTitle.textContent =
+            user && user.role === "Organizer"
+              ? "Updates on My Hosted Events"
+              : "Updates from Joined Events";
+
+          const officialUpdates = [];
+          subscribedEvents.forEach(function (ev) {
+            (ev.updates || []).forEach(function (upd) {
+              if (upd.isOfficialUpdate) {
+                officialUpdates.push({
+                  eventId: ev.id,
+                  eventTitle: ev.title,
+                  organizerName: ev.organizerName,
+                  content: upd.content,
+                  postedAt: upd.postedAt,
+                });
+              }
+            });
+          });
+          officialUpdates.sort(function (a, b) {
+            return b.postedAt.localeCompare(a.postedAt);
+          });
+
+          document.getElementById("updates-count-badge").textContent =
+            officialUpdates.length + " Updates";
+          const updatesListEl = document.getElementById(
+            "subscribed-updates-list",
+          );
+          if (officialUpdates.length === 0) {
+            updatesListEl.innerHTML =
+              '<div class="p-3 small text-muted text-center">Join an event to receive official host announcements here.</div>';
+          } else {
+            updatesListEl.innerHTML = officialUpdates
+              .map(function (u) {
+                return (
+                  '<a href="./event-details.html?id=' +
+                  encodeURIComponent(u.eventId) +
+                  '" class="list-group-item list-group-item-action py-3">' +
+                  '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                  '<span class="badge bg-success bg-opacity-10 text-success fw-semibold text-truncate" style="max-width: 180px;">' +
+                  esc(u.organizerName) +
+                  "</span>" +
+                  '<small class="text-muted">' +
+                  esc(u.postedAt) +
+                  "</small>" +
+                  "</div>" +
+                  '<div class="fw-semibold small text-dark mb-1">' +
+                  esc(u.eventTitle) +
+                  "</div>" +
+                  '<p class="small text-muted mb-0">' +
+                  esc(u.content) +
+                  "</p>" +
+                  "</a>"
+                );
+              })
+              .join("");
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          document.querySelectorAll("[data-feed-mode]").forEach(function (btn) {
+            btn.classList.toggle(
+              "active",
+              btn.getAttribute("data-feed-mode") === activeFeedMode,
+            );
+            btn.addEventListener("click", function () {
+              document
+                .querySelectorAll("[data-feed-mode]")
+                .forEach(function (b) {
+                  b.classList.remove("active");
+                });
+              btn.classList.add("active");
+              activeFeedMode = btn.getAttribute("data-feed-mode");
+              renderHomePage();
+            });
+          });
+          renderHomePage();
+        });
+      })();
+    </script>
+  </body>
+</html>
