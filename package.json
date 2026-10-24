@@ -2,18 +2,24 @@
   "name": "animoevents",
   "version": "2.0.0",
   "private": true,
-  "description": "AnimoEvents campus events application",
-  "main": "server.js",
+  "description": "AnimoEvents — DLSU Campus Events & Personal Calendar Web Application (CBAPDEV X21 Group 4)",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "test": "node --check server.js"
+    "start": "node app.js",
+    "dev": "node app.js",
+    "seed": "node model/seed.js",
+    "test": "node --check app.js && node --check server.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "hbs": "^4.2.0",
+    "mongoose": "^8.8.1"
   }
 }
