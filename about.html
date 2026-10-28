@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About AnimoEvents — CBAPDEV Group 4</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="./index.html"
+        >
+          <span class="badge bg-white text-success fw-bold">DLSU</span>
+          <span>AnimoEvents</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+          aria-controls="mainNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./index.html">Home Feed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./events.html">Browse Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./calendar.html">My Calendar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./bookmarks.html">Saved Bookmarks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./organizer.html">Organizers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="./about.html">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <section class="hero-banner mb-4">
+        <span class="badge bg-light text-success fw-semibold mb-2"
+          >De La Salle University • College of Computer Studies</span
+        >
+        <h1 class="h3 fw-bold mb-2">About AnimoEvents</h1>
+        <p class="mb-0 opacity-90">
+          A centralized digital bulletin board and personal calendar for
+          discovering, bookmarking, and joining campus activities across the
+          DLSU Manila and Laguna campuses.
+        </p>
+      </section>
+
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm p-4 mb-4">
+            <h2 class="h5 fw-bold mb-3">The Challenge &amp; Our Solution</h2>
+            <p class="small">
+              With many student organizations, research centers, and university
+              offices operating across the DLSU Manila and Laguna campuses,
+              announcements are frequently scattered across social media pages,
+              chat groups, and Help Desk Announcement (HDA) emails. As a result,
+              students and faculty often miss time-sensitive opportunities or
+              must navigate separate external links just to register.
+            </p>
+            <p class="small mb-2">
+              <strong>AnimoEvents</strong> provides a dedicated, lightweight hub
+              designed around three core workflows:
+            </p>
+            <ul class="small mb-0">
+              <li class="mb-2">
+                <strong>Targeted Campus Feed:</strong> Organizers can publish
+                university-wide events or restrict visibility to specific roles,
+                student academic levels (Senior High School, Undergraduate,
+                Graduate), colleges, departments/strands, and campuses.
+              </li>
+              <li class="mb-2">
+                <strong>Direct Registration &amp; Host Updates:</strong>
+                Students and faculty can RSVP directly on an event post, view
+                available slot capacity, and receive official host updates in
+                the event discussion thread.
+              </li>
+              <li>
+                <strong>Saved Bookmarks &amp; Personal Calendar:</strong> Users
+                can bookmark events with optional personal notes and track all
+                of their registered or hosted activities on a multi-year monthly
+                calendar.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card border-0 shadow-sm p-4">
+            <h2 class="h5 fw-bold mb-3">
+              Development Team (CBAPDEV Section X21 — Group 4)
+            </h2>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle small mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Member Name</th>
+                    <th>Assigned Module &amp; Views</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-semibold">Arron Baranquil</td>
+                    <td>
+                      Authentication, User Profile &amp; Affiliation Views
+                      (<code>login.html</code>, <code>logout.html</code>,
+                      <code>register.html</code>, <code>profile.html</code>,
+                      <code>profile-edit.html</code>)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Laurence Benjamin Diaz</td>
+                    <td>
+                      Personalized Home Feed, Event Posts &amp; Discussion
+                      Thread Views (<code>index.html</code>,
+                      <code>event-details.html</code>,
+                      <code>event-create.html</code>,
+                      <code>event-edit.html</code>)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Alaine Carlo Magdaluyo</td>
+                    <td>
+                      Events Search &amp; Filter Directory, RSVP Logic, Calendar
+                      &amp; Organizer Views (<code>events.html</code>,
+                      <code>calendar.html</code>, <code>organizer.html</code>)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">John Michael Sumilang</td>
+                    <td>
+                      Saved Event Bookmarks, Sample Dataset &amp; Shared UI
+                      Styling (<code>bookmarks.html</code>,
+                      <code>about.html</code>, <code>css/style.css</code>)
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm p-4 mb-4">
+            <h2 class="h5 fw-bold mb-3">
+              Front-End Technologies &amp; Libraries
+            </h2>
+            <ul class="list-group list-group-flush small">
+              <li class="list-group-item px-0">
+                <strong>HTML5</strong> — Semantic document structure, forms,
+                tables, and accessible navigation across all 14 application
+                views.
+              </li>
+              <li class="list-group-item px-0">
+                <strong>CSS3 &amp; Custom Stylesheet</strong>
+                (<code>css/style.css</code>) — Custom DLSU green theme
+                (<code>#006633</code>), lifecycle status badges, and calendar
+                table layout.
+              </li>
+              <li class="list-group-item px-0">
+                <strong>Bootstrap 5.3.3</strong> — Responsive grid system,
+                navigation bar, cards, dropdowns, and confirmation modals.
+              </li>
+              <li class="list-group-item px-0">
+                <strong>JavaScript (ES6+)</strong> (<code>js/main.js</code>,
+                <code>model/constants.js</code>) — Client-side DOM manipulation,
+                interactive sample state in <code>localStorage</code>,
+                search/filter logic, and form validation.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card border-0 shadow-sm p-4">
+            <h2 class="h6 fw-bold mb-2">
+              References &amp; Generative AI Use Disclosure
+            </h2>
+            <p class="small text-muted mb-2">
+              In compliance with the CBAPDEV course policy on Artificial
+              Intelligence tools, Group 4 declares the use of Google Gemini as
+              an assistive tool for conceptual brainstorming, requirement
+              verification, and debugging.
+            </p>
+            <p class="small text-muted mb-0">
+              All user interface designs, sample data, client-side logic, and
+              implementation details were reviewed, validated, and tested by the
+              group members under the guidelines of Asst. Prof. Arren Matthew C.
+              Antioquia.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer-dlsu">
+      <div class="container small">
+        <span
+          ><strong>AnimoEvents</strong> • De La Salle University (Manila &amp;
+          Laguna) • CBAPDEV Section X21 — Group 4</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./model/constants.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>
