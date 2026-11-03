@@ -7,8 +7,9 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "animoevents_phase1_state_v5";
+  const STORAGE_KEY = "animoevents_phase1_state_v6";
   const PHASE1_DEMO_PASSWORD = "AnimoPass123!";
+  let storageWarningShown = false;
 
   const COLLEGES_MAP = {
     CCS: {
@@ -325,7 +326,7 @@
         id: "e1",
         title: "Full-Stack Web Dev Bootcamp: Node.js, Express & MongoDB",
         category: "Workshop",
-        date: "2026-10-28",
+        date: "2026-11-28",
         time: "13:00",
         endTime: "17:00",
         venue: "Gokongwei Hall GK304B, Manila Campus",
@@ -409,7 +410,7 @@
         id: "e2",
         title: "Animo Hacker Cup CTF 2026: Web Security Challenge",
         category: "Competition",
-        date: "2026-11-16",
+        date: "2026-11-29",
         time: "09:00",
         endTime: "16:00",
         venue: "Henry Sy Sr. Hall 5F Learning Commons, Manila & Laguna",
@@ -627,7 +628,7 @@
         id: "e5",
         title: "UI/UX Design Sprint & Interactive Prototyping Lab",
         category: "Workshop",
-        date: "2026-11-25",
+        date: "2026-11-30",
         time: "15:00",
         endTime: "18:00",
         venue: "Gokongwei Hall GK202, Manila Campus",
@@ -852,7 +853,7 @@
         id: "e8",
         title: "Graduate Thesis & LaTeX Research Publication Clinic",
         category: "Workshop",
-        date: "2026-11-21",
+        date: "2026-11-29",
         time: "13:00",
         endTime: "16:00",
         venue: "Henry Sy Sr. Hall 6F Seminar Room, Manila Campus",
@@ -927,7 +928,7 @@
         id: "e9",
         title: "Animo Green Community & Lasallian Social Enterprise Bazaar",
         category: "Bazaar",
-        date: "2026-11-24",
+        date: "2026-11-30",
         time: "09:00",
         endTime: "17:00",
         venue: "Marian Quadrangle, Manila Campus",
@@ -943,7 +944,7 @@
         targetCampuses: [],
         status: "Open",
         maxCapacity: 30,
-        attendees: ["u2", "u4", "u11", "u12", "u13"],
+        attendees: ["u1", "u2", "u4", "u11", "u12", "u13"],
         updates: [
           {
             id: "up42",
@@ -998,7 +999,7 @@
         id: "e10",
         title: "Laguna Campus Robotics, IoT & Automation Expo",
         category: "Competition",
-        date: "2026-11-26",
+        date: "2026-12-15",
         time: "10:00",
         endTime: "16:00",
         venue: "MRR Building Pergola, Laguna Campus",
@@ -1448,8 +1449,16 @@
   function saveState(state) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return true;
     } catch (e) {
-      // Ignore storage quota/file errors
+      if (!storageWarningShown) {
+        storageWarningShown = true;
+        showToast(
+          "Your browser is not allowing changes to be saved. You can continue browsing, but updates may be lost when you leave this page.",
+          "warning",
+        );
+      }
+      return false;
     }
   }
 
@@ -1500,11 +1509,6 @@
     };
   }
 
-  /**
-   * Normalizes audience arrays while preserving targetColleges so Phase 1 and Phase 2/3
-   * MongoDB queries ({ targetColleges: user.college }, { targetDepartments: user.department })
-   * behave identically. A targeted department also includes its parent college.
-   */
   function normalizeAudience(event) {
     const audience = event || {};
     const catalog = getAudienceCatalog();
@@ -1589,11 +1593,6 @@
     return errors;
   }
 
-  /**
-   * Renders the 5-dimension orthogonal audience targeting editor using standard
-   * schema field names (isPublic, targetRoles, targetAcademicLevels, targetColleges,
-   * targetDepartments, targetCampuses) for compatibility with the Express server.
-   */
   function renderAudienceEditor(root, initialEvent) {
     if (!root) return null;
     const initial = initialEvent
@@ -1792,7 +1791,6 @@
 
       if (isPublic) return;
 
-      // If a user checks a department, automatically ensure its parent college is checked
       if (
         evt &&
         evt.target &&
@@ -1806,7 +1804,6 @@
         });
       }
 
-      // If a user unchecks a college, uncheck any departments belonging to that college
       if (
         evt &&
         evt.target &&
@@ -1849,17 +1846,12 @@
     };
   }
 
-  /**
-   * Checks whether a user satisfies all non-empty target restrictions on an event.
-   * Aligns with Phase 2/3 Mongoose buildVisibilityQuery.
-   */
   function isUserEligibleForEvent(user, event) {
     if (!event) return false;
     if (event.isPublic) return true;
     if (!user) return false;
     if (String(event.organizer) === String(user.id)) return true;
 
-    const catalog = getAudienceCatalog();
     const normalized = normalizeAudience(event);
     const roles = normalized.targetRoles;
     const levels = normalized.targetAcademicLevels;
@@ -1879,25 +1871,14 @@
       }
     }
 
-    // College check
     if (colleges.length > 0 && colleges.indexOf(user.college) === -1) {
       return false;
     }
 
-    // Department check: if the event specifies departments for the user's college
-    // (or if no colleges were specified), verify department match for non-N/A users
-    if (depts.length > 0 && user.department !== "N/A") {
-      const deptsForUserCollege = depts.filter(function (d) {
-        return catalog.departmentToCollege[d] === user.college;
-      });
-      if (deptsForUserCollege.length > 0) {
-        if (deptsForUserCollege.indexOf(user.department) === -1) return false;
-      } else if (colleges.length === 0) {
-        if (depts.indexOf(user.department) === -1) return false;
-      }
+    if (depts.length > 0 && depts.indexOf(user.department) === -1) {
+      return false;
     }
 
-    // Campus check
     if (campuses.length > 0 && campuses.indexOf(user.campus) === -1) {
       return false;
     }
@@ -2237,7 +2218,19 @@
 
     const navContainer = document.querySelector(".navbar-dlsu .container");
     const mainNav = document.getElementById("mainNav");
+    const mainContent = document.querySelector("main");
+    if (mainContent) {
+      mainContent.id = mainContent.id || "main-content";
+      if (!document.querySelector(".skip-link")) {
+        const skipLink = document.createElement("a");
+        skipLink.className = "skip-link";
+        skipLink.href = "#main-content";
+        skipLink.textContent = "Skip to main content";
+        document.body.insertBefore(skipLink, document.body.firstChild);
+      }
+    }
     if (navContainer && mainNav) {
+      mainNav.setAttribute("aria-label", "Primary navigation");
       let toggler = navContainer.querySelector(".navbar-toggler");
       if (!toggler) {
         toggler = document.createElement("button");
@@ -2291,7 +2284,7 @@
             })
             .join("") +
           '<li class="nav-item dropdown">' +
-          '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quick Page Jump</a>' +
+          '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>' +
           '<ul class="dropdown-menu shadow-sm">' +
           '<li><h6 class="dropdown-header">Event &amp; Discovery Views</h6></li>' +
           '<li><a class="dropdown-item" href="./index.html">Home Feed (index.html)</a></li>' +
@@ -2315,13 +2308,12 @@
           "</ul></li>";
       }
 
-      // Ensure right-hand user badge & switcher exists across all 14 views (including about/login/register/logout)
       if (!document.getElementById("nav-current-user")) {
         const wrapper = document.createElement("div");
         wrapper.className = "d-flex align-items-center gap-2 flex-wrap";
         wrapper.innerHTML =
           '<div class="dropdown">' +
-          '<button class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" id="nav-current-user"></button>' +
+          '<button class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" id="nav-current-user" aria-label="Open account menu"></button>' +
           '<ul class="dropdown-menu dropdown-menu-end shadow"></ul>' +
           "</div>";
         mainNav.appendChild(wrapper);
@@ -2365,7 +2357,7 @@
             '<li><a class="dropdown-item" href="./register.html">Create DLSU Account</a></li>';
 
         menuEl.innerHTML =
-          '<li><h6 class="dropdown-header">Switch Sample DLSU Account</h6></li>' +
+          '<li><h6 class="dropdown-header">Try another account</h6></li>' +
           '<li><a class="dropdown-item" href="#" data-switch-user="u1">Miguel Tan (Student • Undergrad • CCS/ST Manila)</a></li>' +
           '<li><a class="dropdown-item" href="#" data-switch-user="u13">Sophia Sy (Student • Senior High School • STEM Manila)</a></li>' +
           '<li><a class="dropdown-item" href="#" data-switch-user="u2">Hannah Reyes (Student • Graduate • CCS/IT Manila)</a></li>' +
@@ -2382,7 +2374,7 @@
           '<li><hr class="dropdown-divider"></li>' +
           sessionLinks +
           '<li><hr class="dropdown-divider"></li>' +
-          '<li><a class="dropdown-item text-secondary small" href="#" data-reset-demo="true">Reset Sample Data</a></li>';
+          '<li><a class="dropdown-item text-secondary small" href="#" data-reset-demo="true">Reset demo data</a></li>';
       }
     }
 

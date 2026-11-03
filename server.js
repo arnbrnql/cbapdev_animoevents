@@ -14,7 +14,7 @@ app.get("/health", function (_req, res) {
   res.json({
     ok: true,
     service: "animoevents",
-    phase: "phase-2-foundation",
+    mode: "static-demo-foundation",
   });
 });
 

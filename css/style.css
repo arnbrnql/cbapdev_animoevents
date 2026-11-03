@@ -13,6 +13,8 @@
   --card-border: #dce5df;
   --text-main: #1d2621;
   --text-muted: #5a6860;
+  --surface-raised: #ffffff;
+  --shadow-card: 0 0.35rem 1rem rgba(0, 51, 25, 0.07);
 }
 
 html,
@@ -58,6 +60,26 @@ main {
   flex: 1 0 auto;
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1100;
+  transform: translateY(-180%);
+  background: #ffffff;
+  color: var(--dlsu-green-dark);
+  border: 2px solid var(--dlsu-green);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-card);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 /* Navbar & Header */
 .navbar-dlsu {
   background-color: var(--dlsu-green);
@@ -83,6 +105,23 @@ main {
   background-color: rgba(255, 255, 255, 0.16);
 }
 
+.navbar-dlsu .navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.navbar-dlsu .navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(240, 199, 94, 0.45);
+}
+
+.navbar-dlsu .navbar-nav {
+  gap: 0.15rem;
+}
+
+.navbar-dlsu .dropdown-menu {
+  max-height: min(70vh, 34rem);
+  overflow-y: auto;
+}
+
 /* Hero & Context Banner */
 .hero-banner {
   background: linear-gradient(
@@ -106,12 +145,22 @@ main {
 
 /* Cards & Event Containers */
 .card-event {
-  background-color: #ffffff;
+  background-color: var(--surface-raised);
   border: 1px solid var(--card-border);
   border-radius: 0.75rem;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
+}
+
+.card,
+.calendar-control-bar,
+.user-context-bar {
+  border-color: var(--card-border) !important;
+}
+
+.card:not(.card-event) {
+  box-shadow: var(--shadow-card) !important;
 }
 
 .card-event:hover {
@@ -368,11 +417,53 @@ main {
   margin-top: 3rem;
 }
 
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.form-label {
+  color: var(--text-main);
+}
+
+.btn {
+  min-height: 2.35rem;
+}
+
+.empty-state {
+  border: 1px dashed var(--card-border);
+  border-radius: 0.75rem;
+  background: #fbfdfc;
+  color: var(--text-muted);
+}
+
 #animo-toast-container {
   width: min(380px, calc(100vw - 2rem));
 }
 
 @media (max-width: 767.98px) {
+  .navbar-dlsu .navbar-nav {
+    gap: 0;
+  }
+
+  .navbar-dlsu .navbar-nav .nav-link {
+    padding-block: 0.65rem;
+  }
+
+  .navbar-dlsu .navbar-collapse > .d-flex {
+    padding-top: 0.65rem;
+    padding-bottom: 0.25rem;
+    align-items: stretch !important;
+  }
+
+  .navbar-dlsu .navbar-collapse > .d-flex .dropdown,
+  .navbar-dlsu .navbar-collapse > .d-flex .dropdown > .btn {
+    width: 100%;
+  }
+
+  .navbar-dlsu .navbar-collapse > .d-flex .dropdown-menu {
+    width: 100%;
+  }
+
   .hero-banner {
     padding: 1.25rem;
   }
