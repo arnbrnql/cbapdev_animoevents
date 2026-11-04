@@ -1,14 +1,11 @@
 /**
  * Shared client-side state and interaction helpers for AnimoEvents.
- *
- * The browser version keeps its sample data in localStorage. The same
- * audience and lifecycle rules are used by the server foundation.
  */
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "animoevents_phase1_state_v6";
-  const PHASE1_DEMO_PASSWORD = "AnimoPass123!";
+  const STORAGE_KEY = "animoevents_state";
+  const DEMO_PASSWORD = "AnimoPass123!";
   let storageWarningShown = false;
 
   const COLLEGES_MAP = {
@@ -318,7 +315,7 @@
     ];
 
     users.forEach(function (user) {
-      user.password = PHASE1_DEMO_PASSWORD;
+      user.password = DEMO_PASSWORD;
     });
 
     const events = [
@@ -628,7 +625,7 @@
         id: "e5",
         title: "UI/UX Design Sprint & Interactive Prototyping Lab",
         category: "Workshop",
-        date: "2026-11-30",
+        date: "2026-12-15",
         time: "15:00",
         endTime: "18:00",
         venue: "Gokongwei Hall GK202, Manila Campus",
@@ -853,7 +850,7 @@
         id: "e8",
         title: "Graduate Thesis & LaTeX Research Publication Clinic",
         category: "Workshop",
-        date: "2026-11-29",
+        date: "2026-12-14",
         time: "13:00",
         endTime: "16:00",
         venue: "Henry Sy Sr. Hall 6F Seminar Room, Manila Campus",
@@ -1415,7 +1412,7 @@
             Object.assign(event, normalizeAudience(event));
           });
           parsed.users.forEach(function (user) {
-            if (!user.password) user.password = PHASE1_DEMO_PASSWORD;
+            if (!user.password) user.password = DEMO_PASSWORD;
           });
           parsed.bookmarks = parsed.bookmarks.filter(function (bookmark) {
             return (
@@ -1609,7 +1606,7 @@
           targetCampuses: [],
         };
     const catalog = getAudienceCatalog();
-    const uid = "aud_" + Math.random().toString(36).slice(2, 8);
+    const prefix = root.id || "audience";
     const checked = function (values, value) {
       return (values || []).indexOf(value) !== -1 ? " checked" : "";
     };
@@ -1617,7 +1614,7 @@
     const collegeOptions = catalog.colleges
       .map(function (college) {
         const domId =
-          uid + "-college-" + college.code.replace(/[^A-Za-z0-9]/g, "");
+          prefix + "-college-" + college.code.replace(/[^A-Za-z0-9]/g, "");
         return (
           '<div class="form-check">' +
           '<input class="form-check-input" type="checkbox" name="targetColleges" value="' +
@@ -1644,7 +1641,7 @@
         const departments = catalog.departmentsByCollege[collegeCode]
           .map(function (department) {
             const domId =
-              uid +
+              prefix +
               "-department-" +
               department.code.replace(/[^A-Za-z0-9]/g, "");
             return (
@@ -1684,35 +1681,35 @@
     root.innerHTML =
       '<h2 class="h6 fw-bold mb-2">Audience Visibility &amp; Eligibility Rules</h2>' +
       '<div class="form-check mb-2"><input class="form-check-input" type="radio" name="isPublic" value="true" id="' +
-      uid +
+      prefix +
       '-public"' +
       (initial.isPublic !== false ? " checked" : "") +
       '><label class="form-check-label fw-semibold" for="' +
-      uid +
+      prefix +
       '-public">University-Wide Public Event <span class="fw-normal">(Visible and open to all DLSU students and faculty)</span></label></div>' +
       '<div class="form-check mb-3"><input class="form-check-input" type="radio" name="isPublic" value="false" id="' +
-      uid +
+      prefix +
       '-targeted"' +
       (initial.isPublic === false ? " checked" : "") +
       '><label class="form-check-label fw-semibold" for="' +
-      uid +
+      prefix +
       '-targeted">Targeted / Restricted Event <span class="fw-normal">(Visible only to users matching the selected groups below)</span></label></div>' +
       '<div data-audience-targeting class="ps-2 border-start border-3 border-success">' +
       '<p class="small text-muted mb-3">Leave a dimension unchecked if it is unrestricted. Selecting specific departments/strands restricts that college to those departments; leaving a selected college\'s departments unchecked opens the event to the entire college.</p>' +
       '<div class="mb-3"><label class="form-label small fw-bold d-block mb-1">1. Target Affiliation Roles</label><div class="d-flex flex-wrap gap-3">' +
       '<div class="form-check"><input class="form-check-input" type="checkbox" name="targetRoles" value="Student" id="' +
-      uid +
+      prefix +
       '-student"' +
       checked(initial.targetRoles, "Student") +
       '><label class="form-check-label small" for="' +
-      uid +
+      prefix +
       '-student">Students</label></div>' +
       '<div class="form-check"><input class="form-check-input" type="checkbox" name="targetRoles" value="Faculty" id="' +
-      uid +
+      prefix +
       '-faculty"' +
       checked(initial.targetRoles, "Faculty") +
       '><label class="form-check-label small" for="' +
-      uid +
+      prefix +
       '-faculty">Faculty Members</label></div></div></div>' +
       '<div class="mb-3"><label class="form-label small fw-bold d-block mb-1">2. Target Student Academic Levels</label><div class="d-flex flex-wrap gap-3">' +
       ["Senior High School", "Undergraduate", "Graduate"]
@@ -1721,13 +1718,13 @@
             '<div class="form-check"><input class="form-check-input" type="checkbox" name="targetAcademicLevels" value="' +
             level +
             '" id="' +
-            uid +
+            prefix +
             "-level-" +
             index +
             '"' +
             checked(initial.targetAcademicLevels, level) +
             '><label class="form-check-label small" for="' +
-            uid +
+            prefix +
             "-level-" +
             index +
             '">' +
@@ -1750,13 +1747,13 @@
             '<div class="form-check"><input class="form-check-input" type="checkbox" name="targetCampuses" value="' +
             campus +
             '" id="' +
-            uid +
+            prefix +
             "-campus-" +
             campus.toLowerCase() +
             '"' +
             checked(initial.targetCampuses, campus) +
             '><label class="form-check-label small" for="' +
-            uid +
+            prefix +
             "-campus-" +
             campus.toLowerCase() +
             '">' +
@@ -1875,8 +1872,14 @@
       return false;
     }
 
-    if (depts.length > 0 && depts.indexOf(user.department) === -1) {
-      return false;
+    if (depts.length > 0) {
+      const catalog = getAudienceCatalog();
+      const collegeHasDeptFilter = depts.some(function (d) {
+        return catalog.departmentToCollege[d] === user.college;
+      });
+      if (collegeHasDeptFilter && depts.indexOf(user.department) === -1) {
+        return false;
+      }
     }
 
     if (campuses.length > 0 && campuses.indexOf(user.campus) === -1) {
@@ -2218,19 +2221,7 @@
 
     const navContainer = document.querySelector(".navbar-dlsu .container");
     const mainNav = document.getElementById("mainNav");
-    const mainContent = document.querySelector("main");
-    if (mainContent) {
-      mainContent.id = mainContent.id || "main-content";
-      if (!document.querySelector(".skip-link")) {
-        const skipLink = document.createElement("a");
-        skipLink.className = "skip-link";
-        skipLink.href = "#main-content";
-        skipLink.textContent = "Skip to main content";
-        document.body.insertBefore(skipLink, document.body.firstChild);
-      }
-    }
     if (navContainer && mainNav) {
-      mainNav.setAttribute("aria-label", "Primary navigation");
       let toggler = navContainer.querySelector(".navbar-toggler");
       if (!toggler) {
         toggler = document.createElement("button");
@@ -2241,9 +2232,6 @@
         toggler.innerHTML = '<span class="navbar-toggler-icon"></span>';
         navContainer.insertBefore(toggler, mainNav);
       }
-      toggler.setAttribute("aria-controls", "mainNav");
-      toggler.setAttribute("aria-expanded", "false");
-      toggler.setAttribute("aria-label", "Toggle navigation");
 
       const currentPage =
         window.location.pathname.split("/").pop().toLowerCase() || "index.html";
@@ -2275,9 +2263,7 @@
                 (isActive ? " active" : "") +
                 '" href="./' +
                 link[0] +
-                '"' +
-                (isActive ? ' aria-current="page"' : "") +
-                ">" +
+                '">' +
                 link[1] +
                 "</a></li>"
               );
@@ -2286,25 +2272,25 @@
           '<li class="nav-item dropdown">' +
           '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>' +
           '<ul class="dropdown-menu shadow-sm">' +
-          '<li><h6 class="dropdown-header">Event &amp; Discovery Views</h6></li>' +
-          '<li><a class="dropdown-item" href="./index.html">Home Feed (index.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./events.html">Browse Events (events.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./event-details.html?id=e1">Event Details &amp; Thread (event-details.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./event-create.html">Publish Event Form (event-create.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./event-edit.html?id=e1">Manage / Edit Event Form (event-edit.html)</a></li>' +
+          '<li><h6 class="dropdown-header">Event &amp; Discovery</h6></li>' +
+          '<li><a class="dropdown-item" href="./index.html">Home Feed</a></li>' +
+          '<li><a class="dropdown-item" href="./events.html">Browse Events</a></li>' +
+          '<li><a class="dropdown-item" href="./event-details.html?id=e1">Event Details &amp; Thread</a></li>' +
+          '<li><a class="dropdown-item" href="./event-create.html">Publish Event Form</a></li>' +
+          '<li><a class="dropdown-item" href="./event-edit.html?id=e1">Manage / Edit Event Form</a></li>' +
           '<li><hr class="dropdown-divider"></li>' +
-          '<li><h6 class="dropdown-header">Personal &amp; Organizer Views</h6></li>' +
-          '<li><a class="dropdown-item" href="./bookmarks.html">Saved Bookmarks (bookmarks.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./calendar.html">Event Calendar (calendar.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./organizer.html">Organizer Directory (organizer.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./profile.html">My Profile (profile.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./profile-edit.html">Edit Profile (profile-edit.html)</a></li>' +
+          '<li><h6 class="dropdown-header">Personal &amp; Organizers</h6></li>' +
+          '<li><a class="dropdown-item" href="./bookmarks.html">Saved Bookmarks</a></li>' +
+          '<li><a class="dropdown-item" href="./calendar.html">Event Calendar</a></li>' +
+          '<li><a class="dropdown-item" href="./organizer.html">Organizer Directory</a></li>' +
+          '<li><a class="dropdown-item" href="./profile.html">My Profile</a></li>' +
+          '<li><a class="dropdown-item" href="./profile-edit.html">Edit Profile</a></li>' +
           '<li><hr class="dropdown-divider"></li>' +
-          '<li><h6 class="dropdown-header">Account &amp; Info Views</h6></li>' +
-          '<li><a class="dropdown-item" href="./login.html">Sign In (login.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./register.html">Create Account (register.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./logout.html">Sign Out Confirmation (logout.html)</a></li>' +
-          '<li><a class="dropdown-item" href="./about.html">About AnimoEvents (about.html)</a></li>' +
+          '<li><h6 class="dropdown-header">Account &amp; Info</h6></li>' +
+          '<li><a class="dropdown-item" href="./login.html">Sign In</a></li>' +
+          '<li><a class="dropdown-item" href="./register.html">Create Account</a></li>' +
+          '<li><a class="dropdown-item" href="./logout.html">Sign Out Confirmation</a></li>' +
+          '<li><a class="dropdown-item" href="./about.html">About AnimoEvents</a></li>' +
           "</ul></li>";
       }
 
@@ -2313,7 +2299,7 @@
         wrapper.className = "d-flex align-items-center gap-2 flex-wrap";
         wrapper.innerHTML =
           '<div class="dropdown">' +
-          '<button class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" id="nav-current-user" aria-label="Open account menu"></button>' +
+          '<button class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" id="nav-current-user"></button>' +
           '<ul class="dropdown-menu dropdown-menu-end shadow"></ul>' +
           "</div>";
         mainNav.appendChild(wrapper);

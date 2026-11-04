@@ -525,12 +525,10 @@
           const dateVal = document.getElementById("filter-date").value;
           const sortVal = document.getElementById("filter-sort").value;
 
-          // Start with events visible to the current user.
           let results = state.events.filter(function (ev) {
             return window.AnimoApp.canUserViewEvent(user, ev);
           });
 
-          // Apply keyword search.
           if (q !== "") {
             const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
             const regex = new RegExp(safeQ, "i");
@@ -552,7 +550,6 @@
             });
           }
 
-          // Apply field and status filters.
           if (category) {
             results = results.filter(function (ev) {
               return ev.category === category;
@@ -569,12 +566,8 @@
           }
           if (college) {
             results = results.filter(function (ev) {
-              if (ev.isPublic) return true;
               const audience = window.AnimoApp.normalizeAudience(ev);
-              return (
-                audience.targetColleges.length === 0 ||
-                audience.targetColleges.indexOf(college) !== -1
-              );
+              return audience.targetColleges.indexOf(college) !== -1;
             });
           }
           if (campus) {
@@ -590,12 +583,8 @@
           }
           if (level) {
             results = results.filter(function (ev) {
-              if (ev.isPublic) return true;
               const audience = window.AnimoApp.normalizeAudience(ev);
-              return (
-                audience.targetAcademicLevels.length === 0 ||
-                audience.targetAcademicLevels.indexOf(level) !== -1
-              );
+              return audience.targetAcademicLevels.indexOf(level) !== -1;
             });
           }
           if (visibility === "public") {
@@ -613,7 +602,6 @@
             });
           }
 
-          // Sort the results.
           if (sortVal === "upcoming") {
             results.sort(function (a, b) {
               return (a.date + " " + a.time).localeCompare(
