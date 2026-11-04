@@ -35,49 +35,8 @@ body {
   flex-direction: column;
 }
 
-button,
-a,
-input,
-select,
-textarea {
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid #f0c75e;
-  outline-offset: 2px;
-}
-
 main {
   flex: 1 0 auto;
-}
-
-.skip-link {
-  position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
-  z-index: 1100;
-  transform: translateY(-180%);
-  background: #ffffff;
-  color: var(--dlsu-green-dark);
-  border: 2px solid var(--dlsu-green);
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: var(--shadow-card);
-}
-
-.skip-link:focus {
-  transform: translateY(0);
 }
 
 /* Navbar & Header */
@@ -109,16 +68,12 @@ main {
   border-color: rgba(255, 255, 255, 0.45);
 }
 
-.navbar-dlsu .navbar-toggler:focus {
-  box-shadow: 0 0 0 0.2rem rgba(240, 199, 94, 0.45);
-}
-
 .navbar-dlsu .navbar-nav {
   gap: 0.15rem;
 }
 
 .navbar-dlsu .dropdown-menu {
-  max-height: min(70vh, 34rem);
+  max-height: 70vh;
   overflow-y: auto;
 }
 
@@ -425,17 +380,6 @@ main {
   color: var(--text-main);
 }
 
-.btn {
-  min-height: 2.35rem;
-}
-
-.empty-state {
-  border: 1px dashed var(--card-border);
-  border-radius: 0.75rem;
-  background: #fbfdfc;
-  color: var(--text-muted);
-}
-
 #animo-toast-container {
   width: min(380px, calc(100vw - 2rem));
 }
@@ -447,21 +391,6 @@ main {
 
   .navbar-dlsu .navbar-nav .nav-link {
     padding-block: 0.65rem;
-  }
-
-  .navbar-dlsu .navbar-collapse > .d-flex {
-    padding-top: 0.65rem;
-    padding-bottom: 0.25rem;
-    align-items: stretch !important;
-  }
-
-  .navbar-dlsu .navbar-collapse > .d-flex .dropdown,
-  .navbar-dlsu .navbar-collapse > .d-flex .dropdown > .btn {
-    width: 100%;
-  }
-
-  .navbar-dlsu .navbar-collapse > .d-flex .dropdown-menu {
-    width: 100%;
   }
 
   .hero-banner {
@@ -483,20 +412,5 @@ main {
 
   .calendar-control-bar {
     padding: 0.75rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-
-  .card-event:hover {
-    transform: none;
   }
 }

@@ -297,14 +297,21 @@
             }) || null;
           const container = document.getElementById("bookmarks-list-container");
           const selectEl = document.getElementById("bm-event-select");
+          const quickAddSection = document
+            .getElementById("bookmark-add-form")
+            .closest("section");
 
           if (!user) {
+            if (quickAddSection) quickAddSection.classList.add("d-none");
+            document.getElementById("bookmarks-count-badge").textContent =
+              "0 Saved Bookmarks";
             container.innerHTML =
               '<div class="card border-0 shadow-sm p-4 text-center">Please <a href="./login.html" class="text-success fw-semibold">sign in</a> to view and manage your saved bookmarks.</div>';
             return;
           }
 
-          // Show events the current user can access.
+          if (quickAddSection) quickAddSection.classList.remove("d-none");
+
           const bookmarkedIds = state.bookmarks
             .filter(function (b) {
               return b.user === user.id;
@@ -362,14 +369,13 @@
                 user,
                 ev,
               );
-              const isJoined = (ev.attendees || []).indexOf(user.id) !== -1;
               const statusClass = window.AnimoApp.getStatusBadgeClass(
                 ev.status,
               );
               const noteDisplay =
                 bm.personalNote && bm.personalNote.trim() !== ""
-                ? "<strong>Personal Note:</strong> " +
-                  window.AnimoApp.escapeHtml(bm.personalNote)
+                  ? "<strong>Personal Note:</strong> " +
+                    window.AnimoApp.escapeHtml(bm.personalNote)
                   : '<em class="text-muted">No personal note added.</em>';
 
               return (

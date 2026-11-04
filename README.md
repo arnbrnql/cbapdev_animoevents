@@ -13,7 +13,7 @@
 
 ---
 
-## 1. Running the Front-End Application (Browser Version)
+## 1. Running the Front-End Application (Phase 1 Static Prototype)
 
 1. Extract `Project-X21-Group4.zip` into any local folder.
 2. Open `index.html` directly in any modern web browser (Chrome, Firefox, Edge, Safari) via `file:///`.
@@ -26,17 +26,50 @@
    - **Accredited Organizer (LSCS):** `lscs@dlsu.edu.ph` (`AnimoPass123!`)
    - **Accredited Organizer (CIVI Research Center):** `civi@dlsu.edu.ph` (`AnimoPass123!`)
    - **Accredited Organizer (Office of Student L.I.F.E.):** `slife@dlsu.edu.ph` (`AnimoPass123!`)
-4. Use the **Pages** menu in the top navigation bar to move between the 14 views (`index.html`, `events.html`, `event-details.html`, `event-create.html`, `event-edit.html`, `bookmarks.html`, `calendar.html`, `organizer.html`, `profile.html`, `profile-edit.html`, `login.html`, `register.html`, `logout.html`, `about.html`).
-5. To reset interactive changes back to the initial 14-user, 12-event, 18-bookmark dataset, choose **Reset demo data** from the account menu.
-
-> **How demo state works:** The browser version stores sample state and demo credentials in `localStorage`, so the complete flow can be tested offline without a database server. If browser storage is blocked, the app will warn you that changes may not persist.
+4. Use the **Pages** dropdown menu in the top navigation bar to navigate between all 14 application views (`index.html`, `events.html`, `event-details.html`, `event-create.html`, `event-edit.html`, `bookmarks.html`, `calendar.html`, `organizer.html`, `profile.html`, `profile-edit.html`, `login.html`, `register.html`, `logout.html`, `about.html`).
+5. To reset interactive changes back to the initial 14-user, 12-event, 18-bookmark dataset, click **Reset demo data** in the account dropdown menu.
 
 ---
 
 ## 2. Running via Local Node.js Server
 
-1. Ensure **Node.js** (v18+) is installed.
+1. Ensure **Node.js** (v18+) and **MongoDB Community Server** are installed.
 2. Open a terminal in the project root directory and install dependencies:
+
    ```bash
    npm install
    ```
+
+3. (Optional for Phase 2 database seeding) Populate the local MongoDB database (`mongodb://127.0.0.1:27017/animoevents`):
+
+   ```bash
+   npm run seed
+   ```
+
+4. Start the local server on port 3000:
+
+   ```bash
+   npm start
+   ```
+
+5. Open `http://localhost:3000` in your browser.
+
+---
+
+## 3. References & Generative AI Use Disclosure
+
+### Third-Party Libraries & Frameworks
+
+- **Bootstrap 5.3.3** — Responsive layout grid, navigation bar, cards, dropdowns, and modal components (`https://getbootstrap.com/`).
+- **Node.js & Express** — Web server and routing environment (`https://expressjs.com/`).
+- **MongoDB & Mongoose** — Document database and Object Data Modeling library (`https://mongoosejs.com/`).
+
+### Generative AI Use Disclosure
+
+In compliance with the CBAPDEV course policy on Artificial Intelligence tools and the DLSU Policies on Generative AI in Higher Education, Group 4 declares the use of **Google Gemini** during project preparation for:
+
+1. Brainstorming institutional demographic targeting rules and edge cases (such as grandfathered event registrations when a student updates their profile).
+2. Auditing requirement coverage against the approved Phase 0 project proposal and course rubrics.
+3. Debugging client-side filtering and date-handling edge cases.
+
+All code, user interfaces, sample datasets, and application logic were reviewed, tested, and validated by the group members to ensure full understanding and ownership.
