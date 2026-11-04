@@ -291,9 +291,7 @@
         id="profile-context-bar"
       >
         <div>
-          <span class="text-muted small d-block">
-          Your event feed</span
-          >
+          <span class="text-muted small d-block"> Your event feed</span>
           <span class="fw-semibold" id="context-user-summary">
             Showing events open to the DLSU community and activities matching:
             <strong>Student (Undergraduate) • CCS / ST • Manila Campus</strong>
@@ -961,6 +959,9 @@
             }) || null;
           const heroBox = document.getElementById("hero-action-box");
           const summaryEl = document.getElementById("context-user-summary");
+          const contextActionWrap = document.querySelector(
+            "#profile-context-bar .d-flex",
+          );
 
           if (user) {
             const levelText =
@@ -979,6 +980,10 @@
               " &bull; " +
               esc(user.campus) +
               " Campus</strong>";
+            if (contextActionWrap) {
+              contextActionWrap.innerHTML =
+                '<a href="./profile-edit.html" class="btn btn-sm btn-outline-dlsu">Update Profile &amp; Affiliation</a>';
+            }
             if (user.role === "Organizer") {
               heroBox.innerHTML =
                 '<a href="./event-create.html" class="btn btn-light text-success fw-semibold me-2">+ Publish New Event</a>' +
@@ -991,6 +996,10 @@
           } else {
             summaryEl.innerHTML =
               'Viewing in <strong>Guest Mode</strong> &mdash; only University-Wide public events are displayed. <a href="./login.html" class="text-success fw-semibold">Sign In</a> to view targeted events.';
+            if (contextActionWrap) {
+              contextActionWrap.innerHTML =
+                '<a href="./login.html" class="btn btn-sm btn-dlsu">Sign In</a>';
+            }
           }
 
           const visibleEvents = state.events.filter(function (ev) {
@@ -1204,10 +1213,13 @@
             return (ev.attendees || []).indexOf(user.id) !== -1;
           });
 
-          sidebarTitle.textContent =
-            user && user.role === "Organizer"
-              ? "Updates on My Hosted Events"
-              : "Updates from Joined Events";
+          if (!user) {
+            sidebarTitle.textContent = "Recent Public Event Updates";
+          } else if (user.role === "Organizer") {
+            sidebarTitle.textContent = "Updates on My Hosted Events";
+          } else {
+            sidebarTitle.textContent = "Updates from Joined Events";
+          }
 
           const officialUpdates = [];
           subscribedEvents.forEach(function (ev) {

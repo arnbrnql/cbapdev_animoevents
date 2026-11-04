@@ -772,6 +772,8 @@
             .forEach(function (btn) {
               btn.addEventListener("click", function () {
                 const uid = btn.getAttribute("data-edit-upd");
+                const textEl = document.getElementById("upd-text-" + uid);
+                if (textEl) textEl.classList.add("d-none");
                 document
                   .getElementById("upd-edit-form-" + uid)
                   .classList.remove("d-none");
@@ -782,6 +784,8 @@
             .forEach(function (btn) {
               btn.addEventListener("click", function () {
                 const uid = btn.getAttribute("data-cancel-upd");
+                const textEl = document.getElementById("upd-text-" + uid);
+                if (textEl) textEl.classList.remove("d-none");
                 document
                   .getElementById("upd-edit-form-" + uid)
                   .classList.add("d-none");
