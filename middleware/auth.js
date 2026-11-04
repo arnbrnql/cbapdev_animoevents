@@ -18,12 +18,10 @@ async function loadCurrentUser(req, res, next) {
       req.currentUser = await User.findById(req.session.userId).lean();
     } else if (req.session && req.session.loggedOut) {
       req.currentUser = null;
-    } else if (process.env.PHASE_MODE !== "phase3") {
+    } else {
       req.currentUser = await User.findOne({
         email: "miguel_tan@dlsu.edu.ph",
       }).lean();
-    } else {
-      req.currentUser = null;
     }
 
     res.locals.currentUser = req.currentUser || null;

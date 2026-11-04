@@ -361,12 +361,21 @@ BS Computer Science Major in Software Technology (ID 124). Interested in full-st
             state.users.find(function (u) {
               return u.id === state.currentUserId;
             }) || null;
+
+          const form = document.getElementById("profile-edit-form");
+          const errorBox = document.getElementById("profile-edit-error");
+
           if (!user) {
-            window.location.href = "./login.html";
+            errorBox.className = "alert alert-warning small";
+            errorBox.innerHTML =
+              'You are currently in <strong>Guest Mode</strong>. <a href="./login.html" class="fw-semibold text-dark">Sign in</a> or use the top-right account switcher to edit your profile.';
+            errorBox.classList.remove("d-none");
+            Array.from(form.elements).forEach(function (el) {
+              el.disabled = true;
+            });
             return;
           }
 
-          const form = document.getElementById("profile-edit-form");
           document.getElementById("pe-email").value = user.email;
           document.getElementById("pe-role-display").value = user.role;
           document.getElementById("pe-role").value = user.role;
@@ -383,7 +392,6 @@ BS Computer Science Major in Software Technology (ID 124). Interested in full-st
 
           window.AnimoApp.bindAffiliationSelects(form);
 
-          const errorBox = document.getElementById("profile-edit-error");
           form.addEventListener("submit", function (e) {
             e.preventDefault();
             errorBox.classList.add("d-none");
@@ -396,7 +404,7 @@ BS Computer Science Major in Software Technology (ID 124). Interested in full-st
 
             const newName = document.getElementById("pe-name").value.trim();
             const newAvatar = document.getElementById("pe-avatar").value;
-            const role = targetUser.role; // Read-only after registration
+            const role = targetUser.role;
             const newLevel =
               role === "Student"
                 ? document.getElementById("pe-level").value
@@ -432,7 +440,6 @@ BS Computer Science Major in Software Technology (ID 124). Interested in full-st
             targetUser.campus = newCampus;
             targetUser.bio = newBio;
 
-            // Synchronize denormalized organizerName & thread authorName using simple class-level loops
             nextState.events.forEach(function (ev) {
               if (String(ev.organizer) === String(targetUser.id)) {
                 ev.organizerName = newName;

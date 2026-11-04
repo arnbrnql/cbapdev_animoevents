@@ -393,8 +393,26 @@
             state.users.find(function (u) {
               return u.id === state.currentUserId;
             }) || null;
+
           if (!user) {
-            window.location.href = "./login.html";
+            document.querySelector("main.container").innerHTML =
+              '<div class="card border-0 shadow-sm p-5 text-center">' +
+              '<span class="badge bg-warning text-dark mx-auto mb-2">Guest Mode</span>' +
+              '<h1 class="h4 fw-bold mb-2">Sign In to View Your DLSU Profile</h1>' +
+              '<p class="text-muted small mb-4">You are currently browsing in Guest Mode. Sign in with your @dlsu.edu.ph account or select a sample account to view your profile and registered events.</p>' +
+              '<div class="d-flex justify-content-center gap-2">' +
+              '<a href="./login.html" class="btn btn-dlsu btn-sm">Go to Sign In</a>' +
+              '<button type="button" class="btn btn-outline-dlsu btn-sm" id="guest-signin-u1">Preview as Miguel Tan (Student)</button>' +
+              "</div></div>";
+            const previewBtn = document.getElementById("guest-signin-u1");
+            if (previewBtn) {
+              previewBtn.addEventListener("click", function () {
+                const nextState = window.AnimoApp.loadState();
+                nextState.currentUserId = "u1";
+                window.AnimoApp.saveState(nextState);
+                window.location.reload();
+              });
+            }
             return;
           }
 
@@ -495,15 +513,14 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          document
-            .getElementById("delete-account-form")
-            .addEventListener("submit", function (e) {
+          const deleteForm = document.getElementById("delete-account-form");
+          if (deleteForm) {
+            deleteForm.addEventListener("submit", function (e) {
               e.preventDefault();
               const state = window.AnimoApp.loadState();
               const userId = state.currentUserId;
               if (!userId) return;
 
-              // 1. Collect IDs of events hosted by this user
               const hostedIds = state.events
                 .filter(function (ev) {
                   return String(ev.organizer) === String(userId);
@@ -512,17 +529,14 @@
                   return ev.id;
                 });
 
-              // 2. Delete user's bookmarks and bookmarks pointing to user's hosted events
               state.bookmarks = state.bookmarks.filter(function (bm) {
                 return bm.user !== userId && hostedIds.indexOf(bm.event) === -1;
               });
 
-              // 3. Delete events hosted by this user
               state.events = state.events.filter(function (ev) {
                 return String(ev.organizer) !== String(userId);
               });
 
-              // 4. Remove user from attendees and thread updates, and reopen Full events if capacity frees up
               state.events.forEach(function (ev) {
                 ev.attendees = (ev.attendees || []).filter(function (id) {
                   return id !== userId;
@@ -538,7 +552,6 @@
                 }
               });
 
-              // 5. Remove user record and sign out
               state.users = state.users.filter(function (u) {
                 return u.id !== userId;
               });
@@ -546,6 +559,7 @@
               window.AnimoApp.saveState(state);
               window.location.href = "./logout.html";
             });
+          }
 
           renderProfilePage();
         });
