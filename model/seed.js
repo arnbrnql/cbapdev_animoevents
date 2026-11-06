@@ -1,5 +1,5 @@
 /**
- * Standalone Database Seeder (model/seed.js)
+ * Database Seeder (model/seed.js)
  * Usage: npm run seed   OR   node model/seed.js
  */
 require("dotenv").config();
@@ -102,7 +102,6 @@ async function seedDatabase() {
       maxCapacity: ev.maxCapacity,
       attendees: attendeeObjectIds,
       updates: mappedUpdates,
-      // Stagger createdAt so e1 is newest and e12 is oldest when sorted by Most Recent
       createdAt: new Date(baseTime - i * 60000),
     });
 
@@ -135,6 +134,14 @@ async function seedDatabase() {
   );
 }
 
+async function ensureSeeded() {
+  const count = await User.countDocuments();
+  if (count === 0) {
+    console.log("No users found in MongoDB. Seeding initial dataset...");
+    await seedDatabase();
+  }
+}
+
 if (require.main === module) {
   seedDatabase()
     .then(function () {
@@ -146,4 +153,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { seedDatabase };
+module.exports = { seedDatabase, ensureSeeded };
