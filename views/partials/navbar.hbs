@@ -1,0 +1,123 @@
+<nav class="navbar navbar-expand-lg navbar-dark navbar-dlsu sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="badge bg-white text-success fw-bold">DLSU</span>
+      <span>AnimoEvents</span>
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNav"
+      aria-controls="mainNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'home')}}active{{/if}}" href="/">Home Feed</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'events')}}active{{/if}}" href="/events">Browse Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'calendar')}}active{{/if}}" href="/calendar">My Calendar</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'bookmarks')}}active{{/if}}" href="/bookmarks">Saved Bookmarks</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'organizers')}}active{{/if}}" href="/organizers">Organizers</a>
+        </li>
+        {{#if (eq currentUser.role "Organizer")}}
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'create')}}active{{/if}}" href="/events/new">Publish Event</a>
+        </li>
+        {{/if}}
+        <li class="nav-item">
+          <a class="nav-link {{#if (eq activeNav 'about')}}active{{/if}}" href="/about">About</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >Pages</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><h6 class="dropdown-header">Event & Discovery</h6></li>
+            <li><a class="dropdown-item" href="/">Home Feed</a></li>
+            <li><a class="dropdown-item" href="/events">Browse Events</a></li>
+            <li><a class="dropdown-item" href="/events/new">Publish Event Form</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><h6 class="dropdown-header">Personal & Organizers</h6></li>
+            <li><a class="dropdown-item" href="/bookmarks">Saved Bookmarks</a></li>
+            <li><a class="dropdown-item" href="/calendar">Event Calendar</a></li>
+            <li><a class="dropdown-item" href="/organizers">Organizer Directory</a></li>
+            <li><a class="dropdown-item" href="/profile">My Profile</a></li>
+            <li><a class="dropdown-item" href="/profile/edit">Edit Profile</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><h6 class="dropdown-header">Account & Info</h6></li>
+            <li><a class="dropdown-item" href="/login">Sign In</a></li>
+            <li><a class="dropdown-item" href="/register">Create Account</a></li>
+            <li><a class="dropdown-item" href="/logout">Sign Out</a></li>
+            <li><a class="dropdown-item" href="/about">About AnimoEvents</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="dropdown">
+          <button
+            class="btn btn-sm btn-dark bg-opacity-25 border-light dropdown-toggle d-flex align-items-center"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            {{#if currentUser}}
+              <img
+                src="{{currentUser.profilePic}}"
+                alt="{{currentUser.displayName}}"
+                class="avatar-sm me-2"
+              />
+              <span class="fw-semibold">{{currentUser.displayName}}</span>
+              <span class="badge bg-light text-dark ms-1">
+                {{currentUser.role}} • {{currentUser.college}}{{#if (neq currentUser.department "N/A")}}/{{currentUser.department}}{{/if}}
+              </span>
+            {{else}}
+              <span class="badge bg-warning text-dark">Guest Mode (Signed Out)</span>
+            {{/if}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><h6 class="dropdown-header">Try another account</h6></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=miguel_tan@dlsu.edu.ph">Miguel Tan (Student • Undergrad • CCS/ST Manila)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=sophia_sy@dlsu.edu.ph">Sophia Sy (Student • Senior High School • STEM Manila)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=hannah_reyes@dlsu.edu.ph">Hannah Reyes (Student • Graduate • CCS/IT Manila)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=rafael.cruz@dlsu.edu.ph">Dr. Rafael Cruz (Faculty • CCS/ST Manila)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=carlos_mendoza@dlsu.edu.ph">Carlos Mendoza (Student • Graduate • GCOE/ECE Laguna)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=bea_villanueva@dlsu.edu.ph">Bea Villanueva (Student • Undergrad • RVR-COB/MOD)</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><h6 class="dropdown-header">Accredited Organizer Accounts</h6></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=lscs@dlsu.edu.ph">La Salle Computer Society — LSCS (Organizer • CCS)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=civi@dlsu.edu.ph">Center for Computational Imaging — CIVI (Organizer)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=slife@dlsu.edu.ph">Office of Student L.I.F.E. (Organizer • Univ-Wide)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=ecg@dlsu.edu.ph">Engineering College Government — ECG (Organizer • GCOE)</a></li>
+            <li><a class="dropdown-item" href="/auth/switch?email=bms@dlsu.edu.ph">Business Management Society — BMS (Organizer • RVR-COB)</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            {{#if currentUser}}
+              <li><a class="dropdown-item" href="/profile">View My Profile</a></li>
+              <li><a class="dropdown-item" href="/profile/edit">Edit Profile & Affiliation</a></li>
+              <li><a class="dropdown-item text-danger" href="/logout">Sign Out</a></li>
+            {{else}}
+              <li><a class="dropdown-item fw-semibold text-success" href="/login">Sign In to AnimoEvents</a></li>
+              <li><a class="dropdown-item" href="/register">Create DLSU Account</a></li>
+            {{/if}}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
