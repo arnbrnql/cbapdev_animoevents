@@ -14,14 +14,23 @@ async function loadCurrentUser(req, res, next) {
       return next();
     }
 
+    req.currentUser = null;
     if (req.session && req.session.userId) {
-      req.currentUser = await User.findById(req.session.userId).lean();
-    } else if (req.session && req.session.loggedOut) {
-      req.currentUser = null;
-    } else {
+      if (mongoose.Types.ObjectId.isValid(req.session.userId)) {
+        req.currentUser = await User.findById(req.session.userId).lean();
+      }
+      if (!req.currentUser) {
+        req.session.userId = null;
+      }
+    }
+
+    if (!req.currentUser && (!req.session || !req.session.loggedOut)) {
       req.currentUser = await User.findOne({
         email: "miguel_tan@dlsu.edu.ph",
       }).lean();
+      if (req.currentUser && req.session) {
+        req.session.userId = String(req.currentUser._id);
+      }
     }
 
     res.locals.currentUser = req.currentUser || null;
