@@ -28,24 +28,8 @@ async function disconnectDB() {
   }
 }
 
-function registerSignalHandlers() {
-  async function signalHandler() {
-    try {
-      console.log("Closing MongoDB connection...");
-      await mongoose.connection.close();
-    } finally {
-      process.exit(0);
-    }
-  }
-
-  process.once("SIGINT", signalHandler);
-  process.once("SIGTERM", signalHandler);
-  process.once("SIGQUIT", signalHandler);
-}
-
 module.exports = {
   getMongoUri,
   connectDB,
   disconnectDB,
-  registerSignalHandlers,
 };

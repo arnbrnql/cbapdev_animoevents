@@ -380,10 +380,6 @@ main {
   color: var(--text-main);
 }
 
-#animo-toast-container {
-  width: min(380px, calc(100vw - 2rem));
-}
-
 @media (max-width: 767.98px) {
   .navbar-dlsu .navbar-nav {
     gap: 0;
