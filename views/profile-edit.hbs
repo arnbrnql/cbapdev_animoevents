@@ -1,0 +1,181 @@
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="border-bottom pb-3 mb-4">
+          <h1 class="h3 fw-bold mb-1">Edit Profile & Campus Affiliation</h1>
+          <p class="text-muted small mb-0">
+            Update your display name, avatar, academic unit, campus, or bio. Existing event registrations are automatically preserved if you transfer colleges or update your level.
+          </p>
+        </div>
+
+        {{#if error}}
+          <div class="alert alert-danger small">{{error}}</div>
+        {{/if}}
+
+        <form id="profile-edit-form" method="POST" action="/profile/edit">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="pe-email" class="form-label fw-semibold">
+                DLSU Email Address <span class="text-muted fw-normal small">(Read-Only)</span>
+              </label>
+              <input type="email" id="pe-email" class="form-control bg-light" value="{{profileUser.email}}" readonly />
+            </div>
+            <div class="col-md-6">
+              <label for="pe-role-display" class="form-label fw-semibold">
+                Account Affiliation Role <span class="text-muted fw-normal small">(Read-Only)</span>
+              </label>
+              <input type="text" id="pe-role-display" class="form-control bg-light" value="{{profileUser.role}}" readonly />
+              <input type="hidden" id="pe-role" name="role" value="{{profileUser.role}}" />
+            </div>
+
+            <div class="col-md-6">
+              <label for="pe-name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="pe-name"
+                name="displayName"
+                class="form-control"
+                required
+                minlength="2"
+                maxlength="100"
+                value="{{profileUser.displayName}}"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="pe-avatar" class="form-label fw-semibold">Profile Avatar <span class="text-muted fw-normal small">(Optional)</span></label>
+              <select id="pe-avatar" name="profilePic" class="form-select">
+                <option value="/images/avatar-u1.svg" {{#if (eq profileUser.profilePic "/images/avatar-u1.svg")}}selected{{/if}}>Avatar 1 (Green Lasallian Badge)</option>
+                <option value="/images/avatar-u2.svg" {{#if (eq profileUser.profilePic "/images/avatar-u2.svg")}}selected{{/if}}>Avatar 2 (Teal Scholar Badge)</option>
+                <option value="/images/avatar-u3.svg" {{#if (eq profileUser.profilePic "/images/avatar-u3.svg")}}selected{{/if}}>Avatar 3 (Navy Faculty Badge)</option>
+                <option value="/images/avatar-u4.svg" {{#if (eq profileUser.profilePic "/images/avatar-u4.svg")}}selected{{/if}}>Avatar 4 (Gold Business Badge)</option>
+                <option value="/images/avatar-u5.svg" {{#if (eq profileUser.profilePic "/images/avatar-u5.svg")}}selected{{/if}}>Avatar 5 (Orange Engineering Badge)</option>
+                <option value="/images/avatar-u6.svg" {{#if (eq profileUser.profilePic "/images/avatar-u6.svg")}}selected{{/if}}>Avatar 6 (LSCS Organization Crest)</option>
+                <option value="/images/avatar-u7.svg" {{#if (eq profileUser.profilePic "/images/avatar-u7.svg")}}selected{{/if}}>Avatar 7 (CIVI Center Crest)</option>
+                <option value="/images/avatar-u8.svg" {{#if (eq profileUser.profilePic "/images/avatar-u8.svg")}}selected{{/if}}>Avatar 8 (Student L.I.F.E. Crest)</option>
+                <option value="/images/avatar-u9.svg" {{#if (eq profileUser.profilePic "/images/avatar-u9.svg")}}selected{{/if}}>Avatar 9 (ECG Engineering Crest)</option>
+                <option value="/images/avatar-u10.svg" {{#if (eq profileUser.profilePic "/images/avatar-u10.svg")}}selected{{/if}}>Avatar 10 (BMS Business Crest)</option>
+                <option value="/images/avatar-u11.svg" {{#if (eq profileUser.profilePic "/images/avatar-u11.svg")}}selected{{/if}}>Avatar 11 (Laguna IE Scholar Badge)</option>
+                <option value="/images/avatar-u12.svg" {{#if (eq profileUser.profilePic "/images/avatar-u12.svg")}}selected{{/if}}>Avatar 12 (Graduate Finance Badge)</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="pe-level" class="form-label fw-semibold">
+                Student Academic Level <span class="text-muted fw-normal small">(Students Only)</span>
+              </label>
+              <select id="pe-level" name="academicLevel" class="form-select" required>
+                <option value="Senior High School" {{#if (eq profileUser.academicLevel "Senior High School")}}selected{{/if}}>Senior High School (SHS)</option>
+                <option value="Undergraduate" {{#if (eq profileUser.academicLevel "Undergraduate")}}selected{{/if}}>Undergraduate</option>
+                <option value="Graduate" {{#if (eq profileUser.academicLevel "Graduate")}}selected{{/if}}>Graduate</option>
+                <option value="N/A" {{#if (eq profileUser.academicLevel "N/A")}}selected{{/if}}>Not Applicable (Faculty / Organizer)</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="pe-campus" class="form-label fw-semibold">Primary Campus <span class="text-danger">*</span></label>
+              <select id="pe-campus" name="campus" class="form-select" required>
+                <option value="Manila" {{#if (eq profileUser.campus "Manila")}}selected{{/if}}>Manila Campus</option>
+                <option value="Laguna" {{#if (eq profileUser.campus "Laguna")}}selected{{/if}}>Laguna Campus</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="pe-college" class="form-label fw-semibold">College / School / Division <span class="text-danger">*</span></label>
+              <select id="pe-college" name="college" class="form-select" required>
+                <option value="CCS" {{#if (eq profileUser.college "CCS")}}selected{{/if}}>CCS — College of Computer Studies</option>
+                <option value="RVR-COB" {{#if (eq profileUser.college "RVR-COB")}}selected{{/if}}>RVR-COB — Ramon V. del Rosario College of Business</option>
+                <option value="GCOE" {{#if (eq profileUser.college "GCOE")}}selected{{/if}}>GCOE — Gokongwei College of Engineering</option>
+                <option value="CLA" {{#if (eq profileUser.college "CLA")}}selected{{/if}}>CLA — College of Liberal Arts</option>
+                <option value="COS" {{#if (eq profileUser.college "COS")}}selected{{/if}}>COS — College of Science</option>
+                <option value="BAGCED" {{#if (eq profileUser.college "BAGCED")}}selected{{/if}}>BAGCED — Br. Andrew Gonzalez FSC College of Education</option>
+                <option value="CLT-SOE" {{#if (eq profileUser.college "CLT-SOE")}}selected{{/if}}>CLT-SOE — Carlos L. Tiu School of Economics</option>
+                <option value="SHS" {{#if (eq profileUser.college "SHS")}}selected{{/if}}>SHS — Senior High School (DLSU Integrated School)</option>
+                <option value="UNIV" {{#if (eq profileUser.college "UNIV")}}selected{{/if}}>UNIV — University-Wide Office / Center</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="pe-dept" class="form-label fw-semibold">Department / SHS Strand <span class="text-danger">*</span></label>
+              <select id="pe-dept" name="department" class="form-select" data-selected="{{profileUser.department}}" required>
+                <option value="ST" {{#if (eq profileUser.department "ST")}}selected{{/if}}>ST — Department of Software Technology</option>
+                <option value="CT" {{#if (eq profileUser.department "CT")}}selected{{/if}}>CT — Department of Computer Technology</option>
+                <option value="IT" {{#if (eq profileUser.department "IT")}}selected{{/if}}>IT — Department of Information Technology</option>
+                <option value="MOD" {{#if (eq profileUser.department "MOD")}}selected{{/if}}>MOD — Department of Management and Organization</option>
+                <option value="MAD" {{#if (eq profileUser.department "MAD")}}selected{{/if}}>MAD — Department of Marketing and Advertising</option>
+                <option value="ACY" {{#if (eq profileUser.department "ACY")}}selected{{/if}}>ACY — Department of Accountancy</option>
+                <option value="FIN" {{#if (eq profileUser.department "FIN")}}selected{{/if}}>FIN — Department of Financial Management</option>
+                <option value="CLW" {{#if (eq profileUser.department "CLW")}}selected{{/if}}>CLW — Department of Commercial Law</option>
+                <option value="DSI" {{#if (eq profileUser.department "DSI")}}selected{{/if}}>DSI — Department of Decision Sciences and Innovation</option>
+                <option value="ECE" {{#if (eq profileUser.department "ECE")}}selected{{/if}}>ECE — Department of Electronics and Computer Engineering</option>
+                <option value="ME" {{#if (eq profileUser.department "ME")}}selected{{/if}}>ME — Department of Mechanical Engineering</option>
+                <option value="IE" {{#if (eq profileUser.department "IE")}}selected{{/if}}>IE — Department of Industrial and Systems Engineering</option>
+                <option value="CHE" {{#if (eq profileUser.department "CHE")}}selected{{/if}}>CHE — Department of Chemical Engineering</option>
+                <option value="CE" {{#if (eq profileUser.department "CE")}}selected{{/if}}>CE — Department of Civil Engineering</option>
+                <option value="MEM" {{#if (eq profileUser.department "MEM")}}selected{{/if}}>MEM — Department of Manufacturing Engineering and Management</option>
+                <option value="COMM" {{#if (eq profileUser.department "COMM")}}selected{{/if}}>COMM — Department of Communication</option>
+                <option value="POL" {{#if (eq profileUser.department "POL")}}selected{{/if}}>POL — Department of Political Science and Development Studies</option>
+                <option value="PSY" {{#if (eq profileUser.department "PSY")}}selected{{/if}}>PSY — Department of Psychology</option>
+                <option value="LIT" {{#if (eq profileUser.department "LIT")}}selected{{/if}}>LIT — Department of Literature</option>
+                <option value="IS" {{#if (eq profileUser.department "IS")}}selected{{/if}}>IS — Department of International Studies</option>
+                <option value="HIST" {{#if (eq profileUser.department "HIST")}}selected{{/if}}>HIST — Department of History</option>
+                <option value="FIL" {{#if (eq profileUser.department "FIL")}}selected{{/if}}>FIL — Department of Filipino</option>
+                <option value="PHIL" {{#if (eq profileUser.department "PHIL")}}selected{{/if}}>PHIL — Department of Philosophy</option>
+                <option value="SBS" {{#if (eq profileUser.department "SBS")}}selected{{/if}}>SBS — Department of Sociology and Behavioral Sciences</option>
+                <option value="TH" {{#if (eq profileUser.department "TH")}}selected{{/if}}>TH — Department of Theology and Religious Education</option>
+                <option value="BIO" {{#if (eq profileUser.department "BIO")}}selected{{/if}}>BIO — Department of Biology</option>
+                <option value="CHEM" {{#if (eq profileUser.department "CHEM")}}selected{{/if}}>CHEM — Department of Chemistry</option>
+                <option value="MATH" {{#if (eq profileUser.department "MATH")}}selected{{/if}}>MATH — Department of Mathematics and Statistics</option>
+                <option value="PHYS" {{#if (eq profileUser.department "PHYS")}}selected{{/if}}>PHYS — Department of Physics</option>
+                <option value="CEP" {{#if (eq profileUser.department "CEP")}}selected{{/if}}>CEP — Department of Counseling and Educational Psychology</option>
+                <option value="ELM" {{#if (eq profileUser.department "ELM")}}selected{{/if}}>ELM — Department of Educational Leadership and Management</option>
+                <option value="SCIED" {{#if (eq profileUser.department "SCIED")}}selected{{/if}}>SCIED — Department of Science Education</option>
+                <option value="DEAL" {{#if (eq profileUser.department "DEAL")}}selected{{/if}}>DEAL — Department of English and Applied Linguistics</option>
+                <option value="PE" {{#if (eq profileUser.department "PE")}}selected{{/if}}>PE — Department of Physical Education</option>
+                <option value="ECON" {{#if (eq profileUser.department "ECON")}}selected{{/if}}>ECON — Department of Economics</option>
+                <option value="STEM" {{#if (eq profileUser.department "STEM")}}selected{{/if}}>STEM — Science, Technology, Engineering, and Mathematics</option>
+                <option value="ABM" {{#if (eq profileUser.department "ABM")}}selected{{/if}}>ABM — Accountancy, Business, and Management</option>
+                <option value="HUMSS" {{#if (eq profileUser.department "HUMSS")}}selected{{/if}}>HUMSS — Humanities and Social Sciences</option>
+                <option value="ADT" {{#if (eq profileUser.department "ADT")}}selected{{/if}}>ADT — Arts and Design Track</option>
+                <option value="N/A" {{#if (eq profileUser.department "N/A")}}selected{{/if}}>N/A — All Departments / Unit-Wide (Organizers Only)</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="pe-bio" class="form-label fw-semibold">
+                Bio / Academic Interests <span class="text-muted fw-normal small">(Optional, max 300 chars)</span>
+              </label>
+              <textarea
+                id="pe-bio"
+                name="bio"
+                class="form-control"
+                rows="3"
+                maxlength="300"
+                placeholder="Optional short bio or research/student interests (leave blank if preferred)..."
+              >{{profileUser.bio}}</textarea>
+            </div>
+          </div>
+
+          <div class="alert alert-light border small mb-4">
+            <strong>Policy on Demographic Updates & Existing Registrations:</strong>
+            Updating your college, department/strand, academic level, or campus immediately refreshes your Home Feed to match your new group. Any upcoming events you have <em>already registered for</em> remain valid and preserved on your schedule.
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/profile" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-dlsu">Save Profile Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("profile-edit-form");
+    if (form && window.AnimoApp) {
+      window.AnimoApp.bindAffiliationSelects(form);
+    }
+  });
+</script>

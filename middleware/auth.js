@@ -24,7 +24,12 @@ async function loadCurrentUser(req, res, next) {
       }
     }
 
-    if (!req.currentUser && (!req.session || !req.session.loggedOut)) {
+    const usePhase2DefaultUser = process.env.PHASE_MODE !== "phase3";
+    if (
+      usePhase2DefaultUser &&
+      !req.currentUser &&
+      (!req.session || !req.session.loggedOut)
+    ) {
       req.currentUser = await User.findOne({
         email: "miguel_tan@dlsu.edu.ph",
       }).lean();

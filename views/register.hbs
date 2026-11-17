@@ -1,0 +1,283 @@
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="border-bottom pb-3 mb-4">
+          <span class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1">DLSU Manila & Laguna Registration</span>
+          <h1 class="h3 fw-bold mb-1">Create Your AnimoEvents Account</h1>
+          <p class="text-muted small mb-0">
+            Add your campus affiliation and academic unit so the right events appear in your feed.
+          </p>
+        </div>
+
+        {{#if error}}
+          <div class="alert alert-danger small">{{error}}</div>
+        {{/if}}
+
+        <form id="register-form" method="POST" action="/register">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="reg-name" class="form-label fw-semibold">
+                Full Name or Organization Name <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                id="reg-name"
+                name="displayName"
+                class="form-control"
+                required
+                minlength="2"
+                maxlength="100"
+                value="{{formData.displayName}}"
+                placeholder="e.g., Juan Dela Cruz or DLSU Chess Club"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label for="reg-email" class="form-label fw-semibold">
+                DLSU Email Address <span class="text-danger">*</span>
+              </label>
+              <input
+                type="email"
+                id="reg-email"
+                name="email"
+                class="form-control"
+                required
+                value="{{formData.email}}"
+                placeholder="username@dlsu.edu.ph"
+              />
+              <div class="form-text small" id="reg-email-feedback">
+                Must be an active <code>@dlsu.edu.ph</code> email address.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="reg-password" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+              <input
+                type="password"
+                id="reg-password"
+                name="password"
+                class="form-control"
+                required
+                minlength="8"
+                placeholder="At least 8 characters"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label for="reg-confirm" class="form-label fw-semibold">Confirm Password <span class="text-danger">*</span></label>
+              <input
+                type="password"
+                id="reg-confirm"
+                name="confirmPassword"
+                class="form-control"
+                required
+                minlength="8"
+                placeholder="Re-enter password"
+              />
+              <div class="form-text small" id="reg-pw-feedback"></div>
+            </div>
+
+            <div class="col-md-4">
+              <label for="reg-role" class="form-label fw-semibold">Account Affiliation <span class="text-danger">*</span></label>
+              <select id="reg-role" name="role" class="form-select" required>
+                <option value="Student" {{#if (eq formData.role "Student")}}selected{{/if}}>Student</option>
+                <option value="Faculty" {{#if (eq formData.role "Faculty")}}selected{{/if}}>Faculty Member</option>
+                <option value="Organizer" {{#if (eq formData.role "Organizer")}}selected{{/if}}>Accredited Organizer / Office</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="reg-level" class="form-label fw-semibold">
+                Student Academic Level <span class="text-muted fw-normal small">(Students)</span>
+              </label>
+              <select id="reg-level" name="academicLevel" class="form-select" required>
+                <option value="Senior High School" {{#if (eq formData.academicLevel "Senior High School")}}selected{{/if}}>Senior High School (SHS)</option>
+                <option value="Undergraduate" {{#if formData.academicLevel}}{{#if (eq formData.academicLevel "Undergraduate")}}selected{{/if}}{{else}}selected{{/if}}>Undergraduate</option>
+                <option value="Graduate" {{#if (eq formData.academicLevel "Graduate")}}selected{{/if}}>Graduate</option>
+                <option value="N/A" {{#if (eq formData.academicLevel "N/A")}}selected{{/if}}>Not Applicable (Faculty / Organizer)</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="reg-campus" class="form-label fw-semibold">Primary Campus <span class="text-danger">*</span></label>
+              <select id="reg-campus" name="campus" class="form-select" required>
+                <option value="Manila" {{#if (eq formData.campus "Manila")}}selected{{/if}}>Manila Campus</option>
+                <option value="Laguna" {{#if (eq formData.campus "Laguna")}}selected{{/if}}>Laguna Campus</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="reg-college" class="form-label fw-semibold">College / School / Division <span class="text-danger">*</span></label>
+              <select id="reg-college" name="college" class="form-select" required>
+                <option value="CCS" {{#if (eq formData.college "CCS")}}selected{{/if}}>CCS — College of Computer Studies</option>
+                <option value="RVR-COB" {{#if (eq formData.college "RVR-COB")}}selected{{/if}}>RVR-COB — Ramon V. del Rosario College of Business</option>
+                <option value="GCOE" {{#if (eq formData.college "GCOE")}}selected{{/if}}>GCOE — Gokongwei College of Engineering</option>
+                <option value="CLA" {{#if (eq formData.college "CLA")}}selected{{/if}}>CLA — College of Liberal Arts</option>
+                <option value="COS" {{#if (eq formData.college "COS")}}selected{{/if}}>COS — College of Science</option>
+                <option value="BAGCED" {{#if (eq formData.college "BAGCED")}}selected{{/if}}>BAGCED — Br. Andrew Gonzalez FSC College of Education</option>
+                <option value="CLT-SOE" {{#if (eq formData.college "CLT-SOE")}}selected{{/if}}>CLT-SOE — Carlos L. Tiu School of Economics</option>
+                <option value="SHS" {{#if (eq formData.college "SHS")}}selected{{/if}}>SHS — Senior High School (DLSU Integrated School)</option>
+                <option value="UNIV" {{#if (eq formData.college "UNIV")}}selected{{/if}}>UNIV — University-Wide Office / Research Center</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="reg-dept" class="form-label fw-semibold">Department / SHS Strand <span class="text-danger">*</span></label>
+              <select id="reg-dept" name="department" class="form-select" data-selected="{{formData.department}}" required>
+                <option value="ST" {{#if (eq formData.department "ST")}}selected{{/if}}>ST — Department of Software Technology</option>
+                <option value="CT" {{#if (eq formData.department "CT")}}selected{{/if}}>CT — Department of Computer Technology</option>
+                <option value="IT" {{#if (eq formData.department "IT")}}selected{{/if}}>IT — Department of Information Technology</option>
+                <option value="MOD" {{#if (eq formData.department "MOD")}}selected{{/if}}>MOD — Department of Management and Organization</option>
+                <option value="MAD" {{#if (eq formData.department "MAD")}}selected{{/if}}>MAD — Department of Marketing and Advertising</option>
+                <option value="ACY" {{#if (eq formData.department "ACY")}}selected{{/if}}>ACY — Department of Accountancy</option>
+                <option value="FIN" {{#if (eq formData.department "FIN")}}selected{{/if}}>FIN — Department of Financial Management</option>
+                <option value="CLW" {{#if (eq formData.department "CLW")}}selected{{/if}}>CLW — Department of Commercial Law</option>
+                <option value="DSI" {{#if (eq formData.department "DSI")}}selected{{/if}}>DSI — Department of Decision Sciences and Innovation</option>
+                <option value="ECE" {{#if (eq formData.department "ECE")}}selected{{/if}}>ECE — Department of Electronics and Computer Engineering</option>
+                <option value="ME" {{#if (eq formData.department "ME")}}selected{{/if}}>ME — Department of Mechanical Engineering</option>
+                <option value="IE" {{#if (eq formData.department "IE")}}selected{{/if}}>IE — Department of Industrial and Systems Engineering</option>
+                <option value="CHE" {{#if (eq formData.department "CHE")}}selected{{/if}}>CHE — Department of Chemical Engineering</option>
+                <option value="CE" {{#if (eq formData.department "CE")}}selected{{/if}}>CE — Department of Civil Engineering</option>
+                <option value="MEM" {{#if (eq formData.department "MEM")}}selected{{/if}}>MEM — Department of Manufacturing Engineering and Management</option>
+                <option value="COMM" {{#if (eq formData.department "COMM")}}selected{{/if}}>COMM — Department of Communication</option>
+                <option value="POL" {{#if (eq formData.department "POL")}}selected{{/if}}>POL — Department of Political Science and Development Studies</option>
+                <option value="PSY" {{#if (eq formData.department "PSY")}}selected{{/if}}>PSY — Department of Psychology</option>
+                <option value="LIT" {{#if (eq formData.department "LIT")}}selected{{/if}}>LIT — Department of Literature</option>
+                <option value="IS" {{#if (eq formData.department "IS")}}selected{{/if}}>IS — Department of International Studies</option>
+                <option value="HIST" {{#if (eq formData.department "HIST")}}selected{{/if}}>HIST — Department of History</option>
+                <option value="FIL" {{#if (eq formData.department "FIL")}}selected{{/if}}>FIL — Department of Filipino</option>
+                <option value="PHIL" {{#if (eq formData.department "PHIL")}}selected{{/if}}>PHIL — Department of Philosophy</option>
+                <option value="SBS" {{#if (eq formData.department "SBS")}}selected{{/if}}>SBS — Department of Sociology and Behavioral Sciences</option>
+                <option value="TH" {{#if (eq formData.department "TH")}}selected{{/if}}>TH — Department of Theology and Religious Education</option>
+                <option value="BIO" {{#if (eq formData.department "BIO")}}selected{{/if}}>BIO — Department of Biology</option>
+                <option value="CHEM" {{#if (eq formData.department "CHEM")}}selected{{/if}}>CHEM — Department of Chemistry</option>
+                <option value="MATH" {{#if (eq formData.department "MATH")}}selected{{/if}}>MATH — Department of Mathematics and Statistics</option>
+                <option value="PHYS" {{#if (eq formData.department "PHYS")}}selected{{/if}}>PHYS — Department of Physics</option>
+                <option value="CEP" {{#if (eq formData.department "CEP")}}selected{{/if}}>CEP — Department of Counseling and Educational Psychology</option>
+                <option value="ELM" {{#if (eq formData.department "ELM")}}selected{{/if}}>ELM — Department of Educational Leadership and Management</option>
+                <option value="SCIED" {{#if (eq formData.department "SCIED")}}selected{{/if}}>SCIED — Department of Science Education</option>
+                <option value="DEAL" {{#if (eq formData.department "DEAL")}}selected{{/if}}>DEAL — Department of English and Applied Linguistics</option>
+                <option value="PE" {{#if (eq formData.department "PE")}}selected{{/if}}>PE — Department of Physical Education</option>
+                <option value="ECON" {{#if (eq formData.department "ECON")}}selected{{/if}}>ECON — Department of Economics</option>
+                <option value="STEM" {{#if (eq formData.department "STEM")}}selected{{/if}}>STEM — Science, Technology, Engineering, and Mathematics</option>
+                <option value="ABM" {{#if (eq formData.department "ABM")}}selected{{/if}}>ABM — Accountancy, Business, and Management</option>
+                <option value="HUMSS" {{#if (eq formData.department "HUMSS")}}selected{{/if}}>HUMSS — Humanities and Social Sciences</option>
+                <option value="ADT" {{#if (eq formData.department "ADT")}}selected{{/if}}>ADT — Arts and Design Track</option>
+                <option value="N/A" {{#if (eq formData.department "N/A")}}selected{{/if}}>N/A — All Departments / Unit-Wide (Organizers Only)</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="reg-bio" class="form-label fw-semibold">
+                Bio / Academic Interests <span class="text-muted fw-normal small">(Optional, max 300 chars)</span>
+              </label>
+              <textarea
+                id="reg-bio"
+                name="bio"
+                class="form-control"
+                rows="2"
+                maxlength="300"
+                placeholder="Optional short introduction or organization description..."
+              >{{formData.bio}}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="/login" class="small text-success text-decoration-none fw-semibold">Already have an account? Sign In</a>
+            <button type="submit" id="reg-submit" class="btn btn-dlsu">Complete Registration</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("register-form");
+    const emailInput = document.getElementById("reg-email");
+    const emailFeedback = document.getElementById("reg-email-feedback");
+    const pwInput = document.getElementById("reg-password");
+    const confirmInput = document.getElementById("reg-confirm");
+    const pwFeedback = document.getElementById("reg-pw-feedback");
+    const submitBtn = document.getElementById("reg-submit");
+
+    let emailValid = true;
+    let pwValid = true;
+
+    function syncSubmitButton() {
+      submitBtn.disabled = !(emailValid && pwValid);
+    }
+
+    if (form && window.AnimoApp) {
+      window.AnimoApp.bindAffiliationSelects(form);
+    }
+
+    function checkPasswords() {
+      const pw = pwInput.value;
+      const conf = confirmInput.value;
+      if (!conf) {
+        pwValid = true;
+        confirmInput.classList.remove("is-invalid");
+        pwFeedback.textContent = "";
+        syncSubmitButton();
+        return;
+      }
+      if (pw !== conf) {
+        pwValid = false;
+        confirmInput.classList.add("is-invalid");
+        pwFeedback.className = "form-text small text-danger fw-semibold";
+        pwFeedback.textContent = "Passwords do not match.";
+      } else {
+        pwValid = true;
+        confirmInput.classList.remove("is-invalid");
+        pwFeedback.className = "form-text small text-success fw-semibold";
+        pwFeedback.textContent = "Passwords match.";
+      }
+      syncSubmitButton();
+    }
+
+    pwInput.addEventListener("input", checkPasswords);
+    confirmInput.addEventListener("input", checkPasswords);
+
+    emailInput.addEventListener("input", function () {
+      const val = emailInput.value.trim().toLowerCase();
+      if (!val) {
+        emailValid = true;
+        emailInput.classList.remove("is-invalid");
+        emailFeedback.className = "form-text small text-muted";
+        emailFeedback.textContent = "Must be an active @dlsu.edu.ph email address.";
+        syncSubmitButton();
+        return;
+      }
+      if (!val.endsWith("@dlsu.edu.ph")) {
+        emailValid = false;
+        emailInput.classList.add("is-invalid");
+        emailFeedback.className = "form-text small text-danger fw-semibold";
+        emailFeedback.textContent = "Email must end with @dlsu.edu.ph";
+        syncSubmitButton();
+        return;
+      }
+      fetch("/api/users/check-email?email=" + encodeURIComponent(val))
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data.available) {
+            emailValid = false;
+            emailInput.classList.add("is-invalid");
+            emailFeedback.className = "form-text small text-danger fw-semibold";
+            emailFeedback.textContent = "This @dlsu.edu.ph email is already registered.";
+          } else {
+            emailValid = true;
+            emailInput.classList.remove("is-invalid");
+            emailFeedback.className = "form-text small text-success fw-semibold";
+            emailFeedback.textContent = "DLSU email is available!";
+          }
+          syncSubmitButton();
+        })
+        .catch(function () {});
+    });
+  });
+</script>

@@ -13,6 +13,7 @@ const {
   EVENT_STATUSES,
   MIN_EVENT_DATE,
   MAX_EVENT_DATE,
+  validateAffiliationCombination,
 } = require("../model/constants");
 
 function extractValidationErrors(req) {
@@ -55,9 +56,34 @@ const registerValidation = [
     .isString()
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters."),
+  body("confirmPassword").custom(function (val, meta) {
+    if (String(val || "") !== String(meta.req.body.password || "")) {
+      throw new Error("Password and Confirm Password do not match.");
+    }
+    return true;
+  }),
   body("role")
     .isIn(ROLES)
-    .withMessage("Please select a valid account affiliation."),
+    .withMessage("Please select a valid account affiliation.")
+    .custom(function (role, meta) {
+      const req = meta.req;
+      const academicLevel =
+        role === "Student"
+          ? String(req.body.academicLevel || "Undergraduate")
+          : "N/A";
+      const college = String(req.body.college || "");
+      const department = String(req.body.department || "");
+      const affilErrors = validateAffiliationCombination(
+        role,
+        academicLevel,
+        college,
+        department,
+      );
+      if (affilErrors.length > 0) {
+        throw new Error(affilErrors.join(" "));
+      }
+      return true;
+    }),
   body("campus")
     .isIn(CAMPUSES)
     .withMessage("Please select a valid primary campus."),
@@ -78,7 +104,32 @@ const profileEditValidation = [
     .withMessage("Please select a valid college or division."),
   body("department")
     .isIn(ALL_DEPARTMENT_CODES)
-    .withMessage("Please select a valid department or strand."),
+    .withMessage("Please select a valid department or strand.")
+    .custom(function (department, meta) {
+      const req = meta.req;
+      const role = req.currentUser
+        ? req.currentUser.role
+        : String(req.body.role || "Student");
+      const academicLevel =
+        role === "Student"
+          ? String(
+              req.body.academicLevel ||
+                (req.currentUser && req.currentUser.academicLevel) ||
+                "Undergraduate",
+            )
+          : "N/A";
+      const college = String(req.body.college || "");
+      const affilErrors = validateAffiliationCombination(
+        role,
+        academicLevel,
+        college,
+        department,
+      );
+      if (affilErrors.length > 0) {
+        throw new Error(affilErrors.join(" "));
+      }
+      return true;
+    }),
   body("academicLevel")
     .optional({ values: "falsy" })
     .isIn(ACADEMIC_LEVELS)
@@ -108,6 +159,14 @@ const eventCreateValidation = [
     })
     .withMessage("Event date must be between 2025-01-01 and 2036-12-31."),
   body("time").trim().notEmpty().withMessage("Start time is required."),
+  body("endTime").custom(function (val, meta) {
+    const endTime = String(val || "").trim();
+    const startTime = String(meta.req.body.time || "").trim();
+    if (endTime && startTime && endTime <= startTime) {
+      throw new Error("End Time must be later than Start Time.");
+    }
+    return true;
+  }),
   body("venue")
     .trim()
     .isLength({ min: 3, max: 100 })

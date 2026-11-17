@@ -4,7 +4,6 @@
 const User = require("../model/User");
 const Event = require("../model/Event");
 const Bookmark = require("../model/Bookmark");
-const { validateAffiliationCombination } = require("../model/constants");
 const { extractValidationErrors } = require("../middleware/validators");
 const {
   syncEventLifecycles,
@@ -104,10 +103,17 @@ function getLogout(req, res) {
   });
 }
 
-function getRegister(_req, res) {
+function getRegister(req, res) {
   res.render("register", {
     title: "Create DLSU Account — AnimoEvents",
     activeNav: "register",
+    formData: {
+      role: "Student",
+      academicLevel: "Undergraduate",
+      college: "CCS",
+      department: "ST",
+      campus: "Manila",
+    },
   });
 }
 
@@ -133,7 +139,6 @@ async function postRegister(req, res, next) {
       .trim()
       .toLowerCase();
     const password = String(req.body.password || "");
-    const confirmPassword = String(req.body.confirmPassword || "");
     const role = String(req.body.role || "Student");
     const academicLevel =
       role === "Student"
@@ -145,40 +150,17 @@ async function postRegister(req, res, next) {
     const bio = String(req.body.bio || "").trim();
 
     const errors = extractValidationErrors(req);
-    if (displayName.length < 2 || displayName.length > 100) {
-      errors.push("Display name must be between 2 and 100 characters.");
-    }
-    if (!email.endsWith("@dlsu.edu.ph")) {
-      errors.push("Registration requires a valid @dlsu.edu.ph email address.");
-    }
-    if (password.length < 8) {
-      errors.push("Password must be at least 8 characters.");
-    }
-    if (password !== confirmPassword) {
-      errors.push("Password and Confirm Password do not match.");
-    }
-
-    const affilErrors = validateAffiliationCombination(
-      role,
-      academicLevel,
-      college,
-      department,
-    );
-    for (let i = 0; i < affilErrors.length; i++) {
-      errors.push(affilErrors[i]);
-    }
 
     const existing = await User.findOne({ email: email }).lean();
     if (existing) {
       errors.push("An account with this @dlsu.edu.ph email already exists.");
     }
 
-    const uniqueErrors = Array.from(new Set(errors));
-    if (uniqueErrors.length > 0) {
+    if (errors.length > 0) {
       return res.status(400).render("register", {
         title: "Create DLSU Account — AnimoEvents",
         activeNav: "register",
-        error: uniqueErrors.join(" "),
+        error: errors.join(" "),
         formData: {
           displayName,
           email,
@@ -295,29 +277,11 @@ async function postProfileEdit(req, res, next) {
     const bio = String(req.body.bio || "").trim();
 
     const errors = extractValidationErrors(req);
-    if (displayName.length < 2 || displayName.length > 100) {
-      errors.push("Display name must be between 2 and 100 characters.");
-    }
-    if (bio.length > 300) {
-      errors.push("Bio cannot exceed 300 characters.");
-    }
-
-    const affilErrors = validateAffiliationCombination(
-      role,
-      academicLevel,
-      college,
-      department,
-    );
-    for (let i = 0; i < affilErrors.length; i++) {
-      errors.push(affilErrors[i]);
-    }
-
-    const uniqueErrors = Array.from(new Set(errors));
-    if (uniqueErrors.length > 0) {
+    if (errors.length > 0) {
       return res.status(400).render("profile-edit", {
         title: "Edit Profile & Affiliation — AnimoEvents",
         activeNav: "profile",
-        error: uniqueErrors.join(" "),
+        error: errors.join(" "),
         profileUser: Object.assign({}, user, {
           displayName,
           profilePic,
@@ -340,7 +304,7 @@ async function postProfileEdit(req, res, next) {
       bio,
     });
 
-    // Synchronize denormalized organizerName and thread authorName using lecture-taught loops
+    // Synchronize denormalized organizerName and thread authorName
     await Event.updateMany(
       { organizer: user._id },
       { $set: { organizerName: displayName } },
