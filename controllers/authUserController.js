@@ -10,23 +10,23 @@ const {
   decorateEventForView,
 } = require("./eventController");
 
-async function getLogin(req, res, next) {
-  try {
-    res.render("login", {
-      title: "Sign In — AnimoEvents",
-      activeNav: "login",
-    });
-  } catch (err) {
-    next(err);
-  }
+function formText(value, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function getLogin(req, res) {
+  if (req.currentUser) return res.redirect("/profile");
+  res.render("login", {
+    title: "Sign In — AnimoEvents",
+    activeNav: "login",
+  });
 }
 
 async function postLogin(req, res, next) {
   try {
-    const email = String(req.body.email || "")
-      .trim()
-      .toLowerCase();
-    const password = String(req.body.password || "");
+    if (req.currentUser) return res.redirect("/profile");
+    const email = formText(req.body.email).trim().toLowerCase();
+    const password = formText(req.body.password);
 
     const valErrors = extractValidationErrors(req);
     if (valErrors.length > 0) {
@@ -38,72 +38,55 @@ async function postLogin(req, res, next) {
       });
     }
 
-    const userDoc = await User.findOne({ email: email });
-    if (!userDoc) {
-      return res.status(400).render("login", {
+    const userDoc = await User.findOne({ email }).select("+password");
+    if (!userDoc || !(await userDoc.comparePassword(password))) {
+      return res.status(401).render("login", {
         title: "Sign In — AnimoEvents",
         activeNav: "login",
-        error: "No account found with that @dlsu.edu.ph email address.",
+        error: "The email address or password is incorrect.",
         formEmail: email,
       });
     }
 
-    const isMatch = await userDoc.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).render("login", {
-        title: "Sign In — AnimoEvents",
-        activeNav: "login",
-        error: "The password you entered is incorrect.",
-        formEmail: email,
-      });
-    }
-
-    if (req.session) {
-      req.session.userId = String(userDoc._id);
-      req.session.loggedOut = false;
-    }
-    return res.redirect("/");
+    return startUserSession(req, res, next, userDoc._id);
   } catch (err) {
     return next(err);
   }
 }
 
-async function switchDemoAccount(req, res, next) {
-  try {
-    const email = String(req.query.email || "")
-      .trim()
-      .toLowerCase();
-    if (email) {
-      const targetUser = await User.findOne({ email: email }).lean();
-      if (targetUser && req.session) {
-        req.session.userId = String(targetUser._id);
-        req.session.loggedOut = false;
-      }
-    }
-    const referer = req.get("Referrer") || "/";
-    if (referer.includes("/login") || referer.includes("/logout")) {
+function startUserSession(req, res, next, userId) {
+  req.session.regenerate(function (err) {
+    if (err) return next(err);
+    req.session.userId = String(userId);
+    req.session.save(function (saveError) {
+      if (saveError) return next(saveError);
       return res.redirect("/");
-    }
-    return res.redirect(referer);
-  } catch (err) {
-    return next(err);
-  }
+    });
+  });
 }
 
 function getLogout(req, res) {
-  if (req.session) {
-    req.session.userId = null;
-    req.session.loggedOut = true;
-  }
-  req.currentUser = null;
-  res.locals.currentUser = null;
+  if (req.currentUser) return res.redirect("/profile");
   res.render("logout", {
     title: "Signed Out — AnimoEvents",
     activeNav: "logout",
   });
 }
 
+function postLogout(req, res, next) {
+  req.session.destroy(function (err) {
+    if (err) return next(err);
+    res.clearCookie("connect.sid", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res.redirect(303, "/logout");
+  });
+}
+
 function getRegister(req, res) {
+  if (req.currentUser) return res.redirect("/profile");
   res.render("register", {
     title: "Create DLSU Account — AnimoEvents",
     activeNav: "register",
@@ -119,13 +102,11 @@ function getRegister(req, res) {
 
 async function checkEmailAvailability(req, res, next) {
   try {
-    const email = String(req.query.email || "")
-      .trim()
-      .toLowerCase();
-    if (!email || !email.endsWith("@dlsu.edu.ph")) {
-      return res.json({ available: false, validDomain: false });
+    res.set("Cache-Control", "no-store");
+    if (extractValidationErrors(req).length > 0) {
+      return res.status(400).json({ available: false, validDomain: false });
     }
-    const existing = await User.findOne({ email: email }).lean();
+    const existing = await User.exists({ email: req.query.email });
     return res.json({ available: !existing, validDomain: true });
   } catch (err) {
     return next(err);
@@ -134,45 +115,42 @@ async function checkEmailAvailability(req, res, next) {
 
 async function postRegister(req, res, next) {
   try {
-    const displayName = String(req.body.displayName || "").trim();
-    const email = String(req.body.email || "")
-      .trim()
-      .toLowerCase();
-    const password = String(req.body.password || "");
-    const role = String(req.body.role || "Student");
+    if (req.currentUser) return res.redirect("/profile");
+    const displayName = formText(req.body.displayName).trim();
+    const email = formText(req.body.email).trim().toLowerCase();
+    const password = formText(req.body.password);
+    const role = formText(req.body.role, "Student");
     const academicLevel =
       role === "Student"
-        ? String(req.body.academicLevel || "Undergraduate")
+        ? formText(req.body.academicLevel, "Undergraduate")
         : "N/A";
-    const college = String(req.body.college || "CCS");
-    const department = String(req.body.department || "ST");
-    const campus = String(req.body.campus || "Manila");
-    const bio = String(req.body.bio || "").trim();
+    const college = formText(req.body.college, "CCS");
+    const department = formText(req.body.department, "ST");
+    const campus = formText(req.body.campus, "Manila");
+    const bio = formText(req.body.bio).trim();
 
     const errors = extractValidationErrors(req);
 
-    const existing = await User.findOne({ email: email }).lean();
-    if (existing) {
-      errors.push("An account with this @dlsu.edu.ph email already exists.");
-    }
-
-    if (errors.length > 0) {
-      return res.status(400).render("register", {
+    const formData = {
+      displayName,
+      email,
+      role,
+      academicLevel,
+      college,
+      department,
+      campus,
+      bio,
+    };
+    function renderRegistrationError(status, error, emailError) {
+      return res.status(status).render("register", {
         title: "Create DLSU Account — AnimoEvents",
         activeNav: "register",
-        error: errors.join(" "),
-        formData: {
-          displayName,
-          email,
-          role,
-          academicLevel,
-          college,
-          department,
-          campus,
-          bio,
-        },
+        error,
+        emailError,
+        formData,
       });
     }
+    if (errors.length > 0) return renderRegistrationError(400, errors.join(" "));
 
     const newUser = new User({
       displayName,
@@ -184,18 +162,20 @@ async function postRegister(req, res, next) {
       department,
       campus,
       bio,
-      profilePic:
-        role === "Organizer"
-          ? "/images/avatar-u6.svg"
-          : "/images/avatar-u1.svg",
     });
-    const savedUser = await newUser.save();
-
-    if (req.session) {
-      req.session.userId = String(savedUser._id);
-      req.session.loggedOut = false;
+    try {
+      await newUser.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        return renderRegistrationError(
+          409,
+          null,
+          "An account with this email address already exists.",
+        );
+      }
+      throw err;
     }
-    return res.redirect("/");
+    return startUserSession(req, res, next, newUser._id);
   } catch (err) {
     return next(err);
   }
@@ -203,35 +183,36 @@ async function postRegister(req, res, next) {
 
 async function getProfile(req, res, next) {
   try {
-    await syncEventLifecycles();
-    const user = req.currentUser;
-    if (!user) {
-      return res.redirect("/login");
-    }
-
-    const filter =
-      user.role === "Organizer"
-        ? { organizer: user._id }
-        : { attendees: user._id };
-
-    const rawEvents = await Event.find(filter)
-      .sort({ date: 1, time: 1 })
-      .lean();
-    const userEvents = rawEvents.map(function (ev) {
-      return decorateEventForView(ev, user, null);
-    });
-
-    res.render("profile", {
-      title: "My Profile — AnimoEvents",
-      activeNav: "profile",
-      profileUser: user,
-      userEvents,
-      eventCount: userEvents.length,
-      isOrganizer: user.role === "Organizer",
-    });
+    return await renderProfile(req, res);
   } catch (err) {
-    next(err);
+    return next(err);
   }
+}
+
+async function renderProfile(req, res, status = 200, error) {
+  await syncEventLifecycles();
+  const user = req.currentUser;
+  if (!user) return res.redirect("/login");
+
+  const filter =
+    user.role === "Organizer"
+      ? { organizer: user._id }
+      : { attendees: user._id };
+
+  const rawEvents = await Event.find(filter).sort({ date: 1, time: 1 }).lean();
+  const userEvents = rawEvents.map(function (ev) {
+    return decorateEventForView(ev, user, null);
+  });
+
+  return res.status(status).render("profile", {
+    title: "My Profile — AnimoEvents",
+    activeNav: "profile",
+    profileUser: user,
+    userEvents,
+    eventCount: userEvents.length,
+    isOrganizer: user.role === "Organizer",
+    error,
+  });
 }
 
 async function getProfileEdit(req, res, next) {
@@ -257,10 +238,8 @@ async function postProfileEdit(req, res, next) {
       return res.redirect("/login");
     }
 
-    const displayName = String(req.body.displayName || "").trim();
-    const rawPic = String(
-      req.body.profilePic || user.profilePic || "/images/avatar-u1.svg",
-    )
+    const displayName = formText(req.body.displayName).trim();
+    const rawPic = formText(req.body.profilePic, user.profilePic || "/images/avatar-u1.svg")
       .trim()
       .replace(/^\.\//, "/");
     const profilePic = /^\/images\/avatar-u([1-9]|1[0-2])\.svg$/.test(rawPic)
@@ -269,12 +248,12 @@ async function postProfileEdit(req, res, next) {
     const role = user.role; // Read-only after registration
     const academicLevel =
       role === "Student"
-        ? String(req.body.academicLevel || user.academicLevel)
+        ? formText(req.body.academicLevel, user.academicLevel)
         : "N/A";
-    const college = String(req.body.college || user.college);
-    const department = String(req.body.department || user.department);
-    const campus = String(req.body.campus || user.campus);
-    const bio = String(req.body.bio || "").trim();
+    const college = formText(req.body.college, user.college);
+    const department = formText(req.body.department, user.department);
+    const campus = formText(req.body.campus, user.campus);
+    const bio = formText(req.body.bio).trim();
 
     const errors = extractValidationErrors(req);
     if (errors.length > 0) {
@@ -294,34 +273,23 @@ async function postProfileEdit(req, res, next) {
       });
     }
 
-    await User.findByIdAndUpdate(user._id, {
-      displayName,
-      profilePic,
-      academicLevel,
-      college,
-      department,
-      campus,
-      bio,
-    });
+    await User.findByIdAndUpdate(
+      user._id,
+      { displayName, profilePic, academicLevel, college, department, campus, bio },
+      { runValidators: true },
+    );
 
     // Synchronize denormalized organizerName and thread authorName
     await Event.updateMany(
       { organizer: user._id },
-      { $set: { organizerName: displayName } },
+      { $set: { organizerName: displayName }, $inc: { __v: 1 } },
     );
 
-    const eventsWithUserComments = await Event.find({
-      "updates.author": user._id,
-    });
-    for (let i = 0; i < eventsWithUserComments.length; i++) {
-      const ev = eventsWithUserComments[i];
-      for (let j = 0; j < ev.updates.length; j++) {
-        if (String(ev.updates[j].author) === String(user._id)) {
-          ev.updates[j].authorName = displayName;
-        }
-      }
-      await ev.save();
-    }
+    await Event.updateMany(
+      { "updates.author": user._id },
+      { $set: { "updates.$[post].authorName": displayName }, $inc: { __v: 1 } },
+      { arrayFilters: [{ "post.author": user._id }] },
+    );
 
     return res.redirect("/profile");
   } catch (err) {
@@ -335,43 +303,32 @@ async function postProfileDelete(req, res, next) {
     if (!user) {
       return res.redirect("/login");
     }
+    if (req.body.confirmDelete !== "yes") {
+      return await renderProfile(
+        req, res, 400, "Confirm account deletion before continuing.",
+      );
+    }
     const userId = user._id;
 
-    // 1. Delete bookmarks on events hosted by this user
-    const hostedEvents = await Event.find({ organizer: userId }).lean();
-    for (let i = 0; i < hostedEvents.length; i++) {
-      await Bookmark.deleteMany({ event: hostedEvents[i]._id });
+    // Keep each parent until its dependent records have been removed so a failed request can be retried.
+    const hostedEventIds = await Event.distinct("_id", { organizer: userId });
+    if (hostedEventIds.length > 0) {
+      await Bookmark.deleteMany({ event: { $in: hostedEventIds } });
     }
-
-    // 2. Delete user's own bookmarks and hosted events
     await Bookmark.deleteMany({ user: userId });
+
+    await Event.updateMany(
+      { $or: [{ attendees: userId }, { "updates.author": userId }] },
+      {
+        $pull: { attendees: userId, updates: { author: userId } },
+        $inc: { __v: 1 },
+      },
+    );
+    await syncEventLifecycles();
+
     await Event.deleteMany({ organizer: userId });
-
-    // 3. Remove user from attendees and thread updates, reopening Full events if capacity frees up
-    const joinedOrCommented = await Event.find({
-      $or: [{ attendees: userId }, { "updates.author": userId }],
-    });
-    for (let i = 0; i < joinedOrCommented.length; i++) {
-      const ev = joinedOrCommented[i];
-      ev.attendees = ev.attendees.filter(function (id) {
-        return String(id) !== String(userId);
-      });
-      ev.updates = ev.updates.filter(function (u) {
-        return String(u.author) !== String(userId);
-      });
-      if (ev.status === "Full" && ev.attendees.length < ev.maxCapacity) {
-        ev.status = "Open";
-      }
-      await ev.save();
-    }
-
-    // 4. Delete user record and clear session
     await User.findByIdAndDelete(userId);
-    if (req.session) {
-      req.session.userId = null;
-      req.session.loggedOut = true;
-    }
-    return res.redirect("/logout");
+    return postLogout(req, res, next);
   } catch (err) {
     return next(err);
   }
@@ -380,8 +337,8 @@ async function postProfileDelete(req, res, next) {
 module.exports = {
   getLogin,
   postLogin,
-  switchDemoAccount,
   getLogout,
+  postLogout,
   getRegister,
   checkEmailAvailability,
   postRegister,

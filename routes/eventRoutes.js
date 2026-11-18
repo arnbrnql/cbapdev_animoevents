@@ -33,7 +33,7 @@ router.post(
 );
 router.post(
   "/events/:id/delete",
-  requireEventOwner,
+  requireOrganizer,
   eventController.postEventDelete,
 );
 

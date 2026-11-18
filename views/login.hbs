@@ -15,7 +15,7 @@
         </div>
 
         {{#if error}}
-          <div class="alert alert-danger small">{{error}}</div>
+          <div class="alert alert-danger small" role="alert">{{error}}</div>
         {{/if}}
 
         <form method="POST" action="/login">
@@ -29,6 +29,7 @@
               name="email"
               class="form-control"
               required
+              autocomplete="username"
               placeholder="name@dlsu.edu.ph"
               value="{{formEmail}}"
             />
@@ -44,6 +45,7 @@
               name="password"
               class="form-control"
               required
+              autocomplete="current-password"
               minlength="8"
               placeholder="Enter your password"
             />
@@ -60,6 +62,7 @@
       </div>
     </div>
 
+    {{#if demoMode}}
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-4">
         <h2 class="h6 fw-bold mb-2">Try a sample account</h2>
@@ -160,15 +163,20 @@
         </div>
       </div>
     </div>
+    {{/if}}
   </div>
 </main>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () { const emailInput =
-  document.getElementById("login-email"); const pwInput =
-  document.getElementById("login-password");
-  document.querySelectorAll("[data-fill-email]").forEach(function (btn) {
-  btn.addEventListener("click", function () { emailInput.value =
-  btn.getAttribute("data-fill-email"); pwInput.value = "AnimoPass123!"; }); });
-  });
-</script>
+{{#if demoMode}}
+  <script>
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+    document.querySelectorAll("[data-fill-email]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        emailInput.value = button.dataset.fillEmail;
+        passwordInput.value = "AnimoPass123!";
+        document.querySelector('form[action="/login"] button[type="submit"]').focus();
+      });
+    });
+  </script>
+{{/if}}

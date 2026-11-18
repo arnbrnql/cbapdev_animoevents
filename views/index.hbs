@@ -1,0 +1,194 @@
+<main class="container py-4">
+  <section class="hero-banner mb-4">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-8">
+        <span class="badge bg-light text-success fw-semibold mb-2">DLSU Manila & Laguna Campus Bulletin</span>
+        <h1 class="h3 fw-bold mb-2">Discover & Track Lasallian Campus Events</h1>
+        <p class="mb-0 opacity-90">
+          Browse upcoming seminars, workshops, bazaars, and competitions tailored to your college, department, academic level, and campus. Register in one click to receive official host updates.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        {{#if (eq currentUser.role "Organizer")}}
+          <a href="/events/new" class="btn btn-light text-success fw-semibold me-2">+ Publish New Event</a>
+          <a href="/calendar" class="btn btn-outline-light fw-semibold">Hosted Schedule</a>
+        {{else}}
+          <a href="/events" class="btn btn-light text-success fw-semibold me-2">Search & Filter Events</a>
+          <a href="/calendar" class="btn btn-outline-light fw-semibold">View My Calendar</a>
+        {{/if}}
+      </div>
+    </div>
+  </section>
+
+  <section class="user-context-bar mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <span class="text-muted small d-block">Your event feed</span>
+      {{#if currentUser}}
+        <span class="fw-semibold">
+          Showing events open to all Lasallians and activities matching:
+          <strong>
+            {{currentUser.role}}{{#if (eq currentUser.role "Student")}} ({{currentUser.academicLevel}}){{/if}}
+            • {{currentUser.college}}{{#if (neq currentUser.department "N/A")}} / {{currentUser.department}}{{/if}}
+            • {{currentUser.campus}} Campus
+          </strong>
+        </span>
+      {{else}}
+        <span class="fw-semibold">
+          Viewing in <strong>Guest Mode</strong> — only University-Wide public events are displayed. <a href="/login" class="text-success fw-semibold">Sign In</a> to view targeted events.
+        </span>
+      {{/if}}
+    </div>
+    <div class="d-flex gap-2">
+      {{#if currentUser}}
+        <a href="/profile/edit" class="btn btn-sm btn-outline-dlsu">Update Profile & Affiliation</a>
+      {{else}}
+        <a href="/login" class="btn btn-sm btn-dlsu">Sign In</a>
+      {{/if}}
+    </div>
+  </section>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+          <h2 class="h5 fw-bold mb-0">{{feedHeading}}</h2>
+          <p class="text-muted small mb-0">
+            Restricted events for other colleges or academic levels are automatically hidden unless you are already registered.
+          </p>
+        </div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Feed filter tabs">
+          <a href="/?feed=eligible" class="btn btn-outline-dlsu {{#if (eq activeFeedMode 'eligible')}}active{{/if}}">
+            All Eligible ({{counts.eligible}})
+          </a>
+          <a href="/?feed=targeted" class="btn btn-outline-dlsu {{#if (eq activeFeedMode 'targeted')}}active{{/if}}">
+            Targeted for My Group ({{counts.targeted}})
+          </a>
+          <a href="/?feed=joined" class="btn btn-outline-dlsu {{#if (eq activeFeedMode 'joined')}}active{{/if}}">
+            My Joined / Hosted ({{counts.joined}})
+          </a>
+          <a href="/?feed=archive" class="btn btn-outline-dlsu {{#if (eq activeFeedMode 'archive')}}active{{/if}}">
+            Completed Archive ({{counts.archive}})
+          </a>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-3">
+        {{#each events}}
+          <article class="card card-event shadow-sm p-3 {{#if isArchived}}event-archived{{/if}}">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+              <div>
+                <span class="badge {{statusBadgeClass}} me-1">{{status}}</span>
+                <span class="badge bg-secondary bg-opacity-10 text-dark me-1">{{category}}</span>
+                <span class="{{#if isPublic}}badge-tag{{else}}badge-tag-restricted{{/if}}">{{audienceLabel}}</span>
+              </div>
+              <span class="small fw-semibold text-success">{{attendeeCount}} / {{maxCapacity}} Joined</span>
+            </div>
+
+            {{#if isGrandfathered}}
+              <div class="alert alert-warning py-1 px-2 small mb-2">
+                <strong>Registered prior to profile update:</strong> Your current profile no longer matches this event's target audience. Your existing slot is preserved, but if you leave this event you will not be able to re-join.
+              </div>
+            {{/if}}
+
+            <h3 class="h5 fw-bold mb-1">
+              <a href="/events/{{_id}}" class="text-decoration-none text-dark">{{title}}</a>
+            </h3>
+            <p class="text-muted small mb-2">
+              Hosted by <a href="/organizers/{{organizer}}" class="text-success fw-semibold text-decoration-none">{{organizerName}}</a>
+              • {{date}} • {{time}}{{#if endTime}}–{{endTime}}{{/if}} • {{venue}}
+            </p>
+            <p class="small mb-3">{{description}}</p>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+              <a href="/events/{{_id}}" class="btn btn-sm btn-outline-secondary">
+                View Details & Thread ({{updateCount}})
+              </a>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                {{#if ../currentUser}}
+                  {{#if isOwner}}
+                    <a href="/events/{{_id}}/edit" class="btn btn-sm btn-dlsu">Manage Event</a>
+                  {{else if isOrganizerViewer}}
+                    <span class="badge bg-light text-muted border">Organizer View Only</span>
+                  {{else if isArchived}}
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>
+                      {{#if isJoined}}Registered ({{status}}){{else}}{{status}}{{/if}}
+                    </button>
+                  {{else if isJoined}}
+                    <form method="POST" action="/events/{{_id}}/leave" class="d-inline">
+                      <input type="hidden" name="returnTo" value="/?feed={{../activeFeedMode}}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Leave Event (Joined)</button>
+                    </form>
+                  {{else if isOpen}}
+                    <form method="POST" action="/events/{{_id}}/join" class="d-inline">
+                      <input type="hidden" name="returnTo" value="/?feed={{../activeFeedMode}}" />
+                      <button type="submit" class="btn btn-sm btn-dlsu">Join Event</button>
+                    </form>
+                  {{else}}
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>{{status}}</button>
+                  {{/if}}
+
+                  <form method="POST" action="/bookmarks{{#if isBookmarked}}/remove-event{{/if}}" class="d-inline">
+                    <input type="hidden" name="eventId" value="{{_id}}" />
+                    <input type="hidden" name="returnTo" value="/?feed={{../activeFeedMode}}" />
+                    <button type="submit" class="btn btn-sm btn-outline-dlsu {{#if isBookmarked}}active{{/if}}">
+                      {{#if isBookmarked}}Remove Bookmark{{else}}Bookmark{{/if}}
+                    </button>
+                  </form>
+                {{else}}
+                  <a href="/login" class="btn btn-sm btn-outline-dlsu">Sign in to {{#if isOpen}}join or {{/if}}bookmark</a>
+                {{/if}}
+              </div>
+            </div>
+          </article>
+        {{else}}
+          <div class="card border-0 shadow-sm p-4 text-center text-muted">
+            <p class="mb-2 fw-semibold">No events found in this tab.</p>
+            <p class="small mb-0">Try switching feed tabs above or browsing the full <a href="/events" class="text-success">Events Directory</a>.</p>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <aside class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+          <h2 class="h6 fw-bold mb-0">
+            {{#if currentUser}}
+              {{#if (eq currentUser.role "Organizer")}}Updates on My Hosted Events{{else}}Updates from Joined Events{{/if}}
+            {{else}}
+              Recent Public Event Updates
+            {{/if}}
+          </h2>
+          <span class="badge bg-success">{{updateCount}} Updates</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {{#each officialUpdates}}
+              <a href="/events/{{eventId}}" class="list-group-item list-group-item-action py-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="badge bg-success bg-opacity-10 text-success fw-semibold text-truncate" style="max-width: 180px;">{{organizerName}}</span>
+                  <small class="text-muted">{{postedAt}}</small>
+                </div>
+                <div class="fw-semibold small text-dark mb-1">{{eventTitle}}</div>
+                <p class="small text-muted mb-0">{{content}}</p>
+              </a>
+            {{else}}
+              <div class="p-3 small text-muted text-center">Join an event to receive official host announcements here.</div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h3 class="h6 fw-bold mb-2">How Event Visibility Works</h3>
+          <ul class="small text-muted ps-3 mb-0">
+            <li class="mb-1"><strong>University-Wide Events:</strong> Visible and open to all students and faculty across campuses.</li>
+            <li class="mb-1"><strong>Targeted Activities:</strong> Displayed only to users whose affiliation, college, department/strand, academic level, and campus match the host's criteria.</li>
+            <li><strong>Profile Changes:</strong> If you update your profile after registering for an event, your existing slot remains valid and grandfathered.</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>

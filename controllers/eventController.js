@@ -6,16 +6,14 @@ const User = require("../model/User");
 const Event = require("../model/Event");
 const Bookmark = require("../model/Bookmark");
 const { extractValidationErrors } = require("../middleware/validators");
+const { getManilaTimestamp, isEventEnded } = require("../model/manilaTime");
 const {
   STUDENT_ACADEMIC_LEVELS,
+  COLLEGES,
   COLLEGE_CODES,
   ALL_DEPARTMENT_CODES,
   CAMPUSES,
   DEPARTMENTS_BY_COLLEGE,
-  EVENT_CATEGORIES,
-  EVENT_STATUSES,
-  MIN_EVENT_DATE,
-  MAX_EVENT_DATE,
 } = require("../model/constants");
 
 function buildDeptToCollegeMap() {
@@ -32,59 +30,83 @@ function buildDeptToCollegeMap() {
 
 const DEPT_TO_COLLEGE = buildDeptToCollegeMap();
 
-function toArray(val) {
-  if (!val) return [];
-  if (Array.isArray(val)) return val.map(String);
-  return [String(val)];
-}
+const AUDIENCE_COLLEGES = COLLEGES.filter(function (c) {
+  return c.code !== "UNIV";
+});
 
-function uniqueValidValues(values, allowed) {
-  return Array.from(
-    new Set(
-      toArray(values).filter(function (v) {
-        return allowed.indexOf(v) !== -1;
+const AUDIENCE_DEPT_GROUPS = Object.keys(DEPARTMENTS_BY_COLLEGE)
+  .filter(function (code) {
+    return code !== "UNIV";
+  })
+  .map(function (collegeCode) {
+    return {
+      collegeCode: collegeCode,
+      departments: DEPARTMENTS_BY_COLLEGE[collegeCode].map(function (d) {
+        return {
+          code: d.code,
+          shortName: d.name.replace(/^Department of /, ""),
+        };
       }),
-    ),
-  );
+    };
+  });
+
+const AUDIENCE_OPTIONS = {
+  targetRoles: { label: "roles", values: ["Student", "Faculty"] },
+  targetAcademicLevels: {
+    label: "academic levels",
+    values: STUDENT_ACADEMIC_LEVELS,
+  },
+  targetColleges: {
+    label: "colleges",
+    values: COLLEGE_CODES.filter(code => code !== "UNIV"),
+  },
+  targetDepartments: {
+    label: "departments or strands",
+    values: ALL_DEPARTMENT_CODES.filter(code => code !== "N/A"),
+  },
+  targetCampuses: { label: "campuses", values: CAMPUSES },
+};
+const AUDIENCE_FIELDS = Object.keys(AUDIENCE_OPTIONS);
+
+function hasAudienceRestrictions(event) {
+  return AUDIENCE_FIELDS.some(field => event[field] && event[field].length > 0);
 }
 
-function getNowTimestamp() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hrs = String(d.getHours()).padStart(2, "0");
-  const mins = String(d.getMinutes()).padStart(2, "0");
-  return `${y}-${m}-${day} ${hrs}:${mins}`;
+function eventRevisionFilter(event) {
+  return {
+    _id: event._id,
+    __v: event.__v === undefined ? { $exists: false } : event.__v,
+  };
 }
 
 async function syncEventLifecycles() {
   const now = new Date();
   const activeEvents = await Event.find({
     status: { $in: ["Open", "Full", "Closed"] },
-  });
+  }).select("status date endTime attendees maxCapacity __v").lean();
 
-  for (let i = 0; i < activeEvents.length; i++) {
-    const ev = activeEvents[i];
-    const endClock =
-      ev.endTime && ev.endTime.trim() !== "" ? ev.endTime.trim() : "23:59";
-    const eventEnd = new Date(ev.date + "T" + endClock + ":00");
-    let changed = false;
-
-    if (!isNaN(eventEnd.getTime()) && eventEnd < now) {
-      ev.status = "Completed";
-      changed = true;
-    } else if (ev.status === "Open" && ev.attendees.length >= ev.maxCapacity) {
-      ev.status = "Full";
-      changed = true;
-    } else if (ev.status === "Full" && ev.attendees.length < ev.maxCapacity) {
-      ev.status = "Open";
-      changed = true;
+  const updates = [];
+  for (const ev of activeEvents) {
+    const attendeeCount = (ev.attendees || []).length;
+    let status = ev.status;
+    if (isEventEnded(ev, now)) {
+      status = "Completed";
+    } else if (ev.status === "Open" && attendeeCount >= ev.maxCapacity) {
+      status = "Full";
+    } else if (ev.status === "Full" && attendeeCount < ev.maxCapacity) {
+      status = "Open";
     }
 
-    if (changed) {
-      await ev.save();
-    }
+    if (status === ev.status) continue;
+    updates.push({
+      updateOne: {
+        filter: eventRevisionFilter(ev),
+        update: { $set: { status }, $inc: { __v: 1 } },
+      },
+    });
+  }
+  if (updates.length > 0) {
+    await Event.bulkWrite(updates, { ordered: false });
   }
 }
 
@@ -93,9 +115,34 @@ function buildVisibilityQuery(user) {
     return { isPublic: true };
   }
 
+  const collegeDeptCodes = (DEPARTMENTS_BY_COLLEGE[user.college] || [])
+    .map(function (d) {
+      return d.code;
+    })
+    .filter(function (code) {
+      return code !== "N/A";
+    });
+
   const eligibilityConditions = [
     {
-      $or: [{ targetColleges: { $size: 0 } }, { targetColleges: user.college }],
+      $or: AUDIENCE_FIELDS.map(field => ({ [field + ".0"]: { $exists: true } })),
+    },
+    {
+      $or: [
+        { targetColleges: user.college },
+        {
+          $and: [
+            { targetColleges: { $size: 0 } },
+            { $or: [{ targetDepartments: { $size: 0 } }, { targetDepartments: user.department }] },
+          ],
+        },
+      ],
+    },
+    {
+      $or: [
+        { targetDepartments: { $nin: collegeDeptCodes } },
+        { targetDepartments: user.department },
+      ],
     },
     {
       $or: [{ targetCampuses: { $size: 0 } }, { targetCampuses: user.campus }],
@@ -124,6 +171,17 @@ function buildVisibilityQuery(user) {
         },
       ],
     });
+  } else if (user.role === "Organizer") {
+    eligibilityConditions.push({
+      $and: [
+        { targetRoles: { $size: 0 } },
+        { targetAcademicLevels: { $size: 0 } },
+      ],
+    });
+  } else {
+    return {
+      $or: [{ isPublic: true }, { organizer: user._id }, { attendees: user._id }],
+    };
   }
 
   return {
@@ -140,7 +198,8 @@ function isUserEligibleForEvent(user, event) {
   if (!event) return false;
   if (event.isPublic) return true;
   if (!user) return false;
-  if (String(event.organizer) === String(user._id)) return true;
+  if (event.organizer && String(event.organizer) === String(user._id)) return true;
+  if (!hasAudienceRestrictions(event)) return false;
 
   const roles = event.targetRoles || [];
   const levels = event.targetAcademicLevels || [];
@@ -159,6 +218,12 @@ function isUserEligibleForEvent(user, event) {
     } else if (levels.length > 0) {
       return false;
     }
+  } else if (user.role === "Organizer") {
+    if (roles.length > 0 || levels.length > 0) {
+      return false;
+    }
+  } else {
+    return false;
   }
 
   if (colleges.length > 0 && colleges.indexOf(user.college) === -1) {
@@ -169,7 +234,7 @@ function isUserEligibleForEvent(user, event) {
     const collegeHasDeptFilter = depts.some(function (d) {
       return DEPT_TO_COLLEGE[d] === user.college;
     });
-    if (collegeHasDeptFilter && depts.indexOf(user.department) === -1) {
+    if ((!colleges.length || collegeHasDeptFilter) && !depts.includes(user.department)) {
       return false;
     }
   }
@@ -377,265 +442,205 @@ async function getHomeFeed(req, res, next) {
   }
 }
 
+function eventNotFound(res) {
+  return res.status(404).render("error", {
+    title: "Event Not Found — AnimoEvents",
+    message: "The requested campus event could not be found.",
+  });
+}
+
+async function renderEventDetails(req, res, ev, discussion = {}) {
+  const user = req.currentUser;
+  const bookmarkedSet = new Set();
+  if (user) {
+    const bm = await Bookmark.findOne({
+      user: user._id,
+      event: ev._id,
+    }).lean();
+    if (bm) bookmarkedSet.add(String(ev._id));
+  }
+
+  const decorated = decorateEventForView(ev, user, bookmarkedSet);
+  const capacityPercent = Math.min(
+    100,
+    Math.round((decorated.attendeeCount / ev.maxCapacity) * 100),
+  );
+
+  const attendeeDocs = await User.find({
+    _id: { $in: ev.attendees || [] },
+  })
+    .select("displayName profilePic role college department campus academicLevel")
+    .lean();
+  const attendeeMap = {};
+  attendeeDocs.forEach(function (u) {
+    attendeeMap[String(u._id)] = u;
+  });
+  const confirmedParticipants = (ev.attendees || [])
+    .map(function (id) {
+      return attendeeMap[String(id)];
+    })
+    .filter(Boolean);
+
+  const decoratedUpdates = (ev.updates || []).map(function (upd) {
+    const canEdit = Boolean(user) && String(upd.author) === String(user._id);
+    const canDelete =
+      Boolean(user) &&
+      (String(upd.author) === String(user._id) || decorated.isOwner);
+    const editing = discussion.editId === String(upd._id);
+    return Object.assign({}, upd, {
+      canEdit,
+      canDelete,
+      editing,
+      draftContent: editing ? discussion.content : upd.content,
+    });
+  });
+
+  return res.render("event-details", {
+    title: ev.title + " — AnimoEvents",
+    activeNav: "events",
+    event: decorated,
+    capacityPercent,
+    confirmedParticipants,
+    updates: decoratedUpdates,
+    discussionError: discussion.error,
+    discussionContent: discussion.editId ? "" : discussion.content,
+  });
+}
+
 async function getEventDetails(req, res, next) {
   try {
+    if (!mongoose.isObjectIdOrHexString(req.params.id)) return eventNotFound(res);
     await syncEventLifecycles();
-    const user = req.currentUser;
-    const eventId = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(eventId)) {
-      return res.status(404).render("error", {
-        title: "Event Not Found — AnimoEvents",
-        message: "The requested campus event could not be found.",
-      });
-    }
-
-    const ev = await Event.findById(eventId).lean();
-    if (!ev) {
-      return res.status(404).render("error", {
-        title: "Event Not Found — AnimoEvents",
-        message: "The requested campus event could not be found.",
-      });
-    }
-
-    if (!canUserViewEvent(user, ev)) {
-      return res.status(403).render("error", {
-        title: "Access Restricted to Target Audience",
-        message:
-          'This event ("' +
-          ev.title +
-          '") is restricted to ' +
-          formatAudienceSummary(ev) +
-          ".",
-      });
-    }
-
-    const bookmarkedSet = new Set();
-    if (user) {
-      const bm = await Bookmark.findOne({
-        user: user._id,
-        event: ev._id,
-      }).lean();
-      if (bm) bookmarkedSet.add(String(ev._id));
-    }
-
-    const decorated = decorateEventForView(ev, user, bookmarkedSet);
-    const capacityPercent = Math.min(
-      100,
-      Math.round((decorated.attendeeCount / ev.maxCapacity) * 100),
-    );
-
-    const attendeeDocs = await User.find({
-      _id: { $in: ev.attendees || [] },
-    }).lean();
-    const attendeeMap = {};
-    attendeeDocs.forEach(function (u) {
-      attendeeMap[String(u._id)] = u;
-    });
-    const confirmedParticipants = (ev.attendees || [])
-      .map(function (id) {
-        return attendeeMap[String(id)];
-      })
-      .filter(Boolean);
-
-    const decoratedUpdates = (ev.updates || []).map(function (upd) {
-      const canEdit = Boolean(user) && String(upd.author) === String(user._id);
-      const canDelete =
-        Boolean(user) &&
-        (String(upd.author) === String(user._id) || decorated.isOwner);
-      return Object.assign({}, upd, {
-        canEdit,
-        canDelete,
-      });
-    });
-
-    res.render("event-details", {
-      title: ev.title + " — AnimoEvents",
-      activeNav: "events",
-      event: decorated,
-      capacityPercent,
-      confirmedParticipants,
-      updates: decoratedUpdates,
-    });
+    const ev = await Event.findById(req.params.id).lean();
+    if (!canUserViewEvent(req.currentUser, ev)) return eventNotFound(res);
+    return await renderEventDetails(req, res, ev);
   } catch (err) {
     next(err);
   }
 }
 
-function getEventCreate(_req, res) {
+function getEventCreate(req, res) {
+  const defaultAudience = {
+    isPublic: true,
+    targetRoles: [],
+    targetAcademicLevels: [],
+    targetColleges: [],
+    targetDepartments: [],
+    targetCampuses: [],
+  };
   res.render("event-create", {
     title: "Publish Campus Event — AnimoEvents",
     activeNav: "create",
+    formData: {
+      title: "",
+      category: "",
+      date: "",
+      time: "",
+      endTime: "",
+      venue: "",
+      maxCapacity: 30,
+      description: "",
+    },
+    audience: defaultAudience,
+    audienceColleges: AUDIENCE_COLLEGES,
+    audienceDeptGroups: AUDIENCE_DEPT_GROUPS,
   });
 }
 
-function parseAudienceBody(body) {
-  const isPublic = String(body.isPublic) !== "false";
-  if (isPublic) {
-    return {
-      isPublic: true,
-      targetRoles: [],
-      targetAcademicLevels: [],
-      targetColleges: [],
-      targetDepartments: [],
-      targetCampuses: [],
-    };
+function parseAudienceBody(body, errors) {
+  const audience = { isPublic: body.isPublic === true || body.isPublic === "true" };
+  for (const field of AUDIENCE_FIELDS) {
+    const raw = body[field];
+    const submitted = raw === undefined ? [] : (Array.isArray(raw) ? raw : [raw]);
+    const allowed = AUDIENCE_OPTIONS[field];
+    const valid = submitted.filter(value => allowed.values.includes(value));
+    if (valid.length !== submitted.length) {
+      errors.push("Select valid audience " + allowed.label + ".");
+    }
+    audience[field] = audience.isPublic ? [] : [...new Set(valid)];
   }
 
-  const validColleges = COLLEGE_CODES.filter(function (c) {
-    return c !== "UNIV";
-  });
-  const validDepts = ALL_DEPARTMENT_CODES.filter(function (d) {
-    return d !== "N/A";
-  });
-
-  const targetRoles = uniqueValidValues(body.targetRoles, [
-    "Student",
-    "Faculty",
-  ]);
-  const targetAcademicLevels = uniqueValidValues(
-    body.targetAcademicLevels,
-    STUDENT_ACADEMIC_LEVELS,
-  );
-  const targetColleges = uniqueValidValues(body.targetColleges, validColleges);
-  const targetDepartments = uniqueValidValues(
-    body.targetDepartments,
-    validDepts,
-  );
-  const targetCampuses = uniqueValidValues(body.targetCampuses, CAMPUSES);
-
-  targetDepartments.forEach(function (deptCode) {
+  for (const deptCode of audience.targetDepartments) {
     const parentCollege = DEPT_TO_COLLEGE[deptCode];
-    if (parentCollege && targetColleges.indexOf(parentCollege) === -1) {
-      targetColleges.push(parentCollege);
+    if (parentCollege && !audience.targetColleges.includes(parentCollege)) {
+      audience.targetColleges.push(parentCollege);
     }
-  });
-
-  return {
-    isPublic: false,
-    targetRoles,
-    targetAcademicLevels,
-    targetColleges,
-    targetDepartments,
-    targetCampuses,
-  };
+  }
+  return audience;
 }
 
 function validateAudienceRules(audience, errors) {
-  if (!audience.isPublic) {
-    const hasTarget =
-      audience.targetRoles.length > 0 ||
-      audience.targetAcademicLevels.length > 0 ||
-      audience.targetColleges.length > 0 ||
-      audience.targetDepartments.length > 0 ||
-      audience.targetCampuses.length > 0;
-    if (!hasTarget) {
-      errors.push(
-        "Select at least one target audience restriction when publishing a Targeted event.",
-      );
-    }
-    if (
-      audience.targetAcademicLevels.length > 0 &&
-      audience.targetRoles.length > 0 &&
-      audience.targetRoles.indexOf("Student") === -1
-    ) {
-      errors.push(
-        "Student academic levels require Students to be included in the target roles.",
-      );
-    }
+  if (audience.isPublic) return;
+  if (!hasAudienceRestrictions(audience)) {
+    errors.push("Select at least one audience restriction for a targeted event.");
   }
+  if (!audience.targetAcademicLevels.length) return;
+
+  if (audience.targetRoles.length && !audience.targetRoles.includes("Student")) {
+    errors.push("Include Students in target roles when selecting student academic levels.");
+    return;
+  }
+
+  const matchesCollege = audience.targetColleges.some(college =>
+    audience.targetAcademicLevels.some(level =>
+      (college === "SHS") === (level === "Senior High School")
+    )
+  );
+  if (audience.targetColleges.length && !matchesCollege) {
+    errors.push("Select academic levels that match at least one target college or school.");
+  }
+}
+
+function readEventFields(body) {
+  const fields = {};
+  for (const name of ["title", "category", "date", "time", "endTime", "venue", "description"]) {
+    fields[name] = typeof body[name] === "string" ? body[name].trim() : "";
+  }
+  const capacity = body.maxCapacity;
+  const hasCapacity = typeof capacity === "number" ||
+    (typeof capacity === "string" && capacity.trim() !== "");
+  fields.maxCapacity = hasCapacity ? Number(capacity) : NaN;
+  return fields;
 }
 
 async function postEventCreate(req, res, next) {
   try {
     const user = req.currentUser;
-    const title = String(req.body.title || "").trim();
-    const category = String(req.body.category || "");
-    const date = String(req.body.date || "").trim();
-    const time = String(req.body.time || "").trim();
-    const endTime = String(req.body.endTime || "").trim();
-    const venue = String(req.body.venue || "").trim();
-    const maxCapacity = Number.parseInt(req.body.maxCapacity, 10);
-    const description = String(req.body.description || "").trim();
-    const audience = parseAudienceBody(req.body);
-
+    const draft = readEventFields(req.body);
     const errors = extractValidationErrors(req);
-    if (title.length < 5 || title.length > 120) {
-      errors.push("Event title must be between 5 and 120 characters.");
-    }
-    if (EVENT_CATEGORIES.indexOf(category) === -1) {
-      errors.push("Please select a valid event category.");
-    }
-    if (!date || date < MIN_EVENT_DATE || date > MAX_EVENT_DATE) {
-      errors.push("Event date must be between 2025-01-01 and 2036-12-31.");
-    }
-    if (!time) {
-      errors.push("Start time is required.");
-    }
-    if (endTime && endTime <= time) {
-      errors.push("End Time must be later than Start Time.");
-    }
-    if (venue.length < 3 || venue.length > 100) {
-      errors.push("Venue must be between 3 and 100 characters.");
-    }
-    if (isNaN(maxCapacity) || maxCapacity < 5 || maxCapacity > 5000) {
-      errors.push("Maximum capacity must be between 5 and 5000.");
-    }
-    if (description.length < 20 || description.length > 1000) {
-      errors.push("Description must be between 20 and 1000 characters.");
-    }
+    const audience = parseAudienceBody(req.body, errors);
     validateAudienceRules(audience, errors);
 
-    const uniqueErrors = Array.from(new Set(errors));
-    if (uniqueErrors.length > 0) {
+    if (errors.length > 0) {
       return res.status(400).render("event-create", {
         title: "Publish Campus Event — AnimoEvents",
         activeNav: "create",
-        error: uniqueErrors.join(" "),
-        formData: Object.assign(
-          {
-            title,
-            category,
-            date,
-            time,
-            endTime,
-            venue,
-            maxCapacity,
-            description,
-          },
-          audience,
-        ),
-        audienceJson: JSON.stringify(audience),
+        error: errors.join(" "),
+        formData: { ...draft, maxCapacity: Number.isFinite(draft.maxCapacity) ? draft.maxCapacity : "" },
+        audience,
+        audienceColleges: AUDIENCE_COLLEGES,
+        audienceDeptGroups: AUDIENCE_DEPT_GROUPS,
       });
     }
 
+    const status = isEventEnded(draft) ? "Completed" : "Open";
     const created = await Event.create({
-      title,
-      category,
-      date,
-      time,
-      endTime,
-      venue,
-      description,
+      ...draft,
+      ...audience,
       organizer: user._id,
       organizerName: user.displayName,
-      isPublic: audience.isPublic,
-      targetRoles: audience.targetRoles,
-      targetAcademicLevels: audience.targetAcademicLevels,
-      targetColleges: audience.targetColleges,
-      targetDepartments: audience.targetDepartments,
-      targetCampuses: audience.targetCampuses,
-      status: "Open",
-      maxCapacity,
+      status,
       attendees: [],
       updates: [
         {
           author: user._id,
           authorName: user.displayName,
           authorRole: "Organizer",
-          content: "Event published! Registration is now open.",
+          content: status === "Open"
+            ? "Registration is now open."
+            : "This event has been added to the archive.",
           isOfficialUpdate: true,
-          postedAt: getNowTimestamp(),
+          postedAt: getManilaTimestamp(),
         },
       ],
     });
@@ -650,20 +655,23 @@ async function getEventEdit(req, res, next) {
   try {
     const ev = req.event;
     const minAllowedCapacity = Math.max(5, (ev.attendees || []).length);
+    const audience = {
+      isPublic: ev.isPublic,
+      targetRoles: ev.targetRoles || [],
+      targetAcademicLevels: ev.targetAcademicLevels || [],
+      targetColleges: ev.targetColleges || [],
+      targetDepartments: ev.targetDepartments || [],
+      targetCampuses: ev.targetCampuses || [],
+    };
     res.render("event-edit", {
       title: "Edit Event — " + ev.title,
       activeNav: "events",
       event: ev,
       minAllowedCapacity,
       attendeeCount: (ev.attendees || []).length,
-      audienceJson: JSON.stringify({
-        isPublic: ev.isPublic,
-        targetRoles: ev.targetRoles || [],
-        targetAcademicLevels: ev.targetAcademicLevels || [],
-        targetColleges: ev.targetColleges || [],
-        targetDepartments: ev.targetDepartments || [],
-        targetCampuses: ev.targetCampuses || [],
-      }),
+      audience,
+      audienceColleges: AUDIENCE_COLLEGES,
+      audienceDeptGroups: AUDIENCE_DEPT_GROUPS,
     });
   } catch (err) {
     next(err);
@@ -672,138 +680,82 @@ async function getEventEdit(req, res, next) {
 
 async function postEventEdit(req, res, next) {
   try {
-    const targetEv = await Event.findById(req.params.id);
-    if (!targetEv) {
-      return res.status(404).render("error", {
-        title: "Event Not Found — AnimoEvents",
-        message: "The requested campus event could not be found.",
-      });
-    }
-
-    const newTitle = String(req.body.title || "").trim();
-    const newCategory = String(req.body.category || "");
-    const newDate = String(req.body.date || "").trim();
-    const newTime = String(req.body.time || "").trim();
-    const newEndTime = String(req.body.endTime || "").trim();
-    let newStatus = String(req.body.status || targetEv.status);
-    const newVenue = String(req.body.venue || "").trim();
-    const newCap = Number.parseInt(req.body.maxCapacity, 10);
-    const newDesc = String(req.body.description || "").trim();
-    const audience = parseAudienceBody(req.body);
+    const event = req.event;
+    const draft = {
+      ...readEventFields(req.body),
+      status: typeof req.body.status === "string" ? req.body.status : event.status,
+    };
 
     const errors = extractValidationErrors(req);
-    if (newTitle.length < 5 || newTitle.length > 120) {
-      errors.push("Event title must be between 5 and 120 characters.");
-    }
-    if (EVENT_CATEGORIES.indexOf(newCategory) === -1) {
-      errors.push("Please select a valid event category.");
-    }
-    if (!newDate || newDate < MIN_EVENT_DATE || newDate > MAX_EVENT_DATE) {
-      errors.push("Event date must be between 2025-01-01 and 2036-12-31.");
-    }
-    if (!newTime) {
-      errors.push("Start time is required.");
-    }
-    if (newEndTime && newEndTime <= newTime) {
-      errors.push("End Time must be later than Start Time.");
-    }
-    if (EVENT_STATUSES.indexOf(newStatus) === -1) {
-      errors.push("Please select a valid lifecycle status.");
-    }
-    if (newVenue.length < 3 || newVenue.length > 100) {
-      errors.push("Venue must be between 3 and 100 characters.");
-    }
-    if (
-      isNaN(newCap) ||
-      newCap < Math.max(5, targetEv.attendees.length) ||
-      newCap > 5000
-    ) {
-      errors.push(
-        "Maximum capacity cannot be lower than current registered participants (" +
-          targetEv.attendees.length +
-          ") or exceed 5000.",
-      );
-    }
-    if (newDesc.length < 20 || newDesc.length > 1000) {
-      errors.push("Description must be between 20 and 1000 characters.");
-    }
+    const audience = parseAudienceBody(req.body, errors);
     validateAudienceRules(audience, errors);
+    if (draft.maxCapacity < event.attendees.length) {
+      errors.push("Maximum capacity cannot be lower than the current registration count.");
+    }
 
-    const uniqueErrors = Array.from(new Set(errors));
-    if (uniqueErrors.length > 0) {
-      const draftEv = Object.assign(targetEv.toObject(), {
-        title: newTitle,
-        category: newCategory,
-        date: newDate,
-        time: newTime,
-        endTime: newEndTime,
-        status: newStatus,
-        venue: newVenue,
-        maxCapacity: newCap,
-        description: newDesc,
-      });
-      return res.status(400).render("event-edit", {
-        title: "Edit Event — " + newTitle,
+    function renderDraft(status, message, latest) {
+      return res.status(status).render("event-edit", {
+        title: "Edit Event — " + latest.title,
         activeNav: "events",
-        error: uniqueErrors.join(" "),
-        event: draftEv,
-        minAllowedCapacity: Math.max(5, targetEv.attendees.length),
-        attendeeCount: targetEv.attendees.length,
-        audienceJson: JSON.stringify(audience),
+        error: message,
+        event: Object.assign({}, latest, draft, {
+          maxCapacity: Number.isFinite(draft.maxCapacity) ? draft.maxCapacity : "",
+        }),
+        minAllowedCapacity: Math.max(5, latest.attendees.length),
+        attendeeCount: latest.attendees.length,
+        audience,
+        audienceColleges: AUDIENCE_COLLEGES,
+        audienceDeptGroups: AUDIENCE_DEPT_GROUPS,
       });
     }
+    if (errors.length > 0) return renderDraft(400, errors.join(" "), event);
 
-    if (newStatus === "Open" && targetEv.attendees.length >= newCap) {
-      newStatus = "Full";
-    } else if (newStatus === "Full" && targetEv.attendees.length < newCap) {
-      newStatus = "Open";
+    let status = draft.status;
+    if (["Open", "Full", "Closed"].includes(status) && isEventEnded(draft)) {
+      status = "Completed";
+    } else if (status === "Open" || status === "Full") {
+      status = event.attendees.length >= draft.maxCapacity ? "Full" : "Open";
     }
 
-    const scheduleOrStatusChanged =
-      targetEv.title !== newTitle ||
-      targetEv.date !== newDate ||
-      targetEv.time !== newTime ||
-      targetEv.venue !== newVenue ||
-      targetEv.status !== newStatus;
+    const changes = {
+      $set: Object.assign({}, draft, audience, { status }),
+      $inc: { __v: 1 },
+    };
+    const scheduleChanged =
+      event.title !== draft.title ||
+      event.date !== draft.date ||
+      event.time !== draft.time ||
+      (event.endTime || "") !== draft.endTime ||
+      event.venue !== draft.venue ||
+      event.status !== status;
 
-    targetEv.title = newTitle;
-    targetEv.category = newCategory;
-    targetEv.date = newDate;
-    targetEv.time = newTime;
-    targetEv.endTime = newEndTime;
-    targetEv.status = newStatus;
-    targetEv.venue = newVenue;
-    targetEv.maxCapacity = newCap;
-    targetEv.description = newDesc;
-    targetEv.isPublic = audience.isPublic;
-    targetEv.targetRoles = audience.targetRoles;
-    targetEv.targetAcademicLevels = audience.targetAcademicLevels;
-    targetEv.targetColleges = audience.targetColleges;
-    targetEv.targetDepartments = audience.targetDepartments;
-    targetEv.targetCampuses = audience.targetCampuses;
-
-    if (scheduleOrStatusChanged) {
-      targetEv.updates.unshift({
-        author: targetEv.organizer,
-        authorName: targetEv.organizerName,
-        authorRole: "Organizer",
-        content:
-          "[Official Schedule/Venue Update] Event details updated: " +
-          newDate +
-          " at " +
-          newTime +
-          ", Venue: " +
-          newVenue +
-          " (Status: " +
-          newStatus +
-          ").",
-        isOfficialUpdate: true,
-        postedAt: getNowTimestamp(),
-      });
+    if (scheduleChanged) {
+      const hours = draft.endTime ? draft.time + "–" + draft.endTime : draft.time;
+      changes.$push = {
+        updates: {
+          author: event.organizer,
+          authorName: req.currentUser.displayName,
+          authorRole: "Organizer",
+          content: "Event details updated: " + draft.date + " at " + hours +
+            ", venue: " + draft.venue + ". Status: " + status + ".",
+          isOfficialUpdate: true,
+          postedAt: getManilaTimestamp(),
+        },
+      };
     }
 
-    await targetEv.save();
-    return res.redirect("/events/" + targetEv._id);
+    const owner = { _id: event._id, organizer: req.currentUser._id };
+    const result = await Event.updateOne(
+      { ...owner, ...eventRevisionFilter(event) },
+      changes,
+      { runValidators: true },
+    );
+    if (result.matchedCount === 0) {
+      const latest = await Event.findOne(owner).lean();
+      if (!latest) return eventNotFound(res);
+      return renderDraft(409, "The event changed while you were saving. Review the latest registration count and submit again.", latest);
+    }
+    return res.redirect("/events/" + event._id);
   } catch (err) {
     return next(err);
   }
@@ -812,54 +764,93 @@ async function postEventEdit(req, res, next) {
 async function postEventDelete(req, res, next) {
   try {
     const eventId = req.params.id;
+    if (!mongoose.isObjectIdOrHexString(eventId)) return eventNotFound(res);
+
+    const result = await Event.deleteOne({ _id: eventId, organizer: req.currentUser._id });
+    if (!result.deletedCount && await Event.exists({ _id: eventId })) {
+      return eventNotFound(res);
+    }
+    // Also clean up on retry if the event was deleted before the first cleanup completed.
     await Bookmark.deleteMany({ event: eventId });
-    await Event.findByIdAndDelete(eventId);
     return res.redirect("/events");
   } catch (err) {
     return next(err);
   }
 }
 
+async function findVisibleThreadEvent(req) {
+  if (!mongoose.isObjectIdOrHexString(req.params.id)) return null;
+  const event = await Event.findById(req.params.id).lean();
+  return canUserViewEvent(req.currentUser, event) ? event : null;
+}
+
+function findThreadUpdate(event, updateId) {
+  if (!mongoose.isObjectIdOrHexString(updateId)) return undefined;
+  return event.updates.find(update => String(update._id) === updateId);
+}
+
+function threadUpdateNotFound(res) {
+  return res.status(404).render("error", {
+    title: "Discussion Post Not Found — AnimoEvents",
+    message: "The requested discussion post could not be found.",
+  });
+}
+
+function threadUpdateForbidden(res) {
+  return res.status(403).render("error", {
+    title: "Access Forbidden — AnimoEvents",
+    message: "You do not have permission to change this discussion post.",
+  });
+}
+
+async function renderInvalidDiscussion(req, res, event, errors, editId) {
+  const content = typeof req.body.content === "string" ? req.body.content : "";
+  return await renderEventDetails(req, res.status(400), event, {
+    error: errors.join(" "),
+    content,
+    editId,
+  });
+}
+
+async function updateDiscussion(req, res, event, changes, editId) {
+  const result = await Event.updateOne(
+    eventRevisionFilter(event),
+    { ...changes, $inc: { __v: 1 } },
+    { runValidators: true },
+  );
+  if (result.matchedCount === 0) {
+    const latest = await findVisibleThreadEvent(req);
+    if (!latest) return eventNotFound(res);
+    return await renderEventDetails(req, res.status(409), latest, {
+      error: "The event changed while you were saving. Please try again.",
+      content: typeof req.body.content === "string" ? req.body.content : "",
+      editId,
+    });
+  }
+  return res.redirect("/events/" + event._id + "#thread-posts-list");
+}
+
 async function postThreadUpdate(req, res, next) {
   try {
+    const event = await findVisibleThreadEvent(req);
+    if (!event) return eventNotFound(res);
+    const validationErrors = extractValidationErrors(req);
+    if (validationErrors.length > 0) {
+      return await renderInvalidDiscussion(req, res, event, validationErrors);
+    }
     const user = req.currentUser;
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.redirect("/events");
-    }
-
-    const ev = await Event.findById(req.params.id);
-    if (!ev) return res.redirect("/events");
-
-    if (!canUserViewEvent(user, ev)) {
-      return res.status(403).render("error", {
-        title: "Access Forbidden — AnimoEvents",
-        message: "You do not have permission to post in this restricted event.",
-      });
-    }
-
-    const valErrors = extractValidationErrors(req);
-    if (valErrors.length > 0) {
-      return res.status(400).render("error", {
-        title: "Invalid Discussion Post — AnimoEvents",
-        message: valErrors.join(" "),
-      });
-    }
-
-    const content = String(req.body.content || "").trim();
-    if (content.length >= 2 && content.length <= 500) {
-      const isHost = String(ev.organizer) === String(user._id);
-      ev.updates.unshift({
-        author: user._id,
-        authorName: user.displayName,
-        authorRole: user.role,
-        content,
-        isOfficialUpdate: isHost,
-        postedAt: getNowTimestamp(),
-      });
-      await ev.save();
-    }
-
-    return res.redirect("/events/" + ev._id);
+    return await updateDiscussion(req, res, event, {
+      $push: {
+        updates: {
+          author: user._id,
+          authorName: user.displayName,
+          authorRole: user.role,
+          content: req.body.content,
+          isOfficialUpdate: String(event.organizer) === String(user._id),
+          postedAt: getManilaTimestamp(),
+        },
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -867,37 +858,21 @@ async function postThreadUpdate(req, res, next) {
 
 async function postEditThreadUpdate(req, res, next) {
   try {
-    const user = req.currentUser;
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.redirect("/events");
+    const event = await findVisibleThreadEvent(req);
+    if (!event) return eventNotFound(res);
+    const update = findThreadUpdate(event, req.params.updateId);
+    if (!update) return threadUpdateNotFound(res);
+    if (String(update.author) !== String(req.currentUser._id)) {
+      return threadUpdateForbidden(res);
     }
-
-    const ev = await Event.findById(req.params.id);
-    if (!ev) return res.redirect("/events");
-
-    const valErrors = extractValidationErrors(req);
-    if (valErrors.length > 0) {
-      return res.status(400).render("error", {
-        title: "Invalid Discussion Post — AnimoEvents",
-        message: valErrors.join(" "),
-      });
+    const validationErrors = extractValidationErrors(req);
+    if (validationErrors.length > 0) {
+      return await renderInvalidDiscussion(req, res, event, validationErrors, req.params.updateId);
     }
-
-    const content = String(req.body.content || "").trim();
-    if (content.length >= 2 && content.length <= 500) {
-      for (let i = 0; i < ev.updates.length; i++) {
-        if (
-          String(ev.updates[i]._id) === String(req.params.updateId) &&
-          String(ev.updates[i].author) === String(user._id)
-        ) {
-          ev.updates[i].content = content;
-          await ev.save();
-          break;
-        }
-      }
-    }
-
-    return res.redirect("/events/" + ev._id);
+    const updateIndex = event.updates.indexOf(update);
+    return await updateDiscussion(req, res, event, {
+      $set: { ["updates." + updateIndex + ".content"]: req.body.content },
+    }, req.params.updateId);
   } catch (err) {
     return next(err);
   }
@@ -905,23 +880,17 @@ async function postEditThreadUpdate(req, res, next) {
 
 async function postDeleteThreadUpdate(req, res, next) {
   try {
-    const user = req.currentUser;
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.redirect("/events");
+    const event = await findVisibleThreadEvent(req);
+    if (!event) return eventNotFound(res);
+    const update = findThreadUpdate(event, req.params.updateId);
+    if (!update) return threadUpdateNotFound(res);
+    const userId = String(req.currentUser._id);
+    if (String(update.author) !== userId && String(event.organizer) !== userId) {
+      return threadUpdateForbidden(res);
     }
-
-    const ev = await Event.findById(req.params.id);
-    if (!ev) return res.redirect("/events");
-
-    const isOwner = String(ev.organizer) === String(user._id);
-    ev.updates = ev.updates.filter(function (upd) {
-      if (String(upd._id) !== String(req.params.updateId)) return true;
-      const isAuthor = String(upd.author) === String(user._id);
-      return !(isAuthor || isOwner);
+    return await updateDiscussion(req, res, event, {
+      $pull: { updates: { _id: update._id } },
     });
-
-    await ev.save();
-    return res.redirect("/events/" + ev._id);
   } catch (err) {
     return next(err);
   }
@@ -929,6 +898,7 @@ async function postDeleteThreadUpdate(req, res, next) {
 
 module.exports = {
   syncEventLifecycles,
+  eventRevisionFilter,
   buildVisibilityQuery,
   isUserEligibleForEvent,
   canUserViewEvent,

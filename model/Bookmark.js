@@ -4,13 +4,7 @@
  */
 const mongoose = require("mongoose");
 
-function getTodayDateStr() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+const { getManilaDate } = require("./manilaTime");
 
 const bookmarkSchema = new mongoose.Schema({
   user: {
@@ -31,7 +25,7 @@ const bookmarkSchema = new mongoose.Schema({
   },
   createdAt: {
     type: String,
-    default: getTodayDateStr,
+    default: function () { return getManilaDate(); },
   },
 });
 

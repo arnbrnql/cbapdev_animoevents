@@ -1,0 +1,314 @@
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="border-bottom pb-3 mb-4">
+          <span class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1">Event publishing</span>
+          <h1 class="h3 fw-bold mb-1">Publish a campus event</h1>
+          <p class="text-muted small mb-0">
+            Hosting Organization: <strong>{{currentUser.displayName}}</strong>
+          </p>
+        </div>
+
+        {{#if error}}
+          <div class="alert alert-danger small" role="alert">{{error}}</div>
+        {{/if}}
+
+        <form id="event-create-form" method="POST" action="/events">
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <label for="ev-title" class="form-label fw-semibold">Event Title <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="ev-title"
+                name="title"
+                class="form-control"
+                required
+                minlength="5"
+                maxlength="120"
+                value="{{formData.title}}"
+                placeholder="e.g., CCS Cloud & Cybersecurity Workshop 2027"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="ev-category" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+              <select id="ev-category" name="category" class="form-select" required>
+                <option value="">Select Category...</option>
+                <option value="Seminar" {{#if (eq formData.category "Seminar")}}selected{{/if}}>Seminar</option>
+                <option value="Workshop" {{#if (eq formData.category "Workshop")}}selected{{/if}}>Workshop</option>
+                <option value="Bazaar" {{#if (eq formData.category "Bazaar")}}selected{{/if}}>Bazaar</option>
+                <option value="Competition" {{#if (eq formData.category "Competition")}}selected{{/if}}>Competition</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="ev-date" class="form-label fw-semibold">Event Date (2025–2036) <span class="text-danger">*</span></label>
+              <input
+                type="date"
+                id="ev-date"
+                name="date"
+                class="form-control"
+                required
+                min="2025-01-01"
+                max="2036-12-31"
+                value="{{formData.date}}"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="ev-time" class="form-label fw-semibold">Start Time <span class="text-danger">*</span></label>
+              <input
+                type="time"
+                id="ev-time"
+                name="time"
+                class="form-control"
+                required
+                value="{{formData.time}}"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="ev-end-time" class="form-label fw-semibold">End Time <span class="text-muted fw-normal small">(Optional)</span></label>
+              <input
+                type="time"
+                id="ev-end-time"
+                name="endTime"
+                class="form-control"
+                value="{{formData.endTime}}"
+              />
+            </div>
+
+            <div class="col-md-8">
+              <label for="ev-venue" class="form-label fw-semibold">Campus Venue / Room <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="ev-venue"
+                name="venue"
+                class="form-control"
+                required
+                minlength="3"
+                maxlength="100"
+                value="{{formData.venue}}"
+                placeholder="e.g., Gokongwei Hall GK304B, Manila Campus"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="ev-capacity" class="form-label fw-semibold">Maximum Capacity <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                id="ev-capacity"
+                name="maxCapacity"
+                class="form-control"
+                required
+                min="5"
+                max="5000"
+                value="{{formData.maxCapacity}}"
+              />
+            </div>
+
+            <div class="col-12">
+              <label for="ev-description" class="form-label fw-semibold">Event Description & Agenda <span class="text-danger">*</span></label>
+              <textarea
+                id="ev-description"
+                name="description"
+                class="form-control"
+                rows="4"
+                required
+                minlength="20"
+                maxlength="1000"
+                placeholder="Provide complete event details, speaker lineup, or registration prerequisites (20–1000 characters)..."
+              >{{formData.description}}</textarea>
+            </div>
+          </div>
+
+          <div class="card bg-light border p-3 mb-4" id="audience-editor">
+            <h2 class="h6 fw-bold mb-2">Audience Visibility & Eligibility Rules</h2>
+            <div class="form-check mb-2">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="isPublic"
+                value="true"
+                id="audience-public"
+                {{#if audience.isPublic}}checked{{/if}}
+              />
+              <label class="form-check-label fw-semibold" for="audience-public">
+                University-Wide Public Event <span class="fw-normal">(Visible and open to all DLSU students and faculty)</span>
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="isPublic"
+                value="false"
+                id="audience-targeted"
+                {{#unless audience.isPublic}}checked{{/unless}}
+              />
+              <label class="form-check-label fw-semibold" for="audience-targeted">
+                Targeted / Restricted Event <span class="fw-normal">(Visible only to users matching the selected groups below)</span>
+              </label>
+            </div>
+
+            <div data-audience-targeting class="ps-2 border-start border-3 border-success">
+              <p class="small text-muted mb-3">
+                Leave a dimension unchecked if it is unrestricted. Selecting specific departments/strands restricts that college to those departments; leaving a selected college's departments unchecked opens the event to the entire college.
+              </p>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">1. Target Affiliation Roles</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetRoles"
+                      value="Student"
+                      id="audience-role-student"
+                      {{#if (includes audience.targetRoles "Student")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-role-student">Students</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetRoles"
+                      value="Faculty"
+                      id="audience-role-faculty"
+                      {{#if (includes audience.targetRoles "Faculty")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-role-faculty">Faculty Members</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">2. Target Student Academic Levels</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Senior High School"
+                      id="audience-level-shs"
+                      {{#if (includes audience.targetAcademicLevels "Senior High School")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-level-shs">Senior High School</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Undergraduate"
+                      id="audience-level-ug"
+                      {{#if (includes audience.targetAcademicLevels "Undergraduate")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-level-ug">Undergraduate</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Graduate"
+                      id="audience-level-grad"
+                      {{#if (includes audience.targetAcademicLevels "Graduate")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-level-grad">Graduate</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">3. Target Colleges & Integrated School</label>
+                <div class="d-flex flex-wrap gap-3">
+                  {{#each audienceColleges}}
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="targetColleges"
+                        value="{{code}}"
+                        id="audience-col-{{code}}"
+                        {{#if (includes @root.audience.targetColleges code)}}checked{{/if}}
+                      />
+                      <label class="form-check-label small" for="audience-col-{{code}}">{{code}}</label>
+                    </div>
+                  {{/each}}
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">
+                  4. Target Departments / SHS Strands <span class="text-muted fw-normal">(Optional — leave unchecked for college-wide access)</span>
+                </label>
+                {{#each audienceDeptGroups}}
+                  <div class="mb-2" data-dept-group="{{collegeCode}}">
+                    <div class="small fw-semibold text-success">{{collegeCode}} Departments / Strands</div>
+                    <div class="d-flex flex-wrap gap-3">
+                      {{#each departments}}
+                        <div class="form-check audience-department" data-parent-college="{{../collegeCode}}">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="{{code}}"
+                            id="audience-dept-{{code}}"
+                            {{#if (includes @root.audience.targetDepartments code)}}checked{{/if}}
+                          />
+                          <label class="form-check-label small" for="audience-dept-{{code}}">{{code}} — {{shortName}}</label>
+                        </div>
+                      {{/each}}
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+
+              <div>
+                <label class="form-label small fw-bold d-block mb-1">5. Target Campuses</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetCampuses"
+                      value="Manila"
+                      id="audience-campus-manila"
+                      {{#if (includes audience.targetCampuses "Manila")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-campus-manila">Manila Campus</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetCampuses"
+                      value="Laguna"
+                      id="audience-campus-laguna"
+                      {{#if (includes audience.targetCampuses "Laguna")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="audience-campus-laguna">Laguna Campus</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/events" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-dlsu">Publish Event Post</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.AnimoApp) {
+      window.AnimoApp.bindAudienceEditor(document.getElementById("audience-editor"));
+    }
+  });
+</script>

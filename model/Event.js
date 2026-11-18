@@ -11,7 +11,10 @@ const {
   CAMPUSES,
   EVENT_CATEGORIES,
   EVENT_STATUSES,
+  MIN_EVENT_DATE,
+  MAX_EVENT_DATE,
 } = require("./constants");
+const { isCalendarDate, isClockTime } = require("./manilaTime");
 
 const updateSubSchema = new mongoose.Schema({
   author: {
@@ -64,16 +67,28 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    validate: {
+      validator: value => isCalendarDate(value) && value >= MIN_EVENT_DATE && value <= MAX_EVENT_DATE,
+      message: "Event date is not valid.",
+    },
   },
   time: {
     type: String,
     required: true,
     trim: true,
+    validate: {
+      validator: isClockTime,
+      message: "Start time is not valid.",
+    },
   },
   endTime: {
     type: String,
     default: "",
     trim: true,
+    validate: {
+      validator: value => value === "" || isClockTime(value),
+      message: "End time is not valid.",
+    },
   },
   venue: {
     type: String,

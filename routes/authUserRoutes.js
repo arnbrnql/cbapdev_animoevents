@@ -5,16 +5,17 @@ const { requireAuth } = require("../middleware/auth");
 const {
   loginValidation,
   registerValidation,
+  emailAvailabilityValidation,
   profileEditValidation,
 } = require("../middleware/validators");
 
 router.get("/login", authUserController.getLogin);
 router.post("/login", loginValidation, authUserController.postLogin);
-router.get("/auth/switch", authUserController.switchDemoAccount);
 router.get("/logout", authUserController.getLogout);
+router.post("/logout", authUserController.postLogout);
 router.get("/register", authUserController.getRegister);
 router.post("/register", registerValidation, authUserController.postRegister);
-router.get("/api/users/check-email", authUserController.checkEmailAvailability);
+router.get("/api/users/check-email", emailAvailabilityValidation, authUserController.checkEmailAvailability);
 
 router.get("/profile", requireAuth, authUserController.getProfile);
 router.get("/profile/edit", requireAuth, authUserController.getProfileEdit);

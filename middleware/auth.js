@@ -8,37 +8,18 @@ const Event = require("../model/Event");
 
 async function loadCurrentUser(req, res, next) {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      req.currentUser = null;
-      res.locals.currentUser = null;
-      return next();
-    }
-
     req.currentUser = null;
     if (req.session && req.session.userId) {
       if (mongoose.Types.ObjectId.isValid(req.session.userId)) {
         req.currentUser = await User.findById(req.session.userId).lean();
       }
       if (!req.currentUser) {
-        req.session.userId = null;
+        delete req.session.userId;
       }
     }
 
-    const usePhase2DefaultUser = process.env.PHASE_MODE !== "phase3";
-    if (
-      usePhase2DefaultUser &&
-      !req.currentUser &&
-      (!req.session || !req.session.loggedOut)
-    ) {
-      req.currentUser = await User.findOne({
-        email: "miguel_tan@dlsu.edu.ph",
-      }).lean();
-      if (req.currentUser && req.session) {
-        req.session.userId = String(req.currentUser._id);
-      }
-    }
-
-    res.locals.currentUser = req.currentUser || null;
+    res.locals.currentUser = req.currentUser;
+    if (req.currentUser) res.set("Cache-Control", "private, no-store");
     return next();
   } catch (err) {
     return next(err);
@@ -71,26 +52,24 @@ async function requireEventOwner(req, res, next) {
     if (!req.currentUser) {
       return res.redirect("/login");
     }
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    if (
+      req.currentUser.role !== "Organizer" ||
+      !mongoose.Types.ObjectId.isValid(req.params.id)
+    ) {
       return res.status(404).render("error", {
         title: "Event Not Found — AnimoEvents",
         message: "The requested campus event could not be found.",
       });
     }
 
-    const ev = await Event.findById(req.params.id).lean();
+    const ev = await Event.findOne({
+      _id: req.params.id,
+      organizer: req.currentUser._id,
+    }).lean();
     if (!ev) {
       return res.status(404).render("error", {
         title: "Event Not Found — AnimoEvents",
         message: "The requested campus event could not be found.",
-      });
-    }
-
-    if (String(ev.organizer) !== String(req.currentUser._id)) {
-      return res.status(403).render("error", {
-        title: "Access Forbidden — AnimoEvents",
-        message:
-          "Only the hosting organizer of this event can edit its details or delete it.",
       });
     }
 

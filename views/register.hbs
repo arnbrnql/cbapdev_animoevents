@@ -11,14 +11,14 @@
         </div>
 
         {{#if error}}
-          <div class="alert alert-danger small">{{error}}</div>
+          <div class="alert alert-danger small" role="alert">{{error}}</div>
         {{/if}}
 
         <form id="register-form" method="POST" action="/register">
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               <label for="reg-name" class="form-label fw-semibold">
-                Full Name or Organization Name <span class="text-danger">*</span>
+                Full Name <span class="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -29,7 +29,8 @@
                 minlength="2"
                 maxlength="100"
                 value="{{formData.displayName}}"
-                placeholder="e.g., Juan Dela Cruz or DLSU Chess Club"
+                autocomplete="name"
+                placeholder="e.g., Juan Dela Cruz"
               />
             </div>
 
@@ -41,13 +42,16 @@
                 type="email"
                 id="reg-email"
                 name="email"
-                class="form-control"
+                class="form-control{{#if emailError}} is-invalid{{/if}}"
+                aria-describedby="reg-email-feedback"
+                {{#if emailError}}aria-invalid="true"{{/if}}
                 required
+                autocomplete="email"
                 value="{{formData.email}}"
                 placeholder="username@dlsu.edu.ph"
               />
-              <div class="form-text small" id="reg-email-feedback">
-                Must be an active <code>@dlsu.edu.ph</code> email address.
+              <div class="form-text small{{#if emailError}} text-danger{{/if}}" id="reg-email-feedback" aria-live="polite">
+                {{#if emailError}}{{emailError}}{{else}}Use an @dlsu.edu.ph email address.{{/if}}
               </div>
             </div>
 
@@ -60,6 +64,8 @@
                 class="form-control"
                 required
                 minlength="8"
+                maxlength="72"
+                autocomplete="new-password"
                 placeholder="At least 8 characters"
               />
             </div>
@@ -71,11 +77,14 @@
                 id="reg-confirm"
                 name="confirmPassword"
                 class="form-control"
+                aria-describedby="reg-pw-feedback"
                 required
                 minlength="8"
+                maxlength="72"
+                autocomplete="new-password"
                 placeholder="Re-enter password"
               />
-              <div class="form-text small" id="reg-pw-feedback"></div>
+              <div class="form-text small" id="reg-pw-feedback" aria-live="polite"></div>
             </div>
 
             <div class="col-md-4">
@@ -83,7 +92,6 @@
               <select id="reg-role" name="role" class="form-select" required>
                 <option value="Student" {{#if (eq formData.role "Student")}}selected{{/if}}>Student</option>
                 <option value="Faculty" {{#if (eq formData.role "Faculty")}}selected{{/if}}>Faculty Member</option>
-                <option value="Organizer" {{#if (eq formData.role "Organizer")}}selected{{/if}}>Accredited Organizer / Office</option>
               </select>
             </div>
 
@@ -95,7 +103,7 @@
                 <option value="Senior High School" {{#if (eq formData.academicLevel "Senior High School")}}selected{{/if}}>Senior High School (SHS)</option>
                 <option value="Undergraduate" {{#if formData.academicLevel}}{{#if (eq formData.academicLevel "Undergraduate")}}selected{{/if}}{{else}}selected{{/if}}>Undergraduate</option>
                 <option value="Graduate" {{#if (eq formData.academicLevel "Graduate")}}selected{{/if}}>Graduate</option>
-                <option value="N/A" {{#if (eq formData.academicLevel "N/A")}}selected{{/if}}>Not Applicable (Faculty / Organizer)</option>
+                <option value="N/A" {{#if (eq formData.academicLevel "N/A")}}selected{{/if}}>Not Applicable (Faculty)</option>
               </select>
             </div>
 
@@ -118,7 +126,6 @@
                 <option value="BAGCED" {{#if (eq formData.college "BAGCED")}}selected{{/if}}>BAGCED — Br. Andrew Gonzalez FSC College of Education</option>
                 <option value="CLT-SOE" {{#if (eq formData.college "CLT-SOE")}}selected{{/if}}>CLT-SOE — Carlos L. Tiu School of Economics</option>
                 <option value="SHS" {{#if (eq formData.college "SHS")}}selected{{/if}}>SHS — Senior High School (DLSU Integrated School)</option>
-                <option value="UNIV" {{#if (eq formData.college "UNIV")}}selected{{/if}}>UNIV — University-Wide Office / Research Center</option>
               </select>
             </div>
 
@@ -164,7 +171,6 @@
                 <option value="ABM" {{#if (eq formData.department "ABM")}}selected{{/if}}>ABM — Accountancy, Business, and Management</option>
                 <option value="HUMSS" {{#if (eq formData.department "HUMSS")}}selected{{/if}}>HUMSS — Humanities and Social Sciences</option>
                 <option value="ADT" {{#if (eq formData.department "ADT")}}selected{{/if}}>ADT — Arts and Design Track</option>
-                <option value="N/A" {{#if (eq formData.department "N/A")}}selected{{/if}}>N/A — All Departments / Unit-Wide (Organizers Only)</option>
               </select>
             </div>
 
@@ -178,7 +184,7 @@
                 class="form-control"
                 rows="2"
                 maxlength="300"
-                placeholder="Optional short introduction or organization description..."
+                placeholder="Optional short introduction"
               >{{formData.bio}}</textarea>
             </div>
           </div>
@@ -201,83 +207,69 @@
     const pwInput = document.getElementById("reg-password");
     const confirmInput = document.getElementById("reg-confirm");
     const pwFeedback = document.getElementById("reg-pw-feedback");
-    const submitBtn = document.getElementById("reg-submit");
-
-    let emailValid = true;
-    let pwValid = true;
-
-    function syncSubmitButton() {
-      submitBtn.disabled = !(emailValid && pwValid);
-    }
+    let emailCheck = 0;
+    let emailTimer;
 
     if (form && window.AnimoApp) {
       window.AnimoApp.bindAffiliationSelects(form);
     }
 
     function checkPasswords() {
-      const pw = pwInput.value;
-      const conf = confirmInput.value;
-      if (!conf) {
-        pwValid = true;
-        confirmInput.classList.remove("is-invalid");
-        pwFeedback.textContent = "";
-        syncSubmitButton();
-        return;
-      }
-      if (pw !== conf) {
-        pwValid = false;
-        confirmInput.classList.add("is-invalid");
-        pwFeedback.className = "form-text small text-danger fw-semibold";
-        pwFeedback.textContent = "Passwords do not match.";
-      } else {
-        pwValid = true;
-        confirmInput.classList.remove("is-invalid");
-        pwFeedback.className = "form-text small text-success fw-semibold";
-        pwFeedback.textContent = "Passwords match.";
-      }
-      syncSubmitButton();
+      const tooLong = new TextEncoder().encode(pwInput.value).length > 72;
+      const mismatch = Boolean(confirmInput.value) && pwInput.value !== confirmInput.value;
+      pwInput.setCustomValidity(tooLong ? "Password must be at most 72 bytes." : "");
+      confirmInput.setCustomValidity(mismatch ? "Passwords do not match." : "");
+      confirmInput.classList.toggle("is-invalid", mismatch);
+      pwFeedback.classList.toggle("text-danger", mismatch);
+      pwFeedback.textContent = mismatch ? "Passwords do not match." : "";
     }
 
     pwInput.addEventListener("input", checkPasswords);
     confirmInput.addEventListener("input", checkPasswords);
 
+    function showEmailFeedback(message, status) {
+      emailInput.classList.toggle("is-invalid", status === "danger");
+      emailInput.setAttribute("aria-invalid", status === "danger" ? "true" : "false");
+      emailFeedback.className = "form-text small text-" + status;
+      emailFeedback.textContent = message;
+    }
+
     emailInput.addEventListener("input", function () {
-      const val = emailInput.value.trim().toLowerCase();
-      if (!val) {
-        emailValid = true;
-        emailInput.classList.remove("is-invalid");
-        emailFeedback.className = "form-text small text-muted";
-        emailFeedback.textContent = "Must be an active @dlsu.edu.ph email address.";
-        syncSubmitButton();
+      const check = ++emailCheck;
+      const email = emailInput.value.trim().toLowerCase();
+      clearTimeout(emailTimer);
+      emailInput.setCustomValidity("");
+
+      if (!email) {
+        showEmailFeedback("Use an @dlsu.edu.ph email address.", "muted");
         return;
       }
-      if (!val.endsWith("@dlsu.edu.ph")) {
-        emailValid = false;
-        emailInput.classList.add("is-invalid");
-        emailFeedback.className = "form-text small text-danger fw-semibold";
-        emailFeedback.textContent = "Email must end with @dlsu.edu.ph";
-        syncSubmitButton();
+      if (emailInput.validity.typeMismatch || !email.endsWith("@dlsu.edu.ph")) {
+        const message = "Enter a valid @dlsu.edu.ph email address.";
+        showEmailFeedback(message, "danger");
+        emailInput.setCustomValidity(message);
         return;
       }
-      fetch("/api/users/check-email?email=" + encodeURIComponent(val))
-        .then(function (res) {
-          return res.json();
-        })
-        .then(function (data) {
-          if (!data.available) {
-            emailValid = false;
-            emailInput.classList.add("is-invalid");
-            emailFeedback.className = "form-text small text-danger fw-semibold";
-            emailFeedback.textContent = "This @dlsu.edu.ph email is already registered.";
+
+      showEmailFeedback("Checking email availability…", "muted");
+      emailTimer = setTimeout(async function () {
+        try {
+          const response = await fetch("/api/users/check-email?email=" + encodeURIComponent(email));
+          const data = await response.json();
+          if (check !== emailCheck) return;
+          if (data.validDomain === false) {
+            showEmailFeedback("Enter a valid @dlsu.edu.ph email address.", "danger");
+          } else if (response.ok) {
+            showEmailFeedback(data.available ? "Email is available." : "An account with this email address already exists.", data.available ? "success" : "danger");
           } else {
-            emailValid = true;
-            emailInput.classList.remove("is-invalid");
-            emailFeedback.className = "form-text small text-success fw-semibold";
-            emailFeedback.textContent = "DLSU email is available!";
+            throw new Error("Email lookup failed");
           }
-          syncSubmitButton();
-        })
-        .catch(function () {});
+        } catch (err) {
+          if (check === emailCheck) {
+            showEmailFeedback("Availability could not be checked. You can still submit the form.", "muted");
+          }
+        }
+      }, 250);
     });
   });
 </script>

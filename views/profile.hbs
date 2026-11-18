@@ -1,4 +1,7 @@
 <main class="container py-4">
+  {{#if error}}
+    <div class="alert alert-danger" role="alert">{{error}}</div>
+  {{/if}}
   <div class="row g-4">
     <div class="col-lg-4">
       <div class="card border-0 shadow-sm p-4">
@@ -60,7 +63,7 @@
             {{#if isOrganizer}}
               Campus Events Hosted by {{profileUser.displayName}}
             {{else}}
-              My Registered Campus Events (Upcoming & Attended)
+              My Registered Campus Events
             {{/if}}
           </h2>
           <span class="badge bg-success">{{eventCount}} Events</span>
@@ -92,12 +95,12 @@
   </div>
 </main>
 
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="delete-account-title" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" action="/profile/delete">
         <div class="modal-header">
-          <h2 class="modal-title h5 fw-bold text-danger">Delete Your AnimoEvents Account?</h2>
+          <h2 class="modal-title h5 fw-bold text-danger" id="delete-account-title">Delete Your AnimoEvents Account?</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body small">
@@ -108,7 +111,7 @@
             If you were registered for any full-capacity events, your slot will be released automatically so other eligible Lasallians can join.
           </p>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="confirm-account-delete" required />
+            <input class="form-check-input" type="checkbox" id="confirm-account-delete" name="confirmDelete" value="yes" required />
             <label class="form-check-label fw-semibold text-danger" for="confirm-account-delete">
               I understand that deleting my account is permanent and cannot be undone.
             </label>

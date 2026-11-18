@@ -1,0 +1,358 @@
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4">
+          <div>
+            <span class="badge bg-success bg-opacity-10 text-success fw-semibold mb-1">Organizer Event Management</span>
+            <h1 class="h3 fw-bold mb-0">Edit Event & Lifecycle Status</h1>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteEventModal"
+          >Delete Event Permanently</button>
+        </div>
+
+        {{#if error}}
+          <div class="alert alert-danger small" role="alert">{{error}}</div>
+        {{/if}}
+
+        <form method="POST" action="/events/{{event._id}}/edit">
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <label for="edit-title" class="form-label fw-semibold">Event Title <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="edit-title"
+                name="title"
+                class="form-control"
+                required
+                minlength="5"
+                maxlength="120"
+                value="{{event.title}}"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="edit-category" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+              <select id="edit-category" name="category" class="form-select" required>
+                <option value="Seminar" {{#if (eq event.category "Seminar")}}selected{{/if}}>Seminar</option>
+                <option value="Workshop" {{#if (eq event.category "Workshop")}}selected{{/if}}>Workshop</option>
+                <option value="Bazaar" {{#if (eq event.category "Bazaar")}}selected{{/if}}>Bazaar</option>
+                <option value="Competition" {{#if (eq event.category "Competition")}}selected{{/if}}>Competition</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label for="edit-date" class="form-label fw-semibold">Event Date (2025–2036) <span class="text-danger">*</span></label>
+              <input
+                type="date"
+                id="edit-date"
+                name="date"
+                class="form-control"
+                required
+                min="2025-01-01"
+                max="2036-12-31"
+                value="{{event.date}}"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="edit-time" class="form-label fw-semibold">Start Time <span class="text-danger">*</span></label>
+              <input
+                type="time"
+                id="edit-time"
+                name="time"
+                class="form-control"
+                required
+                value="{{event.time}}"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="edit-end-time" class="form-label fw-semibold">End Time <span class="text-muted fw-normal small">(Optional)</span></label>
+              <input
+                type="time"
+                id="edit-end-time"
+                name="endTime"
+                class="form-control"
+                value="{{event.endTime}}"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="edit-status" class="form-label fw-semibold">Lifecycle Status <span class="text-danger">*</span></label>
+              <select id="edit-status" name="status" class="form-select" required>
+                <option value="Open" {{#if (eq event.status "Open")}}selected{{/if}}>Open</option>
+                <option value="Full" {{#if (eq event.status "Full")}}selected{{/if}}>Full</option>
+                <option value="Closed" {{#if (eq event.status "Closed")}}selected{{/if}}>Closed (Stop RSVPs)</option>
+                <option value="Postponed" {{#if (eq event.status "Postponed")}}selected{{/if}}>Postponed (Rescheduling)</option>
+                <option value="Cancelled" {{#if (eq event.status "Cancelled")}}selected{{/if}}>Cancelled (Keep Record)</option>
+                <option value="Completed" {{#if (eq event.status "Completed")}}selected{{/if}}>Completed (Archive)</option>
+              </select>
+            </div>
+
+            <div class="col-md-8">
+              <label for="edit-venue" class="form-label fw-semibold">Campus Venue / Room <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="edit-venue"
+                name="venue"
+                class="form-control"
+                required
+                minlength="3"
+                maxlength="100"
+                value="{{event.venue}}"
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="edit-capacity" class="form-label fw-semibold">Max Capacity <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                id="edit-capacity"
+                name="maxCapacity"
+                class="form-control"
+                required
+                min="{{minAllowedCapacity}}"
+                max="5000"
+                value="{{event.maxCapacity}}"
+              />
+              <div class="form-text small">
+                Currently registered: {{attendeeCount}} participants (minimum allowed capacity)
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label for="edit-description" class="form-label fw-semibold">Event Description <span class="text-danger">*</span></label>
+              <textarea
+                id="edit-description"
+                name="description"
+                class="form-control"
+                rows="4"
+                required
+                minlength="20"
+                maxlength="1000"
+              >{{event.description}}</textarea>
+            </div>
+          </div>
+
+          <div class="card bg-light border p-3 mb-4" id="edit-audience-editor">
+            <h2 class="h6 fw-bold mb-2">Audience Visibility & Eligibility Rules</h2>
+            <div class="form-check mb-2">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="isPublic"
+                value="true"
+                id="edit-audience-public"
+                {{#if audience.isPublic}}checked{{/if}}
+              />
+              <label class="form-check-label fw-semibold" for="edit-audience-public">
+                University-Wide Public Event <span class="fw-normal">(Visible and open to all DLSU students and faculty)</span>
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="isPublic"
+                value="false"
+                id="edit-audience-targeted"
+                {{#unless audience.isPublic}}checked{{/unless}}
+              />
+              <label class="form-check-label fw-semibold" for="edit-audience-targeted">
+                Targeted / Restricted Event <span class="fw-normal">(Visible only to users matching the selected groups below)</span>
+              </label>
+            </div>
+
+            <div data-audience-targeting class="ps-2 border-start border-3 border-success">
+              <p class="small text-muted mb-3">
+                Leave a dimension unchecked if it is unrestricted. Selecting specific departments/strands restricts that college to those departments; leaving a selected college's departments unchecked opens the event to the entire college.
+              </p>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">1. Target Affiliation Roles</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetRoles"
+                      value="Student"
+                      id="edit-audience-role-student"
+                      {{#if (includes audience.targetRoles "Student")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-role-student">Students</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetRoles"
+                      value="Faculty"
+                      id="edit-audience-role-faculty"
+                      {{#if (includes audience.targetRoles "Faculty")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-role-faculty">Faculty Members</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">2. Target Student Academic Levels</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Senior High School"
+                      id="edit-audience-level-shs"
+                      {{#if (includes audience.targetAcademicLevels "Senior High School")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-level-shs">Senior High School</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Undergraduate"
+                      id="edit-audience-level-ug"
+                      {{#if (includes audience.targetAcademicLevels "Undergraduate")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-level-ug">Undergraduate</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetAcademicLevels"
+                      value="Graduate"
+                      id="edit-audience-level-grad"
+                      {{#if (includes audience.targetAcademicLevels "Graduate")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-level-grad">Graduate</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">3. Target Colleges & Integrated School</label>
+                <div class="d-flex flex-wrap gap-3">
+                  {{#each audienceColleges}}
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="targetColleges"
+                        value="{{code}}"
+                        id="edit-audience-col-{{code}}"
+                        {{#if (includes @root.audience.targetColleges code)}}checked{{/if}}
+                      />
+                      <label class="form-check-label small" for="edit-audience-col-{{code}}">{{code}}</label>
+                    </div>
+                  {{/each}}
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold d-block mb-1">
+                  4. Target Departments / SHS Strands <span class="text-muted fw-normal">(Optional — leave unchecked for college-wide access)</span>
+                </label>
+                {{#each audienceDeptGroups}}
+                  <div class="mb-2" data-dept-group="{{collegeCode}}">
+                    <div class="small fw-semibold text-success">{{collegeCode}} Departments / Strands</div>
+                    <div class="d-flex flex-wrap gap-3">
+                      {{#each departments}}
+                        <div class="form-check audience-department" data-parent-college="{{../collegeCode}}">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="targetDepartments"
+                            value="{{code}}"
+                            id="edit-audience-dept-{{code}}"
+                            {{#if (includes @root.audience.targetDepartments code)}}checked{{/if}}
+                          />
+                          <label class="form-check-label small" for="edit-audience-dept-{{code}}">{{code}} — {{shortName}}</label>
+                        </div>
+                      {{/each}}
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+
+              <div>
+                <label class="form-label small fw-bold d-block mb-1">5. Target Campuses</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetCampuses"
+                      value="Manila"
+                      id="edit-audience-campus-manila"
+                      {{#if (includes audience.targetCampuses "Manila")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-campus-manila">Manila Campus</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="targetCampuses"
+                      value="Laguna"
+                      id="edit-audience-campus-laguna"
+                      {{#if (includes audience.targetCampuses "Laguna")}}checked{{/if}}
+                    />
+                    <label class="form-check-label small" for="edit-audience-campus-laguna">Laguna Campus</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-light border small mb-4">
+            <strong>Automatic Subscriber Notification:</strong> Saving changes to the event schedule, venue, or lifecycle status automatically posts an Official Host Update to notify all registered participants.
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/events/{{event._id}}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-dlsu">Save Changes & Notify Participants</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="delete-event-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="delete-event-title" class="modal-title h5 fw-bold text-danger">Delete Event Permanently?</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body small">
+        <p class="mb-2">
+          Tip: If you want registered students to still see a cancellation notice on the event page, change the Lifecycle Status dropdown to <strong>Cancelled</strong> instead.
+        </p>
+        <p class="mb-0">
+          Permanently deleting this event removes the event post, its discussion thread, and all saved bookmarks from the database. This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Keep Event</button>
+        <form method="POST" action="/events/{{event._id}}/delete" class="d-inline">
+          <button type="submit" class="btn btn-sm btn-danger">Delete Event Permanently</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.AnimoApp) {
+      window.AnimoApp.bindAudienceEditor(document.getElementById("edit-audience-editor"));
+    }
+  });
+</script>

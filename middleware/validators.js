@@ -2,9 +2,8 @@
  * Server-Side Request Validation Chains (middleware/validators.js)
  * Uses express-validator to validate and sanitize incoming form payloads.
  */
-const { body, validationResult } = require("express-validator");
+const { body, query, validationResult } = require("express-validator");
 const {
-  ROLES,
   ACADEMIC_LEVELS,
   COLLEGE_CODES,
   ALL_DEPARTMENT_CODES,
@@ -15,6 +14,7 @@ const {
   MAX_EVENT_DATE,
   validateAffiliationCombination,
 } = require("../model/constants");
+const { isCalendarDate, isClockTime } = require("../model/manilaTime");
 
 function extractValidationErrors(req) {
   const result = validationResult(req);
@@ -24,16 +24,24 @@ function extractValidationErrors(req) {
   });
 }
 
-const loginValidation = [
-  body("email")
+function institutionalEmail(field) {
+  return field
+    .isString()
+    .withMessage("Please enter your @dlsu.edu.ph email address.")
+    .bail()
     .trim()
     .toLowerCase()
     .isEmail()
-    .withMessage("Please enter a valid email address.")
+    .withMessage("Please enter a valid @dlsu.edu.ph email address.")
+    .bail()
     .matches(/@dlsu\.edu\.ph$/i)
-    .withMessage(
-      "Please use a valid @dlsu.edu.ph institutional email address.",
-    ),
+    .withMessage("Please enter a valid @dlsu.edu.ph email address.");
+}
+
+const emailAvailabilityValidation = institutionalEmail(query("email"));
+
+const loginValidation = [
+  institutionalEmail(body("email")),
   body("password")
     .isString()
     .isLength({ min: 8 })
@@ -42,37 +50,47 @@ const loginValidation = [
 
 const registerValidation = [
   body("displayName")
+    .isString()
+    .withMessage("Please enter a display name.")
+    .bail()
     .trim()
     .isLength({ min: 2, max: 100 })
     .withMessage("Display name must be between 2 and 100 characters."),
-  body("email")
-    .trim()
-    .toLowerCase()
-    .isEmail()
-    .withMessage("Registration requires a valid @dlsu.edu.ph email address.")
-    .matches(/@dlsu\.edu\.ph$/i)
-    .withMessage("Registration requires a valid @dlsu.edu.ph email address."),
+  institutionalEmail(body("email")),
   body("password")
     .isString()
+    .withMessage("Please enter a password.")
+    .bail()
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters."),
+    .withMessage("Password must be at least 8 characters.")
+    .bail()
+    .custom(function (value) {
+      return Buffer.byteLength(value, "utf8") <= 72;
+    })
+    .withMessage("Password must be at most 72 bytes."),
   body("confirmPassword").custom(function (val, meta) {
-    if (String(val || "") !== String(meta.req.body.password || "")) {
+    if (typeof val !== "string" || val !== meta.req.body.password) {
       throw new Error("Password and Confirm Password do not match.");
     }
     return true;
   }),
   body("role")
-    .isIn(ROLES)
-    .withMessage("Please select a valid account affiliation.")
+    .isString()
+    .bail()
+    .isIn(["Student", "Faculty"])
+    .withMessage("Select Student or Faculty for self-registration.")
+    .bail()
     .custom(function (role, meta) {
       const req = meta.req;
       const academicLevel =
         role === "Student"
-          ? String(req.body.academicLevel || "Undergraduate")
+          ? req.body.academicLevel
           : "N/A";
-      const college = String(req.body.college || "");
-      const department = String(req.body.department || "");
+      const college = req.body.college;
+      const department = req.body.department;
+      if (!COLLEGE_CODES.includes(college)) {
+        throw new Error("Please select a valid college or division.");
+      }
       const affilErrors = validateAffiliationCombination(
         role,
         academicLevel,
@@ -85,10 +103,15 @@ const registerValidation = [
       return true;
     }),
   body("campus")
+    .isString()
+    .bail()
     .isIn(CAMPUSES)
     .withMessage("Please select a valid primary campus."),
   body("bio")
-    .optional({ values: "falsy" })
+    .optional()
+    .isString()
+    .withMessage("Please enter a valid bio.")
+    .bail()
     .trim()
     .isLength({ max: 300 })
     .withMessage("Bio cannot exceed 300 characters."),
@@ -96,29 +119,32 @@ const registerValidation = [
 
 const profileEditValidation = [
   body("displayName")
+    .isString()
+    .withMessage("Please enter a display name.")
+    .bail()
     .trim()
     .isLength({ min: 2, max: 100 })
     .withMessage("Display name must be between 2 and 100 characters."),
   body("college")
+    .isString()
+    .bail()
     .isIn(COLLEGE_CODES)
     .withMessage("Please select a valid college or division."),
   body("department")
+    .isString()
+    .bail()
     .isIn(ALL_DEPARTMENT_CODES)
     .withMessage("Please select a valid department or strand.")
+    .bail()
     .custom(function (department, meta) {
       const req = meta.req;
-      const role = req.currentUser
-        ? req.currentUser.role
-        : String(req.body.role || "Student");
+      const role = req.currentUser.role;
       const academicLevel =
         role === "Student"
-          ? String(
-              req.body.academicLevel ||
-                (req.currentUser && req.currentUser.academicLevel) ||
-                "Undergraduate",
-            )
+          ? req.body.academicLevel
           : "N/A";
-      const college = String(req.body.college || "");
+      const college = req.body.college;
+      if (!COLLEGE_CODES.includes(college)) return true;
       const affilErrors = validateAffiliationCombination(
         role,
         academicLevel,
@@ -131,14 +157,21 @@ const profileEditValidation = [
       return true;
     }),
   body("academicLevel")
-    .optional({ values: "falsy" })
+    .optional()
+    .isString()
+    .bail()
     .isIn(ACADEMIC_LEVELS)
     .withMessage("Please select a valid academic level."),
   body("campus")
+    .isString()
+    .bail()
     .isIn(CAMPUSES)
     .withMessage("Please select a valid primary campus."),
   body("bio")
-    .optional({ values: "falsy" })
+    .optional()
+    .isString()
+    .withMessage("Please enter a valid bio.")
+    .bail()
     .trim()
     .isLength({ max: 300 })
     .withMessage("Bio cannot exceed 300 characters."),
@@ -146,49 +179,75 @@ const profileEditValidation = [
 
 const eventCreateValidation = [
   body("title")
+    .isString()
+    .withMessage("Enter an event title.")
+    .bail()
     .trim()
     .isLength({ min: 5, max: 120 })
     .withMessage("Event title must be between 5 and 120 characters."),
   body("category")
+    .isString()
+    .withMessage("Please select a valid event category.")
+    .bail()
     .isIn(EVENT_CATEGORIES)
     .withMessage("Please select a valid event category."),
   body("date")
-    .trim()
-    .custom(function (val) {
-      return Boolean(val) && val >= MIN_EVENT_DATE && val <= MAX_EVENT_DATE;
-    })
-    .withMessage("Event date must be between 2025-01-01 and 2036-12-31."),
-  body("time").trim().notEmpty().withMessage("Start time is required."),
+    .custom(val => isCalendarDate(val) && val >= MIN_EVENT_DATE && val <= MAX_EVENT_DATE)
+    .withMessage("Enter a valid event date between " + MIN_EVENT_DATE + " and " + MAX_EVENT_DATE + "."),
+  body("time")
+    .custom(isClockTime)
+    .withMessage("Enter a valid start time in 24-hour HH:mm format."),
   body("endTime").custom(function (val, meta) {
-    const endTime = String(val || "").trim();
-    const startTime = String(meta.req.body.time || "").trim();
-    if (endTime && startTime && endTime <= startTime) {
-      throw new Error("End Time must be later than Start Time.");
+    if (val === undefined || val === "") return true;
+    if (!isClockTime(val)) {
+      throw new Error("Enter a valid end time in 24-hour HH:mm format.");
+    }
+    const startTime = meta.req.body.time;
+    if (isClockTime(startTime) && val <= startTime) {
+      throw new Error("End time must be later than start time.");
     }
     return true;
   }),
   body("venue")
+    .isString()
+    .withMessage("Enter an event venue.")
+    .bail()
     .trim()
     .isLength({ min: 3, max: 100 })
     .withMessage("Venue must be between 3 and 100 characters."),
   body("maxCapacity")
+    .custom(val => typeof val === "string" || typeof val === "number")
+    .withMessage("Enter a valid maximum capacity.")
+    .bail()
     .isInt({ min: 5, max: 5000 })
     .withMessage("Maximum capacity must be between 5 and 5000."),
   body("description")
+    .isString()
+    .withMessage("Enter an event description.")
+    .bail()
     .trim()
     .isLength({ min: 20, max: 1000 })
     .withMessage("Description must be between 20 and 1000 characters."),
+  body("isPublic")
+    .custom(val => val === true || val === false || val === "true" || val === "false")
+    .withMessage("Choose public or targeted event visibility."),
 ];
 
 const eventEditValidation = [
   ...eventCreateValidation,
   body("status")
+    .isString()
+    .withMessage("Please select a valid lifecycle status.")
+    .bail()
     .isIn(EVENT_STATUSES)
     .withMessage("Please select a valid lifecycle status."),
 ];
 
 const threadUpdateValidation = [
   body("content")
+    .isString()
+    .withMessage("Enter a discussion post.")
+    .bail()
     .trim()
     .isLength({ min: 2, max: 500 })
     .withMessage("Post content must be between 2 and 500 characters."),
@@ -204,6 +263,7 @@ const bookmarkNoteValidation = [
 
 module.exports = {
   extractValidationErrors,
+  emailAvailabilityValidation,
   loginValidation,
   registerValidation,
   profileEditValidation,
