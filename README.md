@@ -1,78 +1,93 @@
 # AnimoEvents — DLSU Campus Events & Activities Hub
 
-**Course:** CBAPDEV (Web Application Development), Section X21, Term 1, AY 2026–2027  
-**Institution:** Department of Software Technology, College of Computer Studies, De La Salle University  
+**Course:** CBAPDEV (Web Application Development) — Section X21, Term 1 AY 2026–2027  
+**Department:** Department of Software Technology, College of Computer Studies, De La Salle University  
 **Instructor:** Asst. Prof. Arren Matthew C. Antioquia (`arren.antioquia@dlsu.edu.ph`)
 
-## Group 4 Members & MVC Module Ownership
+AnimoEvents is a campus event bulletin board and personal calendar for DLSU Manila and Laguna students, faculty, and accredited organizers. Users can discover public and audience-targeted events, RSVP directly, join event discussion threads, save bookmarks with personal notes, and track their schedule on a monthly calendar.
 
-- **Arron Baranquil** — Authentication, User Profile CRUD & Affiliation Management (`model/User.js`, `controllers/authUserController.js`, `routes/authUserRoutes.js`, `middleware/auth.js`, `middleware/validators.js`, `views/login.hbs`, `views/logout.hbs`, `views/register.hbs`, `views/profile.hbs`, `views/profile-edit.hbs`)
-- **Laurence Benjamin Diaz** — Personalized Home Feed, Event Posts CRUD, Lifecycle Management & Discussion Threads (`model/Event.js`, `controllers/eventController.js`, `routes/eventRoutes.js`, `views/index.hbs`, `views/event-details.hbs`, `views/event-create.hbs`, `views/event-edit.hbs`)
-- **Alaine Carlo Magdaluyo** — Multi-Criteria Search & Filter Engine, RSVP Capacity Logic, Multi-Year Calendar & Organizers (`controllers/discoveryController.js`, `routes/discoveryRoutes.js`, `public/js/main.js`, `views/events.hbs`, `views/calendar.hbs`, `views/organizer.hbs`)
-- **John Michael Sumilang** — Saved Event Bookmarks CRUD, Institutional Seed Dataset, Shared Layout Shell & Server Configuration (`app.js`, `model/db.js`, `model/constants.js`, `model/Bookmark.js`, `model/seedData.js`, `model/seed.js`, `controllers/bookmarkController.js`, `routes/bookmarkRoutes.js`, `views/layouts/main.hbs`, `views/bookmarks.hbs`, `views/about.hbs`)
+## Group 4 Members & Module Ownership
+
+- **Arron Baranquil** — Authentication, User Profiles & Validation (`model/User.js`, `controllers/authUserController.js`, `routes/authUserRoutes.js`, `middleware/auth.js`, `middleware/validators.js`, `views/login.hbs`, `views/logout.hbs`, `views/register.hbs`, `views/profile.hbs`, `views/profile-edit.hbs`)
+- **Laurence Benjamin Diaz** — Home Feed, Event CRUD, Lifecycle & Discussion Threads (`model/Event.js`, `model/manilaTime.js`, `controllers/eventController.js`, `routes/eventRoutes.js`, `views/index.hbs`, `views/event-details.hbs`, `views/event-create.hbs`, `views/event-edit.hbs`)
+- **Alaine Carlo Magdaluyo** — Event Search & Filters, RSVP Logic, Calendar & Organizers (`controllers/discoveryController.js`, `controllers/returnPath.js`, `routes/discoveryRoutes.js`, `public/js/main.js`, `views/events.hbs`, `views/calendar.hbs`, `views/organizer.hbs`)
+- **John Michael Sumilang** — Event Bookmarks, Seed Dataset, Layout & Server Setup (`app.js`, `model/db.js`, `model/constants.js`, `model/Bookmark.js`, `model/seedData.js`, `model/seed.js`, `controllers/bookmarkController.js`, `routes/bookmarkRoutes.js`, `views/layouts/main.hbs`, `views/bookmarks.hbs`, `views/about.hbs`)
 
 ---
 
-## 1. Local Setup & Running the Application (Node.js & MongoDB)
+## 1. Local Setup & Running the App
 
-**Prerequisites:** Node.js (v18 or higher) with npm, plus a running MongoDB Community Server on `127.0.0.1:27017`. After installing dependencies, the app serves its Bootstrap assets locally.
+### Prerequisites
 
-1. Open a terminal in the extracted project folder and install the locked dependencies:
+- **Node.js** (v18 or higher) and npm
+- **MongoDB Community Server** running locally on `127.0.0.1:27017`
 
+### Steps
+
+1. Open a terminal in the project root folder and install dependencies:
    ```bash
-   npm ci
+   npm install
    ```
 
-   (Or run npm install)
+2. Create a `.env` file by copying `.env.example`:
+   - **Windows Command Prompt:** `copy .env.example .env`
+   - **PowerShell:** `Copy-Item .env.example .env`
+   - **macOS / Linux:** `cp .env.example .env`
 
-2. Copy .env.example to .env. In PowerShell, run Copy-Item .env.example .env. In Command Prompt, run copy .env.example .env. In Bash, run cp .env.example .env. The example uses the dedicated local database animoevents_demo.
-3. Load the sample records, then start the server:
+   The default `.env.example` configures a local demo database (`mongodb://127.0.0.1:27017/animoevents_demo`) with `NODE_ENV=development` and `DEMO_MODE=true`.
 
+3. Seed the sample database (14 users, 12 events, 18 bookmarks, and 61 thread posts):
    ```bash
    npm run seed
+   ```
+   *(Note: To prevent overwriting existing data, the seeder only runs on an empty local `animoevents_demo` or `animoevents_demo_*` database. If you want a fresh reset later, drop `animoevents_demo` in MongoDB Compass or change the database name in `.env` and run `npm run seed` again. You can also run `npm run seed -- --check` to verify your MongoDB connection before seeding.)*
+
+4. Start the server:
+   ```bash
    npm start
    ```
 
-4. Open http://localhost:3000. Home and the public events directory are available before sign-in.
+5. Open `http://localhost:3000` in your browser.
 
-Run the seed once per fresh demo database. It requires NODE*ENV=development, DEMO_MODE=true, and a single loopback MongoDB URI named animoevents_demo or animoevents_demo*<suffix> with no URI options. An existing or partially seeded database is left intact. For another clean run, drop animoevents_demo in MongoDB Compass (or change the database name in .env, such as animoevents_demo_retry) and run npm run seed again.
+---
 
-## 2. Sample DLSU Accounts & Grading Walkthrough
+## 2. Sample Accounts for Testing
 
-The seed provides 14 sample accounts, 12 events, 18 bookmarks, and 61 event discussion posts. Use the sample accounts section on the Sign In page (/login), or enter a sample email and the demo password AnimoPass123!.
+All seeded accounts use the demo password `AnimoPass123!`. You can type them manually on `/login` or use the sample account quick-fill list on the Sign In page.
 
-| Role                       | Sample email             | What to try                                                              |
-| -------------------------- | ------------------------ | ------------------------------------------------------------------------ |
-| Undergraduate student      | miguel_tan@dlsu.edu.ph   | Search, RSVP, edit bookmark notes, view the calendar, and edit a profile |
-| Senior High School student | sophia_sy@dlsu.edu.ph    | Check which audience filters and targeted events apply                   |
-| Graduate student           | hannah_reyes@dlsu.edu.ph | Compare access to events for different academic levels                   |
-| Faculty                    | rafael.cruz@dlsu.edu.ph  | Browse and RSVP to events open to faculty                                |
-| Organizer                  | lscs@dlsu.edu.ph         | Create an event, post an official update, and view hosted events         |
+| Role | Email | Suggested Flow to Test |
+| --- | --- | --- |
+| Undergraduate Student (CCS/ST Manila) | `miguel_tan@dlsu.edu.ph` | Search/filter events, RSVP, manage bookmarks, edit profile, view calendar |
+| Senior High School Student (SHS/STEM Manila) | `sophia_sy@dlsu.edu.ph` | Check SHS-eligible targeted events and visibility rules |
+| Graduate Student (CCS/IT Manila) | `hannah_reyes@dlsu.edu.ph` | View graduate-level events (e.g., Graduate Thesis Clinic) |
+| Faculty (CCS/ST Manila) | `rafael.cruz@dlsu.edu.ph` | Browse and join faculty-accessible events |
+| Organizer (LSCS — CCS Manila) | `lscs@dlsu.edu.ph` | Publish a new event, edit event details/status, post official host updates |
 
-- Start as a guest and search for “Bootcamp” in Events. Compare the directory after signing in with different affiliations.
-- The Calendar opens to the current month in the Philippines. Select December 2026 to see most sample events. The home feed’s archive includes the October and November examples.
-- Create a public event with the organizer account, then sign in as a student in a separate browser session to join, save a bookmark, and leave a reply. Confirm the changes in the calendar and the discussion thread. Return to the organizer session to edit the event and verify the official update.
-- Register a new student or faculty account to check signup, profile editing, sign-out, and account deletion.
+### Quick Feature Walkthrough
 
-## 3. References
+- **Guest vs. Signed-In Visibility:** Visit `/` and `/events` while signed out to see public university-wide events, then sign in with different student/faculty accounts to verify demographic targeting.
+- **Calendar & Archive:** `/calendar` opens to the current month (Asia/Manila time). Switch to December 2026 to view upcoming seeded events, or check the Completed Archive tab on `/` for past October/November events.
+- **Event Management & RSVP:** Create or edit an event as `lscs@dlsu.edu.ph`, then join, bookmark, and comment as a student account to verify live participant counters and official updates.
+- **Account Lifecycle:** Register a new Student or Faculty account at `/register`, edit your college/department at `/profile/edit` to test grandfathered registrations, and test cascading account deletion at `/profile`.
+
+---
+
+## 3. Libraries & References
 
 ### NPM Packages & Front-End Libraries
 
-- express — Web application server and modular routing framework (https://expressjs.com/).
-- hbs — Express view engine for Handlebars templates, layouts, partials, and custom helpers (https://www.npmjs.com/package/hbs).
-- mongoose — MongoDB Object Data Modeling (ODM) library for schemas, validation, and queries (https://mongoosejs.com/).
-- bcrypt — Cryptographic password salting and hashing via Mongoose pre('save') hooks (https://www.npmjs.com/package/bcrypt).
-- express-session — Server-side session management with httpOnly cookies (https://www.npmjs.com/package/express-session).
-- express-validator — Server-side form validation and sanitization middleware (https://express-validator.github.io/).
-- dotenv — Environment variable loader for database URI and session configuration (https://www.npmjs.com/package/dotenv).
-- Bootstrap 5.3.3 — Responsive layout grid, navigation bar, cards, dropdowns, and modals (https://getbootstrap.com/). The Bootstrap bundle includes Popper for dropdown placement.
+- **express** — Web server and routing framework (`https://expressjs.com/`)
+- **express-handlebars** — Handlebars view engine for layouts, partials, and helpers (`https://www.npmjs.com/package/express-handlebars`)
+- **mongoose** — MongoDB ODM for schemas, validation, and queries (`https://mongoosejs.com/`)
+- **bcrypt** — Password salting and hashing via Mongoose `pre('save')` hooks (`https://www.npmjs.com/package/bcrypt`)
+- **express-session** — Server-side session management (`https://www.npmjs.com/package/express-session`)
+- **express-validator** — Server-side form validation middleware (`https://express-validator.github.io/`)
+- **dotenv** — Environment variable configuration (`https://www.npmjs.com/package/dotenv`)
+- **Bootstrap 5.3.3** — Responsive layout, components, and modals served locally from `node_modules/bootstrap` (`https://getbootstrap.com/`)
 
 ### Generative AI Use Disclosure
 
-In compliance with the CBAPDEV course policy on Artificial Intelligence tools and the DLSU Policies on Generative AI in Higher Education, Group 4 declares the use of Google Gemini during project preparation for:
+In compliance with the CBAPDEV course policy and the DLSU Policies on Generative Artificial Intelligence in Higher Education, Group 4 used **Google Gemini** strictly as a supplementary learning and planning aid during development. It was used to brainstorm demographic targeting edge cases (such as preserving grandfathered event registrations after profile updates), clarify Express, Handlebars, and Mongoose documentation and syntax, and cross-check our features against the Phase 0 proposal and Phase 2 rubric. Its influence was limited to conceptual discussions and documentation reference; all schemas, routes, controllers, views, and sample data were implemented, verified against official documentation and class lectures, and tested by Group 4.
 
-1. Brainstorming institutional demographic targeting rules and edge cases (such as grandfathered event registrations when a student updates their profile).
-2. Auditing requirement coverage against the approved Phase 0 project proposal and course rubrics.
-3. Debugging client-side and server-side filtering and date-handling edge cases.
-
-All code, user interfaces, database schemas, controllers, sample datasets, and application logic were reviewed, tested, and validated by the group members to ensure full understanding and ownership.
+**Reference:**  
+Google. (2026). *Gemini* [Large language model]. https://gemini.google.com/

@@ -47,6 +47,7 @@
               required
               autocomplete="current-password"
               minlength="8"
+              maxlength="72"
               placeholder="Enter your password"
             />
           </div>
@@ -167,6 +168,13 @@
   </div>
 </main>
 
+<script>
+  document.getElementById("login-password").addEventListener("input", function () {
+    const tooLong = new TextEncoder().encode(this.value).length > 72;
+    this.setCustomValidity(tooLong ? "Password must be at most 72 bytes." : "");
+  });
+</script>
+
 {{#if demoMode}}
   <script>
     const emailInput = document.getElementById("login-email");
@@ -175,6 +183,7 @@
       button.addEventListener("click", function () {
         emailInput.value = button.dataset.fillEmail;
         passwordInput.value = "AnimoPass123!";
+        passwordInput.setCustomValidity("");
         document.querySelector('form[action="/login"] button[type="submit"]').focus();
       });
     });

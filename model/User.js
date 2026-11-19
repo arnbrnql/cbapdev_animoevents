@@ -13,6 +13,7 @@ const {
 } = require("./constants");
 
 const SALT_WORK_FACTOR = 10;
+const MAX_PASSWORD_BYTES = 72;
 
 const userSchema = new mongoose.Schema({
   displayName: {
@@ -37,6 +38,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
+    validate: {
+      validator: value => typeof value === "string" && Buffer.byteLength(value, "utf8") <= MAX_PASSWORD_BYTES,
+      message: "Password must be at most 72 bytes.",
+    },
     select: false,
   },
   role: {
@@ -81,6 +86,12 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  nameSyncPending: Boolean,
+  deleting: Boolean,
+  hostedEventIdsToDelete: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: undefined,
+  },
 });
 
 userSchema.pre("save", function (next) {
@@ -98,7 +109,10 @@ userSchema.pre("save", function (next) {
   });
 });
 
-userSchema.method("comparePassword", function (candidatePassword) {
+userSchema.method("comparePassword", async function (candidatePassword) {
+  if (typeof candidatePassword !== "string" || Buffer.byteLength(candidatePassword, "utf8") > MAX_PASSWORD_BYTES) {
+    return false;
+  }
   return bcrypt.compare(candidatePassword, this.password);
 });
 

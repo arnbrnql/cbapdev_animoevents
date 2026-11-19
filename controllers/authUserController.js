@@ -211,24 +211,46 @@ async function renderProfile(req, res, status = 200, error) {
     userEvents,
     eventCount: userEvents.length,
     isOrganizer: user.role === "Organizer",
+    error: error || (user.deleting
+      ? "Account deletion was interrupted. Select Delete Account again to finish."
+      : null),
+  });
+}
+
+function renderProfileEdit(res, user, status = 200, error) {
+  return res.status(status).render("profile-edit", {
+    title: "Edit Profile & Affiliation — AnimoEvents",
+    activeNav: "profile",
+    profileUser: user,
+    profileVersion: user.__v ?? 0,
     error,
   });
 }
 
-async function getProfileEdit(req, res, next) {
-  try {
-    const user = req.currentUser;
-    if (!user) {
-      return res.redirect("/login");
-    }
-    res.render("profile-edit", {
-      title: "Edit Profile & Affiliation — AnimoEvents",
-      activeNav: "profile",
-      profileUser: user,
-    });
-  } catch (err) {
-    next(err);
-  }
+function getProfileEdit(req, res) {
+  return renderProfileEdit(res, req.currentUser);
+}
+
+async function syncUserName(user) {
+  const { _id, displayName } = user;
+  await Event.updateMany(
+    { organizer: _id, organizerName: { $ne: displayName } },
+    { $set: { organizerName: displayName }, $inc: { __v: 1 } },
+  );
+  const nameMismatch = { author: _id, authorName: { $ne: displayName } };
+  await Event.updateMany(
+    { updates: { $elemMatch: nameMismatch } },
+    { $set: { "updates.$[post].authorName": displayName }, $inc: { __v: 1 } },
+    { arrayFilters: [{ "post.author": _id, "post.authorName": { $ne: displayName } }] },
+  );
+  await User.updateOne({ _id, displayName }, { $unset: { nameSyncPending: "" } });
+}
+
+function staleProfile(res, user) {
+  return renderProfileEdit(
+    res, user, 409,
+    "Your profile changed after you opened this form. Review the latest values and apply your changes again.",
+  );
 }
 
 async function postProfileEdit(req, res, next) {
@@ -236,6 +258,12 @@ async function postProfileEdit(req, res, next) {
     const user = req.currentUser;
     if (!user) {
       return res.redirect("/login");
+    }
+    if (user.nameSyncPending) await syncUserName(user);
+
+    const version = user.__v ?? 0;
+    if (req.body.profileVersion !== String(version)) {
+      return staleProfile(res, user);
     }
 
     const displayName = formText(req.body.displayName).trim();
@@ -257,77 +285,76 @@ async function postProfileEdit(req, res, next) {
 
     const errors = extractValidationErrors(req);
     if (errors.length > 0) {
-      return res.status(400).render("profile-edit", {
-        title: "Edit Profile & Affiliation — AnimoEvents",
-        activeNav: "profile",
-        error: errors.join(" "),
-        profileUser: Object.assign({}, user, {
-          displayName,
-          profilePic,
-          academicLevel,
-          college,
-          department,
-          campus,
-          bio,
-        }),
-      });
+      const draft = { ...user, displayName, profilePic, academicLevel, college, department, campus, bio };
+      return renderProfileEdit(res, draft, 400, errors.join(" "));
     }
 
-    await User.findByIdAndUpdate(
-      user._id,
-      { displayName, profilePic, academicLevel, college, department, campus, bio },
-      { runValidators: true },
-    );
+    const fields = { displayName, profilePic, academicLevel, college, department, campus, bio };
+    if (displayName !== user.displayName) fields.nameSyncPending = true;
+    const updated = await User.findOneAndUpdate(
+      { _id: user._id, __v: user.__v === undefined ? { $exists: false } : version, deleting: { $ne: true } },
+      { $set: fields, $inc: { __v: 1 } },
+      { runValidators: true, new: true },
+    ).lean();
+    if (!updated) {
+      const current = await User.findById(user._id).lean();
+      if (!current) return postLogout(req, res, next);
+      return staleProfile(res, current);
+    }
 
-    // Synchronize denormalized organizerName and thread authorName
-    await Event.updateMany(
-      { organizer: user._id },
-      { $set: { organizerName: displayName }, $inc: { __v: 1 } },
-    );
-
-    await Event.updateMany(
-      { "updates.author": user._id },
-      { $set: { "updates.$[post].authorName": displayName }, $inc: { __v: 1 } },
-      { arrayFilters: [{ "post.author": user._id }] },
-    );
-
+    if (updated.nameSyncPending) await syncUserName(updated);
     return res.redirect("/profile");
   } catch (err) {
     return next(err);
   }
 }
 
+async function finishAccountDeletion(user) {
+  const userId = user._id;
+
+  // The saved list still identifies dependent bookmarks if the process stopped after deleting the events.
+  await Event.deleteMany({ organizer: userId });
+  await Bookmark.deleteMany({
+    $or: [{ user: userId }, { event: { $in: user.hostedEventIdsToDelete || [] } }],
+  });
+  await Event.updateMany(
+    { $or: [{ attendees: userId }, { "updates.author": userId }] },
+    {
+      $pull: { attendees: userId, updates: { author: userId } },
+      $inc: { __v: 1 },
+    },
+  );
+  await syncEventLifecycles();
+  await User.deleteOne({ _id: userId, deleting: true });
+}
+
+async function finishPendingAccountChanges() {
+  const pending = await User.find({
+    $or: [{ deleting: true }, { nameSyncPending: true }],
+  }).lean();
+  for (const user of pending) {
+    if (user.deleting) await finishAccountDeletion(user);
+    else await syncUserName(user);
+  }
+}
+
 async function postProfileDelete(req, res, next) {
   try {
     const user = req.currentUser;
-    if (!user) {
-      return res.redirect("/login");
-    }
+    if (!user) return res.redirect("/login");
     if (req.body.confirmDelete !== "yes") {
       return await renderProfile(
         req, res, 400, "Confirm account deletion before continuing.",
       );
     }
-    const userId = user._id;
 
-    // Keep each parent until its dependent records have been removed so a failed request can be retried.
-    const hostedEventIds = await Event.distinct("_id", { organizer: userId });
-    if (hostedEventIds.length > 0) {
-      await Bookmark.deleteMany({ event: { $in: hostedEventIds } });
+    if (!user.deleting) {
+      user.hostedEventIdsToDelete = await Event.distinct("_id", { organizer: user._id });
+      await User.updateOne({ _id: user._id }, {
+        $set: { deleting: true, hostedEventIdsToDelete: user.hostedEventIdsToDelete },
+      });
     }
-    await Bookmark.deleteMany({ user: userId });
-
-    await Event.updateMany(
-      { $or: [{ attendees: userId }, { "updates.author": userId }] },
-      {
-        $pull: { attendees: userId, updates: { author: userId } },
-        $inc: { __v: 1 },
-      },
-    );
-    await syncEventLifecycles();
-
-    await Event.deleteMany({ organizer: userId });
-    await User.findByIdAndDelete(userId);
+    await finishAccountDeletion(user);
     return postLogout(req, res, next);
   } catch (err) {
     return next(err);
@@ -346,4 +373,5 @@ module.exports = {
   getProfileEdit,
   postProfileEdit,
   postProfileDelete,
+  finishPendingAccountChanges,
 };

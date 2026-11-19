@@ -4,12 +4,13 @@ const path = require("path");
 const { randomBytes } = require("crypto");
 const express = require("express");
 const session = require("express-session");
-const hbs = require("hbs");
+const { engine } = require("express-handlebars");
 
 const { connectDB, isLocalDemoDatabase } = require("./model/db");
 const User = require("./model/User");
 const Bookmark = require("./model/Bookmark");
-const { loadCurrentUser } = require("./middleware/auth");
+const { loadCurrentUser, serializeMutations } = require("./middleware/auth");
+const { finishPendingAccountChanges } = require("./controllers/authUserController");
 
 const authUserRoutes = require("./routes/authUserRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -31,26 +32,31 @@ if (production && !sessionSecret) {
 }
 if (production) app.set("trust proxy", 1);
 app.locals.demoMode = demoMode;
+const views = path.join(__dirname, "views");
+app.engine("hbs", engine({
+  extname: ".hbs",
+  layoutsDir: path.join(views, "layouts"),
+  partialsDir: path.join(views, "partials"),
+  helpers: {
+    eq(a, b) {
+      return String(a) === String(b);
+    },
+    neq(a, b) {
+      return String(a) !== String(b);
+    },
+    includes(values, value) {
+      return Array.isArray(values) && values.some(function (item) {
+        return String(item) === String(value);
+      });
+    },
+  },
+}));
 app.set("view engine", "hbs");
-app.set("views", path.join(__dirname, "views"));
-app.set("view options", { layout: "layouts/main" });
-hbs.registerPartials(path.join(__dirname, "views/partials"));
-
-hbs.registerHelper("eq", function (a, b) {
-  return String(a) === String(b);
-});
-hbs.registerHelper("neq", function (a, b) {
-  return String(a) !== String(b);
-});
-hbs.registerHelper("includes", function (arr, val) {
-  if (!Array.isArray(arr)) return false;
-  return arr.some(function (item) {
-    return String(item) === String(val);
-  });
-});
+app.set("views", views);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(serializeMutations);
 
 app.use(
   session({
@@ -115,6 +121,7 @@ async function startServer() {
   try {
     await connectDB();
     await Promise.all([User.init(), Bookmark.init()]);
+    await finishPendingAccountChanges();
     const server = app.listen(port, host, function () {
       console.log("AnimoEvents server listening on http://localhost:" + port);
     });

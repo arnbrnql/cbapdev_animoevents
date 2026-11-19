@@ -40,12 +40,22 @@ function institutionalEmail(field) {
 
 const emailAvailabilityValidation = institutionalEmail(query("email"));
 
+function hasTextLength(value, min, max) {
+  return typeof value === "string" && value.length >= min && value.length <= max;
+}
+
+function passwordValidation() {
+  return body("password")
+    .custom(value => typeof value === "string" && value.length >= 8)
+    .withMessage("Password must be at least 8 characters.")
+    .bail()
+    .custom(value => Buffer.byteLength(value, "utf8") <= 72)
+    .withMessage("Password must be at most 72 bytes.");
+}
+
 const loginValidation = [
   institutionalEmail(body("email")),
-  body("password")
-    .isString()
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters."),
+  passwordValidation(),
 ];
 
 const registerValidation = [
@@ -54,20 +64,10 @@ const registerValidation = [
     .withMessage("Please enter a display name.")
     .bail()
     .trim()
-    .isLength({ min: 2, max: 100 })
+    .custom(value => hasTextLength(value, 2, 100))
     .withMessage("Display name must be between 2 and 100 characters."),
   institutionalEmail(body("email")),
-  body("password")
-    .isString()
-    .withMessage("Please enter a password.")
-    .bail()
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters.")
-    .bail()
-    .custom(function (value) {
-      return Buffer.byteLength(value, "utf8") <= 72;
-    })
-    .withMessage("Password must be at most 72 bytes."),
+  passwordValidation(),
   body("confirmPassword").custom(function (val, meta) {
     if (typeof val !== "string" || val !== meta.req.body.password) {
       throw new Error("Password and Confirm Password do not match.");
@@ -112,8 +112,9 @@ const registerValidation = [
     .isString()
     .withMessage("Please enter a valid bio.")
     .bail()
+    .customSanitizer(value => value.replace(/\r\n?/g, "\n"))
     .trim()
-    .isLength({ max: 300 })
+    .custom(value => hasTextLength(value, 0, 300))
     .withMessage("Bio cannot exceed 300 characters."),
 ];
 
@@ -123,7 +124,7 @@ const profileEditValidation = [
     .withMessage("Please enter a display name.")
     .bail()
     .trim()
-    .isLength({ min: 2, max: 100 })
+    .custom(value => hasTextLength(value, 2, 100))
     .withMessage("Display name must be between 2 and 100 characters."),
   body("college")
     .isString()
@@ -172,8 +173,9 @@ const profileEditValidation = [
     .isString()
     .withMessage("Please enter a valid bio.")
     .bail()
+    .customSanitizer(value => value.replace(/\r\n?/g, "\n"))
     .trim()
-    .isLength({ max: 300 })
+    .custom(value => hasTextLength(value, 0, 300))
     .withMessage("Bio cannot exceed 300 characters."),
 ];
 
@@ -183,7 +185,7 @@ const eventCreateValidation = [
     .withMessage("Enter an event title.")
     .bail()
     .trim()
-    .isLength({ min: 5, max: 120 })
+    .custom(value => hasTextLength(value, 5, 120))
     .withMessage("Event title must be between 5 and 120 characters."),
   body("category")
     .isString()
@@ -213,7 +215,7 @@ const eventCreateValidation = [
     .withMessage("Enter an event venue.")
     .bail()
     .trim()
-    .isLength({ min: 3, max: 100 })
+    .custom(value => hasTextLength(value, 3, 100))
     .withMessage("Venue must be between 3 and 100 characters."),
   body("maxCapacity")
     .custom(val => typeof val === "string" || typeof val === "number")
@@ -225,8 +227,9 @@ const eventCreateValidation = [
     .isString()
     .withMessage("Enter an event description.")
     .bail()
+    .customSanitizer(value => value.replace(/\r\n?/g, "\n"))
     .trim()
-    .isLength({ min: 20, max: 1000 })
+    .custom(value => hasTextLength(value, 20, 1000))
     .withMessage("Description must be between 20 and 1000 characters."),
   body("isPublic")
     .custom(val => val === true || val === false || val === "true" || val === "false")
@@ -248,16 +251,20 @@ const threadUpdateValidation = [
     .isString()
     .withMessage("Enter a discussion post.")
     .bail()
+    .customSanitizer(value => value.replace(/\r\n?/g, "\n"))
     .trim()
-    .isLength({ min: 2, max: 500 })
+    .custom(value => hasTextLength(value, 2, 500))
     .withMessage("Post content must be between 2 and 500 characters."),
 ];
 
 const bookmarkNoteValidation = [
   body("personalNote")
-    .optional({ values: "falsy" })
+    .optional()
+    .isString()
+    .withMessage("Enter a text bookmark note.")
+    .bail()
     .trim()
-    .isLength({ max: 250 })
+    .custom(value => hasTextLength(value, 0, 250))
     .withMessage("Personal note cannot exceed 250 characters."),
 ];
 

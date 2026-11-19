@@ -79,6 +79,23 @@ function eventRevisionFilter(event) {
   };
 }
 
+function editRevision(event) {
+  return event.__v === undefined ? "unversioned" : String(event.__v);
+}
+
+function newEventUpdate(author, content, isOfficialUpdate) {
+  const publishedAt = new Date();
+  return {
+    author: author._id,
+    authorName: author.displayName,
+    authorRole: author.role,
+    content,
+    isOfficialUpdate,
+    postedAt: getManilaTimestamp(publishedAt),
+    publishedAt,
+  };
+}
+
 async function syncEventLifecycles() {
   const now = new Date();
   const activeEvents = await Event.find({
@@ -414,12 +431,16 @@ async function getHomeFeed(req, res, next) {
             organizerName: ev.organizerName,
             content: upd.content,
             postedAt: upd.postedAt,
+            publishedAt: upd.publishedAt ? new Date(upd.publishedAt).getTime() : 0,
+            updateId: String(upd._id || ""),
           });
         }
       });
     });
     officialUpdates.sort(function (a, b) {
-      return String(b.postedAt).localeCompare(String(a.postedAt));
+      return String(b.postedAt).localeCompare(String(a.postedAt)) ||
+        b.publishedAt - a.publishedAt ||
+        b.updateId.localeCompare(a.updateId);
     });
 
     res.render("index", {
@@ -632,16 +653,13 @@ async function postEventCreate(req, res, next) {
       status,
       attendees: [],
       updates: [
-        {
-          author: user._id,
-          authorName: user.displayName,
-          authorRole: "Organizer",
-          content: status === "Open"
+        newEventUpdate(
+          user,
+          status === "Open"
             ? "Registration is now open."
             : "This event has been added to the archive.",
-          isOfficialUpdate: true,
-          postedAt: getManilaTimestamp(),
-        },
+          true,
+        ),
       ],
     });
 
@@ -667,6 +685,7 @@ async function getEventEdit(req, res, next) {
       title: "Edit Event — " + ev.title,
       activeNav: "events",
       event: ev,
+      revision: editRevision(ev),
       minAllowedCapacity,
       attendeeCount: (ev.attendees || []).length,
       audience,
@@ -698,6 +717,8 @@ async function postEventEdit(req, res, next) {
         title: "Edit Event — " + latest.title,
         activeNav: "events",
         error: message,
+        conflict: status === 409,
+        revision: editRevision(latest),
         event: Object.assign({}, latest, draft, {
           maxCapacity: Number.isFinite(draft.maxCapacity) ? draft.maxCapacity : "",
         }),
@@ -707,6 +728,10 @@ async function postEventEdit(req, res, next) {
         audienceColleges: AUDIENCE_COLLEGES,
         audienceDeptGroups: AUDIENCE_DEPT_GROUPS,
       });
+    }
+    const conflictMessage = "The event changed since you opened the form. Review the saved version and current registration count before applying your draft.";
+    if (req.body.revision !== editRevision(event)) {
+      return renderDraft(409, conflictMessage, event);
     }
     if (errors.length > 0) return renderDraft(400, errors.join(" "), event);
 
@@ -732,15 +757,12 @@ async function postEventEdit(req, res, next) {
     if (scheduleChanged) {
       const hours = draft.endTime ? draft.time + "–" + draft.endTime : draft.time;
       changes.$push = {
-        updates: {
-          author: event.organizer,
-          authorName: req.currentUser.displayName,
-          authorRole: "Organizer",
-          content: "Event details updated: " + draft.date + " at " + hours +
+        updates: newEventUpdate(
+          req.currentUser,
+          "Event details updated: " + draft.date + " at " + hours +
             ", venue: " + draft.venue + ". Status: " + status + ".",
-          isOfficialUpdate: true,
-          postedAt: getManilaTimestamp(),
-        },
+          true,
+        ),
       };
     }
 
@@ -753,7 +775,7 @@ async function postEventEdit(req, res, next) {
     if (result.matchedCount === 0) {
       const latest = await Event.findOne(owner).lean();
       if (!latest) return eventNotFound(res);
-      return renderDraft(409, "The event changed while you were saving. Review the latest registration count and submit again.", latest);
+      return renderDraft(409, conflictMessage, latest);
     }
     return res.redirect("/events/" + event._id);
   } catch (err) {
@@ -841,14 +863,11 @@ async function postThreadUpdate(req, res, next) {
     const user = req.currentUser;
     return await updateDiscussion(req, res, event, {
       $push: {
-        updates: {
-          author: user._id,
-          authorName: user.displayName,
-          authorRole: user.role,
-          content: req.body.content,
-          isOfficialUpdate: String(event.organizer) === String(user._id),
-          postedAt: getManilaTimestamp(),
-        },
+        updates: newEventUpdate(
+          user,
+          req.body.content,
+          String(event.organizer) === String(user._id),
+        ),
       },
     });
   } catch (err) {

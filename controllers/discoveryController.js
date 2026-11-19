@@ -187,7 +187,12 @@ async function updateRsvp(req, res, next, joining) {
           $inc: { __v: 1 },
         },
       );
-      if (result.modifiedCount === 1) return res.redirect(returnTo);
+      if (result.modifiedCount === 1) {
+        if (!joining && !isUserEligibleForEvent(user, event) && returnTo.startsWith("/events/")) {
+          return res.redirect("/events");
+        }
+        return res.redirect(returnTo);
+      }
     }
 
     return renderRsvpError(res, 409, "The event changed while you were registering. Please try again.");
@@ -348,7 +353,7 @@ async function getOrganizersDirectory(req, res, next) {
   try {
     await syncEventLifecycles();
     const viewer = req.currentUser;
-    const organizers = await User.find({ role: "Organizer" })
+    const organizers = await User.find({ role: "Organizer", deleting: { $ne: true } })
       .sort({ createdAt: 1 })
       .lean();
 

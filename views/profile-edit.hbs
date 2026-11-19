@@ -10,10 +10,11 @@
         </div>
 
         {{#if error}}
-          <div class="alert alert-danger small">{{error}}</div>
+          <div class="alert alert-danger small" role="alert">{{error}}</div>
         {{/if}}
 
         <form id="profile-edit-form" method="POST" action="/profile/edit">
+          <input type="hidden" name="profileVersion" value="{{profileVersion}}" />
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               <label for="pe-email" class="form-label fw-semibold">

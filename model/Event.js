@@ -48,6 +48,7 @@ const updateSubSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  publishedAt: Date,
 });
 
 const eventSchema = new mongoose.Schema({

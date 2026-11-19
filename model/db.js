@@ -11,21 +11,30 @@ function getMongoUri() {
   return process.env.MONGODB_URI || DEFAULT_URI;
 }
 
-function isLocalDemoDatabase() {
+function localDemoDatabaseProblem(uriValue = process.env.MONGODB_URI) {
+  if (!uriValue) return "Set a local demo MongoDB URI in .env or the terminal.";
+  let uri;
   try {
-    const uri = new URL(getMongoUri());
-    return (
-      uri.protocol === "mongodb:" &&
-      ["127.0.0.1", "[::1]", "localhost"].includes(uri.hostname) &&
-      /^\/animoevents_demo(?:_[a-z0-9_]+)?$/.test(uri.pathname) &&
-      !uri.username &&
-      !uri.password &&
-      !uri.search &&
-      !uri.hash
-    );
+    uri = new URL(uriValue);
   } catch {
-    return false;
+    return "Enter a valid single-host MongoDB URI.";
   }
+
+  if (uri.protocol !== "mongodb:") return "Use the mongodb:// scheme.";
+  if (!["127.0.0.1", "[::1]", "localhost"].includes(uri.hostname)) {
+    return "Use a loopback host such as 127.0.0.1.";
+  }
+  if (!/^\/animoevents_demo(?:_[a-z0-9_]+)?$/.test(uri.pathname)) {
+    return "Name the database animoevents_demo or animoevents_demo_<suffix>.";
+  }
+  if (uri.username || uri.password || uri.search || uri.hash) {
+    return "Use a local URI without credentials, query options, or fragments.";
+  }
+  return null;
+}
+
+function isLocalDemoDatabase() {
+  return localDemoDatabaseProblem() === null;
 }
 
 async function connectDB(options) {
@@ -48,6 +57,7 @@ async function disconnectDB() {
 module.exports = {
   getMongoUri,
   isLocalDemoDatabase,
+  localDemoDatabaseProblem,
   connectDB,
   disconnectDB,
 };

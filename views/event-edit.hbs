@@ -18,8 +18,15 @@
         {{#if error}}
           <div class="alert alert-danger small" role="alert">{{error}}</div>
         {{/if}}
+        {{#if conflict}}
+          <p class="small">
+            <a href="/events/{{event._id}}/edit" target="_blank" rel="noopener">Open the saved version in a new tab</a>.
+            This form still contains your draft.
+          </p>
+        {{/if}}
 
         <form method="POST" action="/events/{{event._id}}/edit">
+          <input type="hidden" name="revision" value="{{revision}}" />
           <div class="row g-3 mb-4">
             <div class="col-md-8">
               <label for="edit-title" class="form-label fw-semibold">Event Title <span class="text-danger">*</span></label>
@@ -316,7 +323,7 @@
 
           <div class="d-flex justify-content-end gap-2">
             <a href="/events/{{event._id}}" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-dlsu">Save Changes & Notify Participants</button>
+            <button type="submit" class="btn btn-dlsu">{{#if conflict}}Apply My Draft{{else}}Save Changes & Notify Participants{{/if}}</button>
           </div>
         </form>
       </div>
