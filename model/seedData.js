@@ -176,6 +176,7 @@ const usersData = [
 const eventsData = [
   {
     id: "e1",
+    createdAt: "2026-10-19T10:00:00+08:00",
     title: "Full-Stack Web Dev Bootcamp: Node.js, Express & MongoDB",
     category: "Workshop",
     date: "2026-12-18",
@@ -253,6 +254,7 @@ const eventsData = [
   },
   {
     id: "e2",
+    createdAt: "2026-10-17T09:00:00+08:00",
     title: "Animo Hacker Cup CTF 2026: Web Security Challenge",
     category: "Competition",
     date: "2026-12-16",
@@ -319,6 +321,7 @@ const eventsData = [
   },
   {
     id: "e3",
+    createdAt: "2026-10-16T11:00:00+08:00",
     title: "CCS Tech Career, Research & Internship Fair 2026",
     category: "Bazaar",
     date: "2026-12-17",
@@ -386,6 +389,7 @@ const eventsData = [
   },
   {
     id: "e4",
+    createdAt: "2026-10-17T13:00:00+08:00",
     title: "Software Engineering & Cloud Architecture Colloquium",
     category: "Seminar",
     date: "2026-12-19",
@@ -453,6 +457,7 @@ const eventsData = [
   },
   {
     id: "e5",
+    createdAt: "2026-10-18T10:00:00+08:00",
     title: "UI/UX Design Sprint & Interactive Prototyping Lab",
     category: "Workshop",
     date: "2026-12-21",
@@ -518,6 +523,7 @@ const eventsData = [
   },
   {
     id: "e6",
+    createdAt: "2026-10-18T09:00:00+08:00",
     title: "DevOps, Git Workflows & Automated Testing Seminar",
     category: "Seminar",
     date: "2026-12-22",
@@ -585,6 +591,7 @@ const eventsData = [
   },
   {
     id: "e7",
+    createdAt: "2026-10-16T10:00:00+08:00",
     title: "AI & Computer Vision in Healthcare Symposium",
     category: "Seminar",
     date: "2026-12-23",
@@ -654,6 +661,7 @@ const eventsData = [
   },
   {
     id: "e8",
+    createdAt: "2026-10-16T12:00:00+08:00",
     title: "Graduate Thesis & LaTeX Research Publication Clinic",
     category: "Workshop",
     date: "2026-12-26",
@@ -721,6 +729,7 @@ const eventsData = [
   },
   {
     id: "e9",
+    createdAt: "2026-10-17T08:30:00+08:00",
     title: "Animo Green Community & Lasallian Social Enterprise Bazaar",
     category: "Bazaar",
     date: "2026-12-28",
@@ -786,6 +795,7 @@ const eventsData = [
   },
   {
     id: "e10",
+    createdAt: "2026-10-17T09:30:00+08:00",
     title: "Laguna Campus Robotics, IoT & Automation Expo",
     category: "Competition",
     date: "2026-12-29",
@@ -853,6 +863,7 @@ const eventsData = [
   },
   {
     id: "e11",
+    createdAt: "2026-10-12T09:00:00+08:00",
     title: "GCOE Inter-Departmental Engineering & STEM Innovation Challenge",
     category: "Competition",
     date: "2026-10-15",
@@ -920,6 +931,7 @@ const eventsData = [
   },
   {
     id: "e12",
+    createdAt: "2026-11-08T10:00:00+08:00",
     title: "RVR-COB Corporate Strategy, FinTech & Governance Forum",
     category: "Seminar",
     date: "2026-11-12",
@@ -1000,7 +1012,7 @@ const bookmarksData = [
   {
     user: "u1",
     event: "e1",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-21",
     personalNote:
       "Bring laptop with Node.js v20 and MongoDB Compass; meet groupmates at GK lobby at 12:45 PM.",
   },
@@ -1014,7 +1026,7 @@ const bookmarksData = [
   {
     user: "u1",
     event: "e3",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-18",
     personalNote:
       "Print 5 copies of resume and prepare GitHub link for software engineering internship booths.",
   },
@@ -1023,39 +1035,39 @@ const bookmarksData = [
     event: "e4",
     createdAt: "2026-10-20",
     personalNote:
-      "Take notes on Render deployment and MongoDB indexing for Phase 3.",
+      "Ask about hosting costs and when a MongoDB index helps an event search.",
   },
   {
     user: "u1",
     event: "e5",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-23",
     personalNote:
-      "Bring UI wireframe sketches for our AnimoEvents mobile responsiveness check.",
+      "Bring the mobile wireframes to discuss during the small-group review.",
   },
   {
     user: "u1",
     event: "e7",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-22",
     personalNote:
       "Ask CIVI researchers about undergraduate thesis opportunities in computer vision.",
   },
   {
     user: "u2",
     event: "e1",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-22",
     personalNote:
       "Assist undergraduate peers during the Mongoose ODM hands-on lab.",
   },
   {
     user: "u2",
     event: "e3",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-19",
     personalNote: "Check R&D graduate fellowship booths at Henry Sy Roofdeck.",
   },
   {
     user: "u2",
     event: "e4",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-21",
     personalNote: "Compare cloud architecture patterns with my MS IT capstone.",
   },
   {
@@ -1067,53 +1079,53 @@ const bookmarksData = [
   {
     user: "u2",
     event: "e7",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-22",
     personalNote: "Network with AdRIC faculty after the healthcare AI keynote.",
   },
   {
     user: "u2",
     event: "e8",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-23",
     personalNote: "Bring LaTeX thesis bibliography file for formatting check.",
   },
   {
     user: "u6",
     event: "e1",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-19",
     personalNote:
       "Confirm GK304B projector adapter and attendance sheet with CCS office.",
   },
   {
     user: "u6",
     event: "e2",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-18",
     personalNote:
       "Coordinate scoreboard server uptime with CTF technical committee.",
   },
   {
     user: "u6",
     event: "e3",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-17",
     personalNote: "Finalize company booth assignments at Henry Sy Roofdeck.",
   },
   {
     user: "u6",
     event: "e4",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-17",
     personalNote:
       "Prepare guest speaker tokens and certificates for Y407 colloquium.",
   },
   {
     user: "u6",
     event: "e5",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-19",
     personalNote:
       "Verify all 5 GK202 lab workstations have Figma pre-installed.",
   },
   {
     user: "u6",
     event: "e6",
-    createdAt: "2026-10-20",
+    createdAt: "2026-10-18",
     personalNote: "Upload Git and Jest sample repository link to event thread.",
   },
 ];

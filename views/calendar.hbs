@@ -1,0 +1,201 @@
+<main class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 fw-bold mb-1">
+        {{#if currentUser}}
+          {{#if isOrganizer}}My Hosted Events Calendar{{else}}My Joined Events Calendar{{/if}}
+        {{else}}
+          Campus Event Calendar (Guest Mode)
+        {{/if}}
+      </h1>
+      <p class="text-muted small mb-0">
+        {{#if currentUser}}
+          {{#if isOrganizer}}
+            Showing all campus events published and managed by {{currentUser.displayName}} (2025–2036).
+          {{else}}
+            Showing all campus events you have registered for across any month and year (2025–2036).
+          {{/if}}
+        {{else}}
+          Sign in with your DLSU account to track your registered or hosted events on this calendar.
+        {{/if}}
+      </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+        {{totalCount}} Total Scheduled Events
+      </span>
+    </div>
+  </div>
+
+  <section class="calendar-control-bar shadow-sm mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        {{#if disablePrev}}
+          <span class="btn btn-sm btn-outline-dlsu fw-semibold disabled" aria-disabled="true">← Prev</span>
+        {{else}}
+          <a href="/calendar?month={{prevMonth}}&scope={{listScope}}" class="btn btn-sm btn-outline-dlsu fw-semibold">← Prev</a>
+        {{/if}}
+
+        <form method="GET" action="/calendar" autocomplete="off" class="d-flex align-items-center gap-2 mb-0">
+          <input type="hidden" name="scope" value="{{listScope}}" />
+          <label for="cal-select-month" class="visually-hidden">Month</label>
+          <select
+            id="cal-select-month"
+            name="monthNum"
+            class="form-select form-select-sm fw-semibold"
+            style="width: 150px"
+            autocomplete="off"
+          >
+            {{#each months}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+            {{/each}}
+          </select>
+
+          <label for="cal-select-year" class="visually-hidden">Year</label>
+          <select
+            id="cal-select-year"
+            name="year"
+            class="form-select form-select-sm fw-semibold"
+            style="width: 100px"
+            autocomplete="off"
+          >
+            {{#each years}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+            {{/each}}
+          </select>
+          <button type="submit" class="btn btn-sm btn-outline-dlsu">Go</button>
+        </form>
+
+        {{#if disableNext}}
+          <span class="btn btn-sm btn-outline-dlsu fw-semibold disabled" aria-disabled="true">Next →</span>
+        {{else}}
+          <a href="/calendar?month={{nextMonth}}&scope={{listScope}}" class="btn btn-sm btn-outline-dlsu fw-semibold">Next →</a>
+        {{/if}}
+
+        <a
+          href="/calendar?month={{todayYM}}&highlight={{todayStr}}&scope={{listScope}}"
+          class="btn btn-sm btn-light border text-dark fw-semibold ms-1"
+        >Today</a>
+      </div>
+
+      <div class="small text-muted">
+        Today is <strong class="text-dark">{{humanToday}}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card border-0 shadow-sm p-3 mb-4" id="calendar-grid-card">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h5 fw-bold mb-0">{{fullMonthLabel}}</h2>
+        <span class="badge bg-secondary bg-opacity-10 text-dark">{{monthCount}} Events in {{fullMonthLabel}}</span>
+      </div>
+      <span class="small text-muted">Click any event on the calendar to open its full details & discussion thread.</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table calendar-table mb-0">
+        <thead>
+          <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each weeks}}
+            <tr>
+              {{#each this}}
+                {{#if this}}
+                  <td class="{{#if isToday}}calendar-cell-today{{/if}} {{#if hasEvents}}calendar-cell-has-events{{/if}} {{#if isHighlighted}}calendar-cell-highlight{{/if}}">
+                    <div class="calendar-day-header">
+                      <span class="calendar-day-num">{{dayNumber}}</span>
+                      {{#if isToday}}
+                        <span class="calendar-today-tag">Today</span>
+                      {{/if}}
+                    </div>
+                    {{#each dayEvents}}
+                      <a
+                        href="/events/{{_id}}"
+                        class="calendar-event-pill {{pillClass}}"
+                        title="{{title}} ({{time}} • {{venue}} • {{status}})"
+                      >{{time}} {{title}}</a>
+                    {{/each}}
+                  </td>
+                {{else}}
+                  <td class="bg-light"></td>
+                {{/if}}
+              {{/each}}
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card border-0 shadow-sm p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <h2 class="h5 fw-bold mb-0">
+          {{#if (eq listScope "month")}}
+            Scheduled Events in {{fullMonthLabel}}
+          {{else}}
+            {{#if isOrganizer}}Complete Hosted Events Schedule (All Dates){{else}}Complete Joined Events Schedule (All Dates){{/if}}
+          {{/if}}
+        </h2>
+        <p class="small text-muted mb-0">
+          {{#if (eq listScope "month")}}
+            Showing only events scheduled during {{fullMonthLabel}}.
+          {{else}}
+            Showing all scheduled events across all months and years in chronological order.
+          {{/if}}
+        </p>
+      </div>
+      <div class="btn-group btn-group-sm" role="group">
+        <a
+          href="/calendar?month={{selectedMonth}}&scope=all"
+          class="btn btn-outline-dlsu {{#if (eq listScope 'all')}}active{{/if}}"
+        >All Scheduled Dates ({{totalCount}})</a>
+        <a
+          href="/calendar?month={{selectedMonth}}&scope=month"
+          class="btn btn-outline-dlsu {{#if (eq listScope 'month')}}active{{/if}}"
+        >Viewed Month Only ({{monthCount}})</a>
+      </div>
+    </div>
+
+    <div class="list-group list-group-flush">
+      {{#each eventsToList}}
+        <div class="list-group-item py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div>
+            <span class="badge {{statusBadgeClass}} me-2">{{status}}</span>
+            {{#if isGrandfathered}}
+              <span class="badge badge-grandfathered me-2">Registered Prior to Profile Update</span>
+            {{/if}}
+            <strong>{{date}} ({{time}}{{#if endTime}}–{{endTime}}{{/if}})</strong> —
+            <a href="/events/{{_id}}" class="text-dark fw-bold text-decoration-none">{{title}}</a>
+            <div class="small text-muted mt-1">{{venue}} • Hosted by {{organizerName}}</div>
+          </div>
+          <div class="d-flex gap-2">
+            <a
+              href="/calendar?month={{eventYM}}&highlight={{date}}&scope={{../listScope}}#calendar-grid-card"
+              class="btn btn-sm btn-light border text-dark"
+            >{{#if isInSelectedMonth}}Highlight on Calendar{{else}}Show on Calendar{{/if}}</a>
+            <a href="/events/{{_id}}" class="btn btn-sm btn-outline-dlsu">View Details</a>
+          </div>
+        </div>
+      {{else}}
+        <div class="p-4 text-center text-muted small">
+          {{#if (eq listScope "month")}}
+            No events scheduled in <strong>{{fullMonthLabel}}</strong>. Switch to "All Scheduled Dates" to view events in other months.
+          {{else}}
+            No events scheduled yet. Browse the <a href="/events" class="text-success fw-semibold">Events Directory</a> to join activities.
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  </section>
+</main>

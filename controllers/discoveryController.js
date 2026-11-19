@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const User = require("../model/User");
 const Event = require("../model/Event");
 const Bookmark = require("../model/Bookmark");
+const { getManilaDate, isEventEnded } = require("../model/manilaTime");
+const getReturnPath = require("./returnPath");
 const {
   CALENDAR_MIN_YEAR,
   CALENDAR_MAX_YEAR,
@@ -14,6 +16,7 @@ const {
 } = require("../model/constants");
 const {
   syncEventLifecycles,
+  eventRevisionFilter,
   buildVisibilityQuery,
   isUserEligibleForEvent,
   canUserViewEvent,
@@ -25,7 +28,7 @@ async function getEventsDirectory(req, res, next) {
     await syncEventLifecycles();
     const user = req.currentUser;
 
-    const q = String(req.query.q || "").trim();
+    const q = String(req.query.q || "").trim().slice(0, 100);
     const category = String(req.query.category || "");
     const statusFilter = String(req.query.status || "active");
     const college = String(req.query.college || "");
@@ -64,6 +67,9 @@ async function getEventsDirectory(req, res, next) {
     if (college) {
       mongoConditions.push({ targetColleges: college });
     }
+    if (campus) {
+      mongoConditions.push({ targetCampuses: campus });
+    }
     if (academicLevel) {
       mongoConditions.push({ targetAcademicLevels: academicLevel });
     }
@@ -83,18 +89,9 @@ async function getEventsDirectory(req, res, next) {
 
     const queriedEvents = await Event.find(mongoQuery).sort(sortSpec).lean();
 
-    let results = queriedEvents.filter(function (ev) {
+    const results = queriedEvents.filter(function (ev) {
       return canUserViewEvent(user, ev);
     });
-
-    if (campus) {
-      results = results.filter(function (ev) {
-        if (ev.targetCampuses && ev.targetCampuses.length > 0) {
-          return ev.targetCampuses.indexOf(campus) !== -1;
-        }
-        return ev.venue.toLowerCase().indexOf(campus.toLowerCase()) !== -1;
-      });
-    }
 
     const bookmarkedSet = new Set();
     if (user) {
@@ -113,6 +110,7 @@ async function getEventsDirectory(req, res, next) {
       activeNav: "events",
       events: decoratedResults,
       resultCount: decoratedResults.length,
+      returnTo: req.originalUrl,
       filters: {
         q,
         category,
@@ -130,61 +128,87 @@ async function getEventsDirectory(req, res, next) {
   }
 }
 
-async function postToggleRsvp(req, res, next) {
+async function updateRsvp(req, res, next, joining) {
   try {
-    await syncEventLifecycles();
     const user = req.currentUser;
-    if (!user) return res.redirect("/login");
-
     if (user.role === "Organizer") {
       return res.status(403).render("error", {
-        title: "Organizer Role Restriction",
-        message:
-          "Organizer accounts host and manage events and cannot RSVP as human attendees.",
+        title: "Registration unavailable",
+        message: "Organizer accounts host events. Only students and faculty can RSVP.",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.redirect("/events");
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return renderRsvpError(res, 404, "Event not found.");
     }
 
-    const ev = await Event.findById(req.params.id);
-    if (!ev) return res.redirect("/events");
+    await syncEventLifecycles();
+    const returnTo = getReturnPath(req.body.returnTo, "/events/" + id);
 
-    if (ev.status === "Completed" || ev.status === "Cancelled") {
-      return res.redirect(req.get("Referrer") || "/events/" + ev._id);
-    }
-
-    const existingIdx = ev.attendees.findIndex(function (id) {
-      return String(id) === String(user._id);
-    });
-
-    if (existingIdx !== -1) {
-      ev.attendees.splice(existingIdx, 1);
-      if (ev.status === "Full" && ev.attendees.length < ev.maxCapacity) {
-        ev.status = "Open";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const event = await Event.findById(id).lean();
+      if (!event || !canUserViewEvent(user, event)) {
+        return renderRsvpError(res, 404, "Event not found.");
       }
-      await ev.save();
-    } else {
+
+      const hasJoined = event.attendees.some(function (attendee) {
+        return String(attendee) === String(user._id);
+      });
+      if (hasJoined === joining) return res.redirect(returnTo);
+
       if (
-        ev.status === "Open" &&
-        ev.attendees.length < ev.maxCapacity &&
-        isUserEligibleForEvent(user, ev)
+        event.status === "Completed" ||
+        event.status === "Cancelled" ||
+        (["Open", "Full", "Closed"].includes(event.status) && isEventEnded(event))
       ) {
-        ev.attendees.push(user._id);
-        if (ev.attendees.length >= ev.maxCapacity) {
-          ev.status = "Full";
-        }
-        await ev.save();
+        return renderRsvpError(res, 409, "Registration changes are closed for this event.");
       }
+
+      let status = event.status;
+      if (joining) {
+        if (!isUserEligibleForEvent(user, event)) {
+          return renderRsvpError(res, 403, "Your current affiliation is not eligible to join.");
+        }
+        if (status !== "Open" || event.attendees.length >= event.maxCapacity) {
+          return renderRsvpError(res, 409, "This event is no longer accepting registrations.");
+        }
+        if (event.attendees.length + 1 === event.maxCapacity) status = "Full";
+      } else if (status === "Full" && event.attendees.length - 1 < event.maxCapacity) {
+        status = "Open";
+      }
+
+      // Retry if another registration, host edit, or lifecycle change won the race.
+      const result = await Event.updateOne(
+        eventRevisionFilter(event),
+        {
+          ...(joining ? { $addToSet: { attendees: user._id } } : { $pull: { attendees: user._id } }),
+          $set: { status: status },
+          $inc: { __v: 1 },
+        },
+      );
+      if (result.modifiedCount === 1) return res.redirect(returnTo);
     }
 
-    const backUrl =
-      req.body.returnTo || req.get("Referrer") || "/events/" + ev._id;
-    return res.redirect(backUrl);
+    return renderRsvpError(res, 409, "The event changed while you were registering. Please try again.");
   } catch (err) {
     return next(err);
   }
+}
+
+function renderRsvpError(res, status, message) {
+  return res.status(status).render("error", {
+    title: status === 404 ? "Event not found" : "Registration unavailable",
+    message: message,
+  });
+}
+
+function postJoinRsvp(req, res, next) {
+  return updateRsvp(req, res, next, true);
+}
+
+function postLeaveRsvp(req, res, next) {
+  return updateRsvp(req, res, next, false);
 }
 
 async function getCalendar(req, res, next) {
@@ -192,20 +216,15 @@ async function getCalendar(req, res, next) {
     await syncEventLifecycles();
     const user = req.currentUser;
 
-    const now = new Date();
-    const todayStr =
-      now.getFullYear() +
-      "-" +
-      String(now.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(now.getDate()).padStart(2, "0");
+    const todayStr = getManilaDate();
+    const [todayYear, todayMonth, todayDay] = todayStr.split("-").map(Number);
     const currentYearMonth = todayStr.slice(0, 7);
-    const humanToday =
-      MONTH_NAMES[now.getMonth()] +
-      " " +
-      now.getDate() +
-      ", " +
-      now.getFullYear();
+    const calendarMonth = currentYearMonth < CALENDAR_MIN_YEAR + "-01"
+      ? CALENDAR_MIN_YEAR + "-01"
+      : currentYearMonth > CALENDAR_MAX_YEAR + "-12"
+        ? CALENDAR_MAX_YEAR + "-12"
+        : currentYearMonth;
+    const humanToday = MONTH_NAMES[todayMonth - 1] + " " + todayDay + ", " + todayYear;
 
     // Support both ?month=YYYY-MM and separate ?year=YYYY&monthNum=MM
     let requestedYM = req.query.month;
@@ -218,7 +237,7 @@ async function getCalendar(req, res, next) {
 
     const selectedMonth = parseAndValidateYearMonth(
       requestedYM,
-      currentYearMonth,
+      calendarMonth,
     );
     const highlightedDate = req.query.highlight || null;
     const listScope = req.query.scope === "month" ? "month" : "all";
@@ -257,8 +276,8 @@ async function getCalendar(req, res, next) {
       return ev.isInSelectedMonth;
     });
 
-    const firstDayOfWeek = new Date(yearNum, monthNum - 1, 1).getDay();
-    const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+    const firstDayOfWeek = new Date(Date.UTC(yearNum, monthNum - 1, 1)).getUTCDay();
+    const daysInMonth = new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate();
 
     const weeks = [];
     let currentWeek = new Array(firstDayOfWeek).fill(null);
@@ -306,7 +325,7 @@ async function getCalendar(req, res, next) {
       nextMonth: shiftYearMonth(selectedMonth, 1),
       disablePrev: selectedMonth <= CALENDAR_MIN_YEAR + "-01",
       disableNext: selectedMonth >= CALENDAR_MAX_YEAR + "-12",
-      todayYM: currentYearMonth,
+      todayYM: calendarMonth,
       todayStr,
       humanToday,
       weeks,
@@ -333,7 +352,20 @@ async function getOrganizersDirectory(req, res, next) {
       .sort({ createdAt: 1 })
       .lean();
 
-    if (organizers.length === 0) {
+    const requestedId = req.params.id || req.query.id;
+    const selectedOrg = requestedId
+      ? organizers.find(function (organizer) {
+          return String(organizer._id) === requestedId;
+        })
+      : organizers[0];
+
+    if (!selectedOrg && requestedId) {
+      return res.status(404).render("error", {
+        title: "Organizer not found",
+        message: "The requested organizer could not be found.",
+      });
+    }
+    if (!selectedOrg) {
       return res.render("organizer", {
         title: "DLSU Organizers & Research Centers — AnimoEvents",
         activeNav: "organizers",
@@ -341,15 +373,6 @@ async function getOrganizersDirectory(req, res, next) {
         selectedOrg: null,
         orgEvents: [],
       });
-    }
-
-    const requestedId = req.params.id || req.query.id;
-    let selectedOrg = organizers[0];
-    if (requestedId && mongoose.Types.ObjectId.isValid(requestedId)) {
-      const found = organizers.find(function (o) {
-        return String(o._id) === String(requestedId);
-      });
-      if (found) selectedOrg = found;
     }
 
     const hostedEvents = await Event.find({
@@ -381,7 +404,8 @@ async function getOrganizersDirectory(req, res, next) {
 
 module.exports = {
   getEventsDirectory,
-  postToggleRsvp,
+  postJoinRsvp,
+  postLeaveRsvp,
   getCalendar,
   getOrganizersDirectory,
 };

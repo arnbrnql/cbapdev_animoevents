@@ -12,6 +12,11 @@ router.post(
   bookmarkController.postBookmark,
 );
 router.post(
+  "/bookmarks/remove-event",
+  requireAuth,
+  bookmarkController.postRemoveEventBookmark,
+);
+router.post(
   "/bookmarks/:id/edit",
   requireAuth,
   bookmarkNoteValidation,

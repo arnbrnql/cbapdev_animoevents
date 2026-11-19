@@ -3,25 +3,69 @@
  * Usage: npm run seed   OR   node model/seed.js
  */
 require("dotenv").config();
-const { connectDB, disconnectDB } = require("./db");
+const {
+  connectDB,
+  disconnectDB,
+  isLocalDemoDatabase,
+} = require("./db");
 const User = require("./User");
 const Event = require("./Event");
 const Bookmark = require("./Bookmark");
 const { usersData, eventsData, bookmarksData } = require("./seedData");
 
 const DEMO_PASSWORD = "AnimoPass123!";
+const SEED_MARKER_COLLECTION = "demo_seed_runs";
+
+class SeedError extends Error {}
 
 function normalizeAvatarPath(rawPath) {
   if (!rawPath) return "/images/avatar-u1.svg";
   return String(rawPath).replace(/^\.\//, "/");
 }
 
-async function seedDatabase() {
-  await connectDB();
+async function prepareDemoDatabase() {
+  if (
+    process.env.NODE_ENV !== "development" ||
+    process.env.DEMO_MODE !== "true" ||
+    !isLocalDemoDatabase()
+  ) {
+    throw new SeedError(
+      "Seeding requires NODE_ENV=development, DEMO_MODE=true, and a loopback MongoDB URI for animoevents_demo or animoevents_demo_<suffix>.",
+    );
+  }
 
-  await Bookmark.deleteMany({});
-  await Event.deleteMany({});
-  await User.deleteMany({});
+  const connection = await connectDB({
+    directConnection: true,
+    autoCreate: false,
+    autoIndex: false,
+    serverSelectionTimeoutMS: 5000,
+  });
+  const db = connection.db;
+  const collections = await db.listCollections({}, { nameOnly: true }).toArray();
+  const populated = await Promise.all(
+    collections.map(({ name }) =>
+      db.collection(name).findOne({}, { projection: { _id: 1 } }),
+    ),
+  );
+
+  const occupiedMessage =
+    "The demo database already contains data. Choose a new demo database name and try again.";
+  if (populated.some(Boolean)) throw new SeedError(occupiedMessage);
+
+  // A unique marker prevents two seed processes from writing fixtures together.
+  try {
+    await db.collection(SEED_MARKER_COLLECTION).insertOne({ _id: "initial-seed" });
+  } catch (err) {
+    if (err.code === 11000) throw new SeedError(occupiedMessage);
+    throw err;
+  }
+
+  await User.createIndexes();
+  await Bookmark.createIndexes();
+}
+
+async function seedDatabase() {
+  await prepareDemoDatabase();
 
   // 1. Seed 14 Users via .save() so userSchema.pre('save') hashes passwords with bcrypt
   const userMap = {};
@@ -38,6 +82,7 @@ async function seedDatabase() {
       campus: u.campus,
       bio: u.bio || "",
       profilePic: normalizeAvatarPath(u.profilePic),
+      createdAt: new Date("2026-10-01T09:00:00+08:00"),
     });
     const savedUser = await userDoc.save();
     userMap[u.id] = savedUser;
@@ -45,7 +90,6 @@ async function seedDatabase() {
 
   // 2. Seed 12 Events with resolved ObjectIds and organizerName
   const eventMap = {};
-  const baseTime = Date.now();
   for (let i = 0; i < eventsData.length; i++) {
     const ev = eventsData[i];
     const organizerDoc = userMap[ev.organizer];
@@ -102,7 +146,7 @@ async function seedDatabase() {
       maxCapacity: ev.maxCapacity,
       attendees: attendeeObjectIds,
       updates: mappedUpdates,
-      createdAt: new Date(baseTime - i * 60000),
+      createdAt: new Date(ev.createdAt),
     });
 
     eventMap[ev.id] = savedEvent;
@@ -123,7 +167,7 @@ async function seedDatabase() {
       user: userDoc._id,
       event: eventDoc._id,
       personalNote: bm.personalNote || "",
-      createdAt: bm.createdAt || "2026-10-20",
+      createdAt: bm.createdAt,
     });
   }
 
@@ -134,23 +178,24 @@ async function seedDatabase() {
   );
 }
 
-async function ensureSeeded() {
-  const count = await User.countDocuments();
-  if (count === 0) {
-    console.log("No users found in MongoDB. Seeding initial dataset...");
+async function runSeed() {
+  try {
     await seedDatabase();
+  } catch (err) {
+    const message =
+      err instanceof SeedError
+        ? err.message
+        : "Check that MongoDB is running. If seed data was written before the failure, choose a new demo database name.";
+    console.error("Database seed failed: " + message);
+    process.exitCode = 1;
+  } finally {
+    await disconnectDB();
   }
 }
 
 if (require.main === module) {
-  seedDatabase()
-    .then(function () {
-      return disconnectDB();
-    })
-    .catch(function (err) {
-      console.error("Database seed failed:", err);
-      process.exit(1);
-    });
+  runSeed().catch(function () {
+    console.error("Could not close the seed database connection.");
+    process.exitCode = 1;
+  });
 }
-
-module.exports = { seedDatabase, ensureSeeded };

@@ -1,0 +1,81 @@
+<main class="container py-4">
+  <div class="mb-4">
+    <h1 class="h3 fw-bold mb-1">Accredited DLSU Organizers, Research Centers & Offices</h1>
+    <p class="text-muted small mb-0">
+      Select an organization below to view its profile and timeline of events accessible to your profile.
+    </p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h2 class="h6 fw-bold mb-0">Campus Host Directory ({{organizerCount}})</h2>
+        </div>
+        <div class="list-group list-group-flush">
+          {{#each organizers}}
+            <a
+              href="/organizers/{{_id}}"
+              class="list-group-item list-group-item-action py-3 {{#if (eq _id ../selectedOrg._id)}}active{{/if}}"
+            >
+              <div class="fw-bold small">{{displayName}}</div>
+              <div class="small {{#if (eq _id ../selectedOrg._id)}}opacity-75{{else}}text-muted{{/if}}">
+                {{college}}{{#if (neq department "N/A")}}/{{department}}{{/if}} • {{campus}} Campus
+              </div>
+            </a>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      {{#if selectedOrg}}
+        <div class="card border-0 shadow-sm p-4 mb-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <img src="{{selectedOrg.profilePic}}" alt="{{selectedOrg.displayName}}" class="avatar-md" />
+            <div>
+              <span class="badge bg-success mb-1">
+                {{selectedOrg.college}}{{#if (neq selectedOrg.department "N/A")}}/{{selectedOrg.department}}{{/if}} • {{selectedOrg.campus}} Campus
+              </span>
+              <h2 class="h4 fw-bold mb-0">{{selectedOrg.displayName}}</h2>
+              <p class="small text-muted mb-0">{{selectedOrg.email}}</p>
+            </div>
+          </div>
+          <p class="small mb-0">{{selectedOrg.bio}}</p>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="h5 fw-bold mb-0">Eligible Events Hosted by {{selectedOrg.displayName}}</h3>
+          <span class="badge bg-secondary">{{orgEventCount}} Events</span>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          {{#each orgEvents}}
+            <article class="card card-event shadow-sm p-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <div>
+                  <span class="badge {{statusBadgeClass}} me-1">{{status}}</span>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark me-1">{{category}}</span>
+                  <span class="{{#if isPublic}}badge-tag{{else}}badge-tag-restricted{{/if}}">{{audienceLabel}}</span>
+                </div>
+                <span class="small text-muted">{{date}} • {{time}}{{#if endTime}}–{{endTime}}{{/if}}</span>
+              </div>
+              <h4 class="h6 fw-bold mb-1">
+                <a href="/events/{{_id}}" class="text-decoration-none text-dark">{{title}}</a>
+              </h4>
+              <p class="small text-muted mb-2">{{venue}} • {{attendeeCount}}/{{maxCapacity}} Joined</p>
+              <p class="small mb-2">{{description}}</p>
+              <div>
+                <a href="/events/{{_id}}" class="btn btn-sm btn-outline-dlsu">View Event Details</a>
+              </div>
+            </article>
+          {{else}}
+            <div class="card border-0 shadow-sm p-4 text-center text-muted small">
+              No public or demographic-matching events from <strong>{{selectedOrg.displayName}}</strong> are currently eligible for your profile.
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</main>

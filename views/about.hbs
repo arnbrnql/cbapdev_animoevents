@@ -1,0 +1,174 @@
+<main class="container py-4">
+  <section class="hero-banner mb-4">
+    <span class="badge bg-light text-success fw-semibold mb-2">De La Salle
+      University • College of Computer Studies</span>
+    <h1 class="h3 fw-bold mb-2">About AnimoEvents</h1>
+    <p class="mb-0 opacity-90">
+      A centralized digital bulletin board and personal calendar for
+      discovering, bookmarking, and joining campus activities across the DLSU
+      Manila and Laguna campuses.
+    </p>
+  </section>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3">Why we built it</h2>
+        <p class="small">
+          With many student organizations, research centers, and university
+          offices operating across the DLSU Manila and Laguna campuses,
+          announcements are often spread across social media pages, chat groups,
+          and Help Desk Announcement (HDA) emails. It is easy to miss an
+          opportunity or lose the registration details in the middle of another
+          conversation.
+        </p>
+        <p class="small mb-2">
+          <strong>AnimoEvents</strong>
+          brings those details into one place:
+        </p>
+        <ul class="small mb-0">
+          <li class="mb-2">
+            <strong>Targeted Campus Feed:</strong>
+            Organizers can publish university-wide events or restrict visibility
+            to specific roles, student academic levels (Senior High School,
+            Undergraduate, Graduate), colleges, departments/strands, and
+            campuses.
+          </li>
+          <li class="mb-2">
+            <strong>Direct Registration & Host Updates:</strong>
+            Students and faculty can RSVP directly on an event post, view
+            available slot capacity, and receive official host updates in the
+            event discussion thread.
+          </li>
+          <li>
+            <strong>Saved Bookmarks & Personal Calendar:</strong>
+            Users can bookmark events with optional personal notes and track all
+            of their registered or hosted activities on a multi-year monthly
+            calendar.
+          </li>
+        </ul>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4">
+        <h2 class="h5 fw-bold mb-3">Development Team (CBAPDEV Section X21 —
+          Group 4)</h2>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle small mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Member Name</th>
+                <th>Assigned Module & MVC Files</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-semibold">Arron Baranquil</td>
+                <td>
+                  Authentication, User Profile CRUD & Affiliation Management (<code
+                  >model/User.js</code>,
+                  <code>controllers/authUserController.js</code>,
+                  <code>routes/authUserRoutes.js</code>,
+                  <code>middleware/auth.js</code>,
+                  <code>middleware/validators.js</code>,
+                  <code>login.hbs</code>,
+                  <code>logout.hbs</code>,
+                  <code>register.hbs</code>,
+                  <code>profile.hbs</code>,
+                  <code>profile-edit.hbs</code>)
+                </td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Laurence Benjamin Diaz</td>
+                <td>
+                  Personalized Home Feed, Event Posts CRUD, Lifecycle &
+                  Discussion Threads (<code>model/Event.js</code>,
+                  <code>controllers/eventController.js</code>,
+                  <code>routes/eventRoutes.js</code>,
+                  <code>index.hbs</code>,
+                  <code>event-details.hbs</code>,
+                  <code>event-create.hbs</code>,
+                  <code>event-edit.hbs</code>)
+                </td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Alaine Carlo Magdaluyo</td>
+                <td>
+                  Events Search & Filter Directory, RSVP Capacity Logic,
+                  Multi-Year Calendar & Organizers (<code
+                  >controllers/discoveryController.js</code>,
+                  <code>routes/discoveryRoutes.js</code>,
+                  <code>events.hbs</code>,
+                  <code>calendar.hbs</code>,
+                  <code>organizer.hbs</code>)
+                </td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">John Michael Sumilang</td>
+                <td>
+                  Saved Event Bookmarks CRUD, Institutional Seed Dataset, Shared
+                  Handlebars Layout & Styling (<code>app.js</code>,
+                  <code>model/Bookmark.js</code>,
+                  <code>model/seed.js</code>,
+                  <code>controllers/bookmarkController.js</code>,
+                  <code>routes/bookmarkRoutes.js</code>,
+                  <code>bookmarks.hbs</code>,
+                  <code>about.hbs</code>)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3">NPM Packages & Third-Party Libraries</h2>
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item px-0"><strong>express</strong>
+            — Node.js web application server and modular routing framework.</li>
+          <li class="list-group-item px-0"><strong>hbs</strong>
+            — Express view engine for Handlebars templates, layouts, partials,
+            and helpers.</li>
+          <li class="list-group-item px-0"><strong>mongoose</strong>
+            — MongoDB Object Data Modeling (ODM) library for schemas,
+            validation, and queries.</li>
+          <li class="list-group-item px-0"><strong>bcrypt</strong>
+            — Cryptographic password salting and hashing via Mongoose pre-save
+            hooks.</li>
+          <li class="list-group-item px-0"><strong>express-session</strong>
+            — Server-side session management for authenticated user state.</li>
+          <li class="list-group-item px-0"><strong>express-validator</strong>
+            — Server-side request validation and sanitization middleware.</li>
+          <li class="list-group-item px-0"><strong>dotenv</strong>
+            — Environment variable loader for database URI and session
+            configuration.</li>
+          <li class="list-group-item px-0"><strong>Bootstrap 5.3.3</strong>
+            — Responsive front-end layout grid, navigation bar, cards, and
+            modals. The bundle includes Popper for dropdown placement.</li>
+        </ul>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4">
+        <h2 class="h6 fw-bold mb-2">References & Generative AI Use Disclosure</h2>
+        <p class="small text-muted mb-2">
+          In compliance with the CBAPDEV course policy on Artificial
+          Intelligence tools and the DLSU Policies on Generative AI in Higher
+          Education, Group 4 declares the use of
+          <strong>Google Gemini</strong>
+          during project preparation for brainstorming institutional demographic
+          targeting rules and edge cases, auditing requirement coverage against
+          the approved Phase 0 project proposal and course rubrics, and
+          debugging client-side and server-side filtering and date-handling edge
+          cases.
+        </p>
+        <p class="small text-muted mb-0">
+          All code, user interfaces, database schemas, controllers, sample
+          datasets, and application logic were reviewed, tested, and validated
+          by the group members under the guidelines of Asst. Prof. Arren Matthew
+          C. Antioquia to ensure full understanding and ownership.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>

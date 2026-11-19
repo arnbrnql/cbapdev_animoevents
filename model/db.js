@@ -11,13 +11,30 @@ function getMongoUri() {
   return process.env.MONGODB_URI || DEFAULT_URI;
 }
 
-async function connectDB() {
+function isLocalDemoDatabase() {
+  try {
+    const uri = new URL(getMongoUri());
+    return (
+      uri.protocol === "mongodb:" &&
+      ["127.0.0.1", "[::1]", "localhost"].includes(uri.hostname) &&
+      /^\/animoevents_demo(?:_[a-z0-9_]+)?$/.test(uri.pathname) &&
+      !uri.username &&
+      !uri.password &&
+      !uri.search &&
+      !uri.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function connectDB(options) {
   const uri = getMongoUri();
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
-  await mongoose.connect(uri);
-  console.log("Connected to MongoDB:", uri);
+  await mongoose.connect(uri, options);
+  console.log("Connected to MongoDB.");
   return mongoose.connection;
 }
 
@@ -30,6 +47,7 @@ async function disconnectDB() {
 
 module.exports = {
   getMongoUri,
+  isLocalDemoDatabase,
   connectDB,
   disconnectDB,
 };

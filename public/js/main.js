@@ -118,6 +118,20 @@
     const targeting = root.querySelector("[data-audience-targeting]");
     if (!targeting) return;
 
+    const form = root.closest("form");
+    const startTime = form.querySelector('[name="time"]');
+    const endTime = form.querySelector('[name="endTime"]');
+    const targetedRadio = root.querySelector('[name="isPublic"][value="false"]');
+    const audienceInputs = targeting.querySelectorAll('input[type="checkbox"]');
+
+    function validateTimes() {
+      const endTooEarly = startTime.value && endTime.value && endTime.value <= startTime.value;
+      endTime.setCustomValidity(endTooEarly ? "End time must be later than start time." : "");
+    }
+
+    startTime.addEventListener("input", validateTimes);
+    endTime.addEventListener("input", validateTimes);
+
     const collegeInputs = root.querySelectorAll('input[name="targetColleges"]');
     const departmentInputs = root.querySelectorAll(
       'input[name="targetDepartments"]',
@@ -132,6 +146,7 @@
         input.disabled = isPublic;
       });
 
+      targetedRadio.setCustomValidity("");
       if (isPublic) return;
 
       if (
@@ -160,12 +175,18 @@
           if (parentCode === uncheckedCol) deptInput.checked = false;
         });
       }
+
+      const hasTarget = Array.from(audienceInputs).some(function (input) {
+        return input.checked;
+      });
+      targetedRadio.setCustomValidity(hasTarget ? "" : "Select at least one audience group.");
     }
 
     root.querySelectorAll("input").forEach(function (input) {
       input.addEventListener("change", sync);
     });
     sync();
+    validateTimes();
   }
 
   function bindAffiliationSelects(formEl) {

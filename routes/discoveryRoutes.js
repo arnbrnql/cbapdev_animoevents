@@ -7,7 +7,12 @@ router.get("/events", discoveryController.getEventsDirectory);
 router.post(
   "/events/:id/join",
   requireAuth,
-  discoveryController.postToggleRsvp,
+  discoveryController.postJoinRsvp,
+);
+router.post(
+  "/events/:id/leave",
+  requireAuth,
+  discoveryController.postLeaveRsvp,
 );
 router.get("/calendar", discoveryController.getCalendar);
 router.get("/organizers", discoveryController.getOrganizersDirectory);

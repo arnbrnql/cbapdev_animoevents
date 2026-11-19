@@ -1,0 +1,198 @@
+<main class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 fw-bold mb-1">Campus Events Directory</h1>
+      <p class="text-muted small mb-0">
+        Find events by topic, date, campus, audience, or host organization.
+      </p>
+    </div>
+    {{#if (eq currentUser.role "Organizer")}}
+      <a href="/events/new" class="btn btn-dlsu btn-sm">+ Publish New Event</a>
+    {{/if}}
+  </div>
+
+  <section class="card border-0 shadow-sm p-3 mb-4">
+    <form method="GET" action="/events">
+      <div class="row g-2 align-items-end">
+        <div class="col-lg-4 col-md-6">
+          <label for="filter-q" class="form-label small fw-semibold mb-1">Keyword, Venue, or Host Organization</label>
+          <input
+            type="search"
+            id="filter-q"
+            name="q"
+            class="form-control form-control-sm"
+            maxlength="100"
+            value="{{filters.q}}"
+            placeholder="e.g., Bootcamp, GK304B, LSCS, CIVI..."
+          />
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <label for="filter-category" class="form-label small fw-semibold mb-1">Category</label>
+          <select id="filter-category" name="category" class="form-select form-select-sm">
+            <option value="">All Categories</option>
+            <option value="Seminar" {{#if (eq filters.category "Seminar")}}selected{{/if}}>Seminar</option>
+            <option value="Workshop" {{#if (eq filters.category "Workshop")}}selected{{/if}}>Workshop</option>
+            <option value="Bazaar" {{#if (eq filters.category "Bazaar")}}selected{{/if}}>Bazaar</option>
+            <option value="Competition" {{#if (eq filters.category "Competition")}}selected{{/if}}>Competition</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <label for="filter-status" class="form-label small fw-semibold mb-1">Event Status</label>
+          <select id="filter-status" name="status" class="form-select form-select-sm">
+            <option value="active" {{#if (eq filters.status "active")}}selected{{/if}}>All Upcoming (Active)</option>
+            <option value="Open" {{#if (eq filters.status "Open")}}selected{{/if}}>Open for Registration</option>
+            <option value="Full" {{#if (eq filters.status "Full")}}selected{{/if}}>Full Capacity</option>
+            <option value="Closed" {{#if (eq filters.status "Closed")}}selected{{/if}}>Registration Closed</option>
+            <option value="Postponed" {{#if (eq filters.status "Postponed")}}selected{{/if}}>Postponed</option>
+            <option value="Completed" {{#if (eq filters.status "Completed")}}selected{{/if}}>Completed (Archive)</option>
+            <option value="Cancelled" {{#if (eq filters.status "Cancelled")}}selected{{/if}}>Cancelled (Archive)</option>
+            <option value="all" {{#if (eq filters.status "all")}}selected{{/if}}>All Statuses (Incl. Archive)</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <label for="filter-college" class="form-label small fw-semibold mb-1">Target College / Division</label>
+          <select id="filter-college" name="college" class="form-select form-select-sm">
+            <option value="">Any College / Division</option>
+            <option value="CCS" {{#if (eq filters.college "CCS")}}selected{{/if}}>CCS</option>
+            <option value="RVR-COB" {{#if (eq filters.college "RVR-COB")}}selected{{/if}}>RVR-COB</option>
+            <option value="GCOE" {{#if (eq filters.college "GCOE")}}selected{{/if}}>GCOE</option>
+            <option value="CLA" {{#if (eq filters.college "CLA")}}selected{{/if}}>CLA</option>
+            <option value="COS" {{#if (eq filters.college "COS")}}selected{{/if}}>COS</option>
+            <option value="BAGCED" {{#if (eq filters.college "BAGCED")}}selected{{/if}}>BAGCED</option>
+            <option value="CLT-SOE" {{#if (eq filters.college "CLT-SOE")}}selected{{/if}}>CLT-SOE</option>
+            <option value="SHS" {{#if (eq filters.college "SHS")}}selected{{/if}}>Senior High School (SHS)</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <label for="filter-campus" class="form-label small fw-semibold mb-1">Target Campus</label>
+          <select id="filter-campus" name="campus" class="form-select form-select-sm">
+            <option value="">Any audience</option>
+            <option value="Manila" {{#if (eq filters.campus "Manila")}}selected{{/if}}>Manila Campus</option>
+            <option value="Laguna" {{#if (eq filters.campus "Laguna")}}selected{{/if}}>Laguna Campus</option>
+          </select>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6">
+          <label for="filter-level" class="form-label small fw-semibold mb-1">Student Academic Level</label>
+          <select id="filter-level" name="academicLevel" class="form-select form-select-sm">
+            <option value="">Any Academic Level</option>
+            <option value="Senior High School" {{#if (eq filters.academicLevel "Senior High School")}}selected{{/if}}>Senior High School</option>
+            <option value="Undergraduate" {{#if (eq filters.academicLevel "Undergraduate")}}selected{{/if}}>Undergraduate</option>
+            <option value="Graduate" {{#if (eq filters.academicLevel "Graduate")}}selected{{/if}}>Graduate</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-4 col-6">
+          <label for="filter-visibility" class="form-label small fw-semibold mb-1">Audience Scope</label>
+          <select id="filter-visibility" name="visibility" class="form-select form-select-sm">
+            <option value="">All Eligible (Public + Targeted)</option>
+            <option value="public" {{#if (eq filters.visibility "public")}}selected{{/if}}>University-Wide Public Only</option>
+            <option value="targeted" {{#if (eq filters.visibility "targeted")}}selected{{/if}}>Targeted / Restricted Only</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <label for="filter-date" class="form-label small fw-semibold mb-1">Exact Date</label>
+          <input type="date" id="filter-date" name="date" class="form-control form-control-sm" value="{{filters.date}}" />
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <label for="filter-sort" class="form-label small fw-semibold mb-1">Sort Order</label>
+          <select id="filter-sort" name="sort" class="form-select form-select-sm">
+            <option value="recent" {{#if (eq filters.sort "recent")}}selected{{/if}}>Most Recent (Default)</option>
+            <option value="upcoming" {{#if (eq filters.sort "upcoming")}}selected{{/if}}>Chronological (By Date)</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-6 d-flex gap-2">
+          <button type="submit" class="btn btn-sm btn-dlsu flex-grow-1">Apply</button>
+          <a href="/events" class="btn btn-sm btn-outline-secondary">Reset</a>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="small fw-semibold text-muted">Showing {{resultCount}} matching eligible events</span>
+  </div>
+
+  <div class="row g-3">
+    {{#each events}}
+      <div class="col-md-6">
+        <article class="card card-event h-100 shadow-sm p-3 d-flex flex-column justify-content-between {{#if isArchived}}event-archived{{/if}}">
+          <div>
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-2">
+              <div>
+                <span class="badge {{statusBadgeClass}} me-1">{{status}}</span>
+                <span class="badge bg-secondary bg-opacity-10 text-dark me-1">{{category}}</span>
+                <span class="{{#if isPublic}}badge-tag{{else}}badge-tag-restricted{{/if}}">{{audienceLabel}}</span>
+              </div>
+              <span class="small fw-semibold text-success">{{attendeeCount}} / {{maxCapacity}} Joined</span>
+            </div>
+
+            {{#if isGrandfathered}}
+              <div class="badge badge-grandfathered w-100 text-start text-wrap p-2 mb-2">
+                Registered prior to profile update (Slot preserved)
+              </div>
+            {{/if}}
+
+            <h2 class="h5 fw-bold mb-1">
+              <a href="/events/{{_id}}" class="text-decoration-none text-dark">{{title}}</a>
+            </h2>
+            <p class="text-muted small mb-2">
+              Hosted by <a href="/organizers/{{organizer}}" class="text-success fw-semibold text-decoration-none">{{organizerName}}</a><br />
+              {{date}} • {{time}}{{#if endTime}}–{{endTime}}{{/if}} • {{venue}}
+            </p>
+            <p class="small mb-3">{{description}}</p>
+          </div>
+
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+            <a href="/events/{{_id}}" class="btn btn-sm btn-outline-secondary">
+              Details & Thread ({{updateCount}})
+            </a>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              {{#if ../currentUser}}
+                {{#if isOwner}}
+                  <a href="/events/{{_id}}/edit" class="btn btn-sm btn-dlsu">Manage Event</a>
+                {{else if isOrganizerViewer}}
+                  <span class="badge bg-light text-muted border">Organizer View</span>
+                {{else if isArchived}}
+                  <button type="button" class="btn btn-sm btn-secondary" disabled>
+                    {{#if isJoined}}Registered{{else}}{{status}}{{/if}}
+                  </button>
+                {{else if isJoined}}
+                  <form method="POST" action="/events/{{_id}}/leave" class="d-inline">
+                    <input type="hidden" name="returnTo" value="{{../returnTo}}" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Leave Event</button>
+                  </form>
+                {{else if isOpen}}
+                  <form method="POST" action="/events/{{_id}}/join" class="d-inline">
+                    <input type="hidden" name="returnTo" value="{{../returnTo}}" />
+                    <button type="submit" class="btn btn-sm btn-dlsu">Join Event</button>
+                  </form>
+                {{else}}
+                  <button type="button" class="btn btn-sm btn-secondary" disabled>{{status}}</button>
+                {{/if}}
+
+                <form method="POST" action="/bookmarks{{#if isBookmarked}}/remove-event{{/if}}" class="d-inline">
+                  <input type="hidden" name="eventId" value="{{_id}}" />
+                  <input type="hidden" name="returnTo" value="{{../returnTo}}" />
+                  <button type="submit" class="btn btn-sm btn-outline-dlsu {{#if isBookmarked}}active{{/if}}">
+                    {{#if isBookmarked}}Remove Bookmark{{else}}Bookmark{{/if}}
+                  </button>
+                </form>
+              {{else}}
+                <a href="/login" class="btn btn-sm btn-outline-dlsu">Sign in to {{#if isOpen}}join or {{/if}}bookmark</a>
+              {{/if}}
+            </div>
+          </div>
+        </article>
+      </div>
+    {{else}}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4 text-center text-muted">
+          <p class="fw-semibold mb-1">No matching events found.</p>
+          <p class="small mb-0">
+            Try clearing one or more filter dropdowns or switching the Event Status filter to "All Statuses (Incl. Archive)".
+          </p>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</main>

@@ -3,12 +3,14 @@
  */
 const mongoose = require("mongoose");
 const Event = require("../model/Event");
+const User = require("../model/User");
+const getReturnPath = require("./returnPath");
 const Bookmark = require("../model/Bookmark");
 const { extractValidationErrors } = require("../middleware/validators");
 const {
   syncEventLifecycles,
   buildVisibilityQuery,
-  isUserEligibleForEvent,
+  isGrandfatheredAttendee,
   canUserViewEvent,
   getStatusBadgeClass,
 } = require("./eventController");
@@ -33,38 +35,28 @@ async function getBookmarksPage(req, res, next) {
       .lean();
 
     const bookmarkedEventIds = new Set();
-    const decoratedBookmarks = [];
+    const decoratedBookmarks = userBookmarks.map(function (bookmark) {
+      const event = bookmark.event;
+      if (event) bookmarkedEventIds.add(String(event._id));
+      const visible = Boolean(event) && canUserViewEvent(user, event);
 
-    userBookmarks.forEach(function (bm) {
-      if (!bm.event) return;
-      bookmarkedEventIds.add(String(bm.event._id));
-      const eligibleNow = isUserEligibleForEvent(user, bm.event);
-      decoratedBookmarks.push({
-        _id: bm._id,
-        personalNote: bm.personalNote || "",
-        createdAt: bm.createdAt,
-        eligibilityChanged: !eligibleNow,
-        event: Object.assign({}, bm.event, {
-          statusBadgeClass: getStatusBadgeClass(bm.event.status),
-        }),
-      });
+      return {
+        _id: bookmark._id,
+        personalNote: bookmark.personalNote,
+        createdAt: bookmark.createdAt,
+        eligibilityChanged: visible && isGrandfatheredAttendee(user, event),
+        event: visible
+          ? { ...event, statusBadgeClass: getStatusBadgeClass(event.status) }
+          : null,
+      };
     });
 
     const visibleEvents = await Event.find(buildVisibilityQuery(user))
       .sort({ date: 1, time: 1 })
       .lean();
-    const eligibleEvents = visibleEvents
-      .filter(function (ev) {
-        return canUserViewEvent(user, ev);
-      })
-      .map(function (ev) {
-        return Object.assign({}, ev, {
-          alreadyBookmarked: bookmarkedEventIds.has(String(ev._id)),
-        });
-      })
-      .sort(function (a, b) {
-        return Number(a.alreadyBookmarked) - Number(b.alreadyBookmarked);
-      });
+    const eligibleEvents = visibleEvents.filter(function (event) {
+      return canUserViewEvent(user, event) && !bookmarkedEventIds.has(String(event._id));
+    });
 
     res.render("bookmarks", {
       title: "Saved Event Bookmarks — AnimoEvents",
@@ -82,7 +74,6 @@ async function postBookmark(req, res, next) {
   try {
     const user = req.currentUser;
     const eventId = req.body.eventId;
-    const isToggle = String(req.body.toggle) === "true";
     const valErrors = extractValidationErrors(req);
     if (valErrors.length > 0) {
       return res.status(400).render("error", {
@@ -104,22 +95,24 @@ async function postBookmark(req, res, next) {
       return res.redirect("/bookmarks");
     }
 
-    const existing = await Bookmark.findOne({ user: user._id, event: ev._id });
-    if (existing && isToggle) {
-      await Bookmark.findByIdAndDelete(existing._id);
-    } else if (existing) {
-      existing.personalNote = personalNote;
-      await existing.save();
-    } else {
-      await Bookmark.create({
-        user: user._id,
-        event: ev._id,
-        personalNote,
+    const identity = { user: user._id, event: ev._id };
+    try {
+      await Bookmark.updateOne(identity, { $setOnInsert: { personalNote } }, {
+        upsert: true,
+        runValidators: true,
       });
+    } catch (err) {
+      // Two saves for the same pair can race on the unique index.
+      if (err.code !== 11000) throw err;
     }
 
-    const backUrl = req.body.returnTo || req.get("Referrer") || "/bookmarks";
-    return res.redirect(backUrl);
+    const [eventExists, userExists] = await Promise.all([
+      Event.exists({ _id: ev._id }),
+      User.exists({ _id: user._id }),
+    ]);
+    if (!eventExists || !userExists) await Bookmark.deleteOne(identity);
+
+    return res.redirect(getReturnPath(req.body.returnTo, "/bookmarks"));
   } catch (err) {
     return next(err);
   }
@@ -140,13 +133,11 @@ async function postEditBookmark(req, res, next) {
       });
     }
 
-    const bm = await Bookmark.findById(req.params.id);
-    if (bm && String(bm.user) === String(user._id)) {
-      bm.personalNote = String(req.body.personalNote || "")
-        .trim()
-        .slice(0, 250);
-      await bm.save();
-    }
+    await Bookmark.updateOne(
+      { _id: req.params.id, user: user._id },
+      { $set: { personalNote: String(req.body.personalNote || "").trim() } },
+      { runValidators: true },
+    );
     return res.redirect("/bookmarks");
   } catch (err) {
     return next(err);
@@ -160,11 +151,20 @@ async function postDeleteBookmark(req, res, next) {
       return res.redirect("/bookmarks");
     }
 
-    const bm = await Bookmark.findById(req.params.id);
-    if (bm && String(bm.user) === String(user._id)) {
-      await Bookmark.findByIdAndDelete(bm._id);
-    }
+    await Bookmark.deleteOne({ _id: req.params.id, user: user._id });
     return res.redirect("/bookmarks");
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function postRemoveEventBookmark(req, res, next) {
+  try {
+    const eventId = req.body.eventId;
+    if (typeof eventId === "string" && mongoose.Types.ObjectId.isValid(eventId)) {
+      await Bookmark.deleteOne({ user: req.currentUser._id, event: eventId });
+    }
+    return res.redirect(getReturnPath(req.body.returnTo, "/bookmarks"));
   } catch (err) {
     return next(err);
   }
@@ -182,5 +182,6 @@ module.exports = {
   postBookmark,
   postEditBookmark,
   postDeleteBookmark,
+  postRemoveEventBookmark,
   getAboutPage,
 };
